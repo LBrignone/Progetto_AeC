@@ -1,0 +1,8 @@
+# ninja log v5
+1	1109	1660721507559900708	CMakeFiles/Progetto.dir/Person.cpp.o	969cbe0d40ba71bc
+0	1247	1660721507700907433	CMakeFiles/Progetto.dir/main.cpp.o	de6026aeec279c20
+2	1250	1660721507704394935	CMakeFiles/Progetto.dir/Student.cpp.o	377362a0ff9d76b0
+2	1251	1660721507704271350	CMakeFiles/Progetto.dir/Classroom.cpp.o	2bc65610f4612806
+1	1290	1660721507744277269	CMakeFiles/Progetto.dir/Professor.cpp.o	adab5acd01120009
+2	1219	1660721507672266700	CMakeFiles/Progetto.dir/Date.cpp.o	252ed729e635870a
+1290	1439	1660721507895906181	Progetto	4e4785c7056e574a

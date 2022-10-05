@@ -1,0 +1,48 @@
+//
+// Created by Luca Brignone on 16/08/22.
+//
+
+#ifndef PROGETTO_PROFESSOR_H
+#define PROGETTO_PROFESSOR_H
+
+#include <map>
+#include <list>
+#include <sstream>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
+
+#include "Date.h"
+#include "Person.h"
+
+using namespace std;
+
+typedef struct AvailForExam {
+    Date start;
+    Date stop;
+};
+
+class Professor : public Person {
+public:
+    bool getChangeInUnavail();
+    void setChangeInUnavail(const bool& newState);
+    void resetChangeInUnavail();
+    bool isAvailExamProgramming (const Date& data, const Date& academicYear);
+    list<AvailForExam> getUnavailListByAcademicYear (const Date& academicYear);
+    void appendUnavailability(const Date &startUnavail, const Date &stopUnavail, const Date& academicYear);
+    bool appendUnavailability(const AvailForExam& unavailDates, const Date& academicYear);     // all the controls on date's coherency MUST be performed before colling this function (NO control is performed inside)
+    void appendUnavailabilityForExam(const Date &startUnavail, const Date &stopUnavail);
+    void clearMapAcademicYearUnavailability(const Date& academicYear);
+    bool setId(const string& id);
+    const Professor operator ++ (int);
+    bool operator < (const Professor& toCompare);
+    ostream& operator << (ostream& os);
+
+private:
+    bool changeInUnavail = false;
+    map<Date, list<AvailForExam>> _unavailability;
+    list<AvailForExam> _unavailabilityForExam;
+};
+
+
+#endif //PROGETTO_PROFESSOR_H
