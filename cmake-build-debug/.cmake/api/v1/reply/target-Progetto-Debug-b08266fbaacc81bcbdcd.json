@@ -131,7 +131,8 @@
 				19,
 				21,
 				23,
-				25
+				25,
+				26
 			]
 		}
 	],
@@ -281,6 +282,11 @@
 		{
 			"backtrace" : 1,
 			"path" : "OutputOnDatabaseHandling.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "ErrorEnumerator.h",
 			"sourceGroupIndex" : 1
 		}
 	],

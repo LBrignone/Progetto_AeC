@@ -463,15 +463,35 @@ ostream& Course::courseOrganization(ostream& os) {
     return os;
 }
 
-ostream& Course::courseOrganizationAcademicYear(ostream& os) {
+ostream& Course::courseOrganizationAcademicYearOpening(ostream& os) {
     os << "a;" << _startYear.getYear() << (_startYear.getYear() + 1);
     if (_activeCourse) {
         os << "attivo;";
     } else {
         os << "non_attivo;";
     }
-    os << _parallelCoursesNumber << ";";
+    os << _parallelCoursesNumber << ";[";
     return os;
+}
+
+ostream& Course::courseOrganizationAcademicYearClosing(ostream& os) {
+    os << "];{" << _examDuration << "," << _entryTime << "," << _exitTime << "," << _examType << "," << _examClassroomType <<
+            "," << _partecipants << "};{";
+    if (!_coursesGroupedId.empty()) {
+        list<string>::const_iterator itListGroupedCourses;
+
+        itListGroupedCourses = _coursesGroupedId.cbegin();
+        while (itListGroupedCourses != _coursesGroupedId.cend()) {
+            itListGroupedCourses++;
+            if (itListGroupedCourses != _coursesGroupedId.cend()) {
+                os << itListGroupedCourses->c_str() << ",";
+            } else {
+                os << itListGroupedCourses->c_str() << "}";
+            }
+        }
+    } else {
+        os << "}";
+    }
 }
 
 Course& Course::operator=(const Course &toCopy) {

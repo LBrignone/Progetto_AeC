@@ -68,7 +68,8 @@ public:
     void resetExamIsScheduled(int i);
     Course& inheritCourse(const list<Course>::iterator& toInherit);
     ostream& courseOrganization(ostream& os);
-    ostream& courseOrganizationAcademicYear(ostream& os);
+    ostream& courseOrganizationAcademicYearOpening(ostream& os);
+    ostream& courseOrganizationAcademicYearClosing(ostream& os);
     Course& operator = (const Course& toCopy);
     Course& operator = (const list<Course>::iterator& toCopy);
     ostream& operator << (ostream& os);
