@@ -156,7 +156,7 @@ ostream& CourseOfStudy::operator << (ostream& os) {
             if (itListOfCourses != _semesterOfCourse[-1].cend()) {
                 os << itListOfCourses->c_str() << ",";
             } else {
-                os << itListOfCourses->c_str();
+                os << itListOfCourses->c_str() << "]";
             }
         }
     };

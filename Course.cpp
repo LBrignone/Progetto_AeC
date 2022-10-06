@@ -474,6 +474,19 @@ ostream& Course::courseOrganizationAcademicYearOpening(ostream& os) {
     return os;
 }
 
+ostream& Course::courseOrganizationVersionOpening(ostream& os) {
+    list<AssociateProfessor>::const_iterator itListAssociateProfessor;
+
+    os << "{";
+    itListAssociateProfessor = _assistant.cbegin();
+    if (itListAssociateProfessor->getIsMain()) {
+        os << itListAssociateProfessor->getProfessorPointer()->getId();
+    } else {
+
+    }
+    return os;
+}
+
 ostream& Course::courseOrganizationAcademicYearClosing(ostream& os) {
     os << "];{" << _examDuration << "," << _entryTime << "," << _exitTime << "," << _examType << "," << _examClassroomType <<
             "," << _partecipants << "};{";
@@ -537,5 +550,5 @@ Course& Course::operator = (const list<Course>::iterator& toCopy) {
 }
 
 ostream& Course::operator << (ostream& os) {
-    os << "c;" << _id << ";" << _title << ";" << _cfu << ";" << _courseLessonH << ";" << _courseExerciseH << ";" << _courseLabH;
+    os << "";
 }

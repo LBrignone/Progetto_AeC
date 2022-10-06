@@ -15,12 +15,17 @@
 #include "Professor.h"
 #include "Classroom.h"
 #include "CourseOfStudy.h"
-#include "ErrorEnumerator.h"
+#include "ErrorHandling.h"
 
 using namespace std;
 
+int updateStudentDatabaseFile(string& errorHandling, const string& databaseStudentFileName, const list<Student>& updatedStudentList);
 
+int updateProfessorDatabaseFile(string& errorHandling, const string& databaseProfessorFileName, const list<Professor>& updatedProfessorList);
 
-int updateStudentDatabase(string& errorHandling, string& databaseFileName, const list<Student>& updatedStudentList);
+int updateClassroomDatabaseFile(string& errorHandling, const string& databaseClassroomFileName, const list<Classroom>& updatedClassroomList);
 
+int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databaseCourseOfStudyFileName, const list<CourseOfStudy>& updatedCourseOfStudyList);
+
+int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourseFileName, const list<Course>& updatedCourseList);
 #endif //PROGETTO_OUTPUTONDATABASEHANDLING_H
