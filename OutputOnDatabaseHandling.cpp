@@ -130,8 +130,8 @@ int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databas
 
 int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourseFileName, const list<Course>& updatedCourseList) {
     t_typeErrorDefinitionReadingFile errorIdentifier = OK;
-    bool newCourse = false, newAA = false;
     ofstream fileName;
+    bool firstVersion = true, closed = false;
     int tmpCourseAA;
     string tmpCourseId;
 
@@ -146,17 +146,37 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
             itListCourse = updatedCourseList.cbegin();
             tmpCourseId = itListCourse->getId();
             tmpCourseAA = itListCourse->getStartYear();
+            itListCourse->printCourseOrganization(fileName);
+            itListCourse->printCourseOrganizationAcademicYearOpening(fileName);
             while (itListCourse != updatedCourseList.cend()) {
                 if (tmpCourseId != itListCourse->getId()) {
                     tmpCourseId = itListCourse->getId();
-                    newCourse = true;
+                    itListCourse--;
+                    itListCourse->printCourseOrganizationAcademicYearClosing(fileName);
+                    closed = true;
+                    itListCourse++;
+                    if (itListCourse != updatedCourseList.cend()) {
+                        itListCourse->printCourseOrganization(fileName);
+                        closed = false;
+                    }
                 }
                 if (tmpCourseAA != itListCourse->getStartYear()) {
                     tmpCourseAA = itListCourse->getStartYear();
-
-                    newAA = true;
+                    itListCourse->printCourseOrganizationAcademicYearOpening(fileName);
                 }
+                itListCourse->printCourseOrganizationVersionOpening(fileName, firstVersion);
+                firstVersion = false;
+                fileName << itListCourse.operator->();
                 itListCourse++;
+                if (itListCourse != updatedCourseList.cend()) {
+                    fileName << endl;
+                }
+            }
+            // this error should never happen otherwise all the changes, even if correct, will be discarded resulting in a complete loss of changes
+            // moreover the database file will be irremediably modified resulting in corruption of database
+            if (!closed) {
+                errorIdentifier = ERR_update_database;
+                errorHandling = "Error: the update of file's database, named db_corsi.txt, resulted in an incorrect collection of stored data";
             }
         }
     } else {

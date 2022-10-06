@@ -458,13 +458,13 @@ Course& Course::inheritCourse(const list<Course>::iterator& toInherit) {
     _coursesGroupedId = toInherit->_coursesGroupedId;
 }
 
-ostream& Course::courseOrganization(ostream& os) {
-    os << "c;" << _id << ";" << _title << ";" << _cfu << ";" << _courseLessonH << ";" << _courseExerciseH << ";" << _courseLabH;
+ostream& Course::printCourseOrganization(ostream& os) const {
+    os << "c;" << _id << ";" << _title << ";" << _cfu << ";" << _courseLessonH << ";" << _courseExerciseH << ";" << _courseLabH << endl;
     return os;
 }
 
-ostream& Course::courseOrganizationAcademicYearOpening(ostream& os) {
-    os << "a;" << _startYear.getYear() << (_startYear.getYear() + 1);
+ostream& Course::printCourseOrganizationAcademicYearOpening(ostream& os) const {
+    os << "a;" << _startYear.getYear() << "-" << (_startYear.getYear() + 1) << (_startYear.getYear() + 1);
     if (_activeCourse) {
         os << "attivo;";
     } else {
@@ -474,20 +474,34 @@ ostream& Course::courseOrganizationAcademicYearOpening(ostream& os) {
     return os;
 }
 
-ostream& Course::courseOrganizationVersionOpening(ostream& os) {
+// this method uses the flag first to know if the version which is going to be printed is the first
+// it is necessary to do so because there's a variation in the string to be built
+ostream& Course::printCourseOrganizationVersionOpening(ostream& os, const bool& first) const {
     list<AssociateProfessor>::const_iterator itListAssociateProfessor;
 
-    os << "{";
-    itListAssociateProfessor = _assistant.cbegin();
-    if (itListAssociateProfessor->getIsMain()) {
-        os << itListAssociateProfessor->getProfessorPointer()->getId();
+    if (first) {
+        os << "{";
+        itListAssociateProfessor = _assistant.cbegin();
+        if (itListAssociateProfessor->getIsMain()) {
+            os << itListAssociateProfessor->getProfessorPointer()->getId() << ",";
+        } else {
+            throw isNotMain();
+        }
+        os << _parallelCoursesId << ",[";
     } else {
-
+        os << ",{";
+        itListAssociateProfessor = _assistant.cbegin();
+        if (itListAssociateProfessor->getIsMain()) {
+            os << itListAssociateProfessor->getProfessorPointer()->getId() << ",";
+        } else {
+            throw isNotMain();
+        }
+        os << _parallelCoursesId << ",[";
     }
     return os;
 }
 
-ostream& Course::courseOrganizationAcademicYearClosing(ostream& os) {
+ostream& Course::printCourseOrganizationAcademicYearClosing(ostream& os) const {
     os << "];{" << _examDuration << "," << _entryTime << "," << _exitTime << "," << _examType << "," << _examClassroomType <<
             "," << _partecipants << "};{";
     if (!_coursesGroupedId.empty()) {
@@ -550,5 +564,16 @@ Course& Course::operator = (const list<Course>::iterator& toCopy) {
 }
 
 ostream& Course::operator << (ostream& os) {
-    os << "";
+    list<AssociateProfessor>::const_iterator itListAssociateProfessor;
+
+    itListAssociateProfessor = _assistant.cbegin();
+    while (itListAssociateProfessor != _assistant.cend()) {
+        itListAssociateProfessor++;
+        if (itListAssociateProfessor == _assistant.cend()) {
+            os << "{" << itListAssociateProfessor->getProfessorPointer()->getId() << itListAssociateProfessor->getLessonH() <<
+                    itListAssociateProfessor->getExerciseH() << itListAssociateProfessor->getLabH() << "},";
+        } else {
+            os << "{" << itListAssociateProfessor->getProfessorPointer()->getId() << itListAssociateProfessor->getLessonH() <<
+               itListAssociateProfessor->getExerciseH() << itListAssociateProfessor->getLabH() << "}]}";        }
+    }
 }

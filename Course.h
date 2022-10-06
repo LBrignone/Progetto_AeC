@@ -13,6 +13,7 @@
 #include <algorithm>
 
 #include "Date.h"
+#include "ErrorHandling.h"
 #include "AssociateProfessor.h"
 
 using namespace std;
@@ -67,10 +68,10 @@ public:
     void setExamIsScheduled(int i);
     void resetExamIsScheduled(int i);
     Course& inheritCourse(const list<Course>::iterator& toInherit);
-    ostream& courseOrganization(ostream& os);
-    ostream& courseOrganizationAcademicYearOpening(ostream& os);
-    ostream& courseOrganizationVersionOpening(ostream& os);
-    ostream& courseOrganizationAcademicYearClosing(ostream& os);
+    ostream& printCourseOrganization(ostream& os) const;
+    ostream& printCourseOrganizationAcademicYearOpening(ostream& os) const;
+    ostream& printCourseOrganizationVersionOpening(ostream& os, const bool& first) const; // see implementation to further comment
+    ostream& printCourseOrganizationAcademicYearClosing(ostream& os) const;
     Course& operator = (const Course& toCopy);
     Course& operator = (const list<Course>::iterator& toCopy);
     ostream& operator << (ostream& os);
