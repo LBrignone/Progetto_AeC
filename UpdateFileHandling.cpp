@@ -4,7 +4,6 @@
 
 #include "UpdateFileHandling.h"
 
-
 // STUDENT
 // this function takes and manage a file that has for lines an updated version of existing students
 int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, list<Student>& studentList) {
@@ -114,6 +113,9 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
     } else {
         errorHandling = "no db_studenti.txt file on which performe an update";
         noDb = true;
+    }
+    if (fileName.is_open()) {
+        fileName.close();
     }
     if (!errorInFormat && !noDb){
         return true;
@@ -231,6 +233,9 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
     } else {
         errorHandling = "no db_professori.txt file on which performe an update";
         noDb = true;
+    }
+    if (fileName.is_open()) {
+        fileName.close();
     }
     if (!errorInFormat && !noDb) {
         return true;
@@ -366,6 +371,9 @@ int ClassroomToUpdateFile (string& errorHandling, const string& classroomFileNam
     } else {
         errorHandling = "no db_aule.txt file on which performe an update";
         noDb = true;
+    }
+    if (fileName.is_open()) {
+        fileName.close();
     }
     if (!errorInFormat && !noDb) {
         return true;

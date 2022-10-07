@@ -5,20 +5,17 @@
 #ifndef PROGETTO_UPDATEFILEHANDLING_H
 #define PROGETTO_UPDATEFILEHANDLING_H
 
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <list>
+#include <string>
+#include <fstream>
+#include <iostream>
 
-#include "findSomethingInList.h"
+#include "Student.h"
 #include "Classroom.h"
 #include "Professor.h"
-#include "Student.h"
+#include "findSomethingInList.h"
 
 using namespace std;
-
-typedef enum {ERR_open_file, ERR_file_format, OK = 255} t_typeErrorDefinitionReadingUpdateFile;
-
 
 int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, list<Student>& studentList);
 

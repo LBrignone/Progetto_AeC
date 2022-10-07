@@ -4,7 +4,7 @@
 
 #include "AddFileHandling.h"
 
-int StudentInputFile (string& errorHandling, const string& studentsFileName, list<Student>& studentList, const bool& isDb) {
+int StudentInputFile(string& errorHandling, const string& studentsFileName, list<Student>& studentList, const bool& isDb) {
     ifstream fileName;
     string readFromLine, readFromFile;
     int lineOfFile = 0, patterField = 0;
@@ -82,6 +82,9 @@ int StudentInputFile (string& errorHandling, const string& studentsFileName, lis
             }
             lineOfFile++;
         }
+    }
+    if (!fileName.is_open()) {
+        fileName.close();
     }
     if((errorInFormat)) {
         return (int) ERR_file_format;
@@ -194,6 +197,9 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
             lineOfFile++;
         }
     }
+    if (!fileName.is_open()) {
+        fileName.close();
+    }
     if (errorInFormat) {
         return (int) ERR_file_format;
     } else {
@@ -288,6 +294,9 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                 errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number less than: " + to_string(4);
             }
         }
+    }
+    if (!fileName.is_open()) {
+        fileName.close();
     }
     if (errorInFormat) {
         return (int) ERR_file_format;
@@ -1171,6 +1180,9 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
             }
         }
     }
+    if (!fileName.is_open()) {
+        fileName.close();
+    }
     if (errorInFormat) {
         return (int) ERR_file_format;
     } else if (errorIncoherentHour) {
@@ -1181,7 +1193,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
 }
 
 // here the file made of study courses is handled with regard if it is coming from the database or not
-int CourseOFStudyInputFile(string& errorHandling, const string& courseOfStudyFileName, list<CourseOfStudy>& studyCoursesList, const bool& isDb) {
+int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFileName, list<CourseOfStudy>& studyCoursesList, const bool& isDb) {
     ifstream fileName;
     string readFromFile, readFromLine;
     int lineOfFile = 0, patternField = 0;
@@ -1314,6 +1326,14 @@ int CourseOFStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                 studyCoursesList.push_back(dummyStudyCourse);
             }
         }
+    }
+    if (!fileName.is_open()) {
+        fileName.close();
+    }
+    if (errorInFormat) {
+        return (int) ERR_file_format;
+    } else {
+        return (int) OK;
     }
 }
 
@@ -1548,6 +1568,9 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
             row++;
         }
     }
+    if (!fileName.is_open()) {
+        fileName.close();
+    }
     if (errorInFile) {
         return (int) ERR_open_file;
     } else if (errorCommandIdentifier) {
@@ -1572,22 +1595,20 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
 }
 
 int ProfessorUnavailability(string& errorHandling, const string& professorUnavailabilityFile, list<Professor>& professorList, const string& academicYear, const bool& isDb) {
-    bool error = false;
     int row = 0;
     ifstream fileName;
     string readFromFile;
-    t_typeErrorDefinitionReadingFile errorIdentifier;
+    t_typeErrorDefinitionReadingFile errorIdentifier = OK;
     Date beginYear, endYear;
     list<Professor>::iterator itProfessorList;
 
-    // if the academic year passed value isn't an  empty string is necessary to control the correctness of the fields
+    // if the academic year passed value isn't an empty string is necessary to control the correctness of the fields
     if ((!academicYear.empty()) && !isDb) {
         if (academicYear[4] == '-') {
             try {
                 beginYear.setYear(stoi(academicYear.substr(0, 4)));
             }
             catch (const invalid_argument& excepFromStoi) {
-                error = true;
                 errorIdentifier = ERR_academic_year;
                 errorHandling = "Error: incorrect element impossible to convert the academic start year field to int: " + readFromFile.substr(0, 4);
             }
@@ -1595,17 +1616,14 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                 endYear.setYear(stoi(academicYear.substr(6, 4)));
             }
             catch (const invalid_argument& excepFromStoi) {
-                error = true;
                 errorIdentifier = ERR_academic_year;
                 errorHandling = "Error: incorrect element impossible to convert the academic end year field to int: " + readFromFile.substr(0, 4);
             }
             if ((endYear < beginYear) || ((endYear - beginYear) > 0)) {
-                error = true;
                 errorIdentifier = ERR_academic_year;
                 errorHandling = "Error: the starting year is after the ending academic year";
             }
         } else {
-            error = true;
             errorIdentifier = ERR_academic_year;
             errorHandling = "Error: incorrect pattern for academic year" + readFromFile;
         }
@@ -1615,7 +1633,7 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
         errorHandling = "Error: file: " + professorUnavailabilityFile + " not found.";
         errorIdentifier = ERR_open_file;
     } else {
-        while (getline(fileName, readFromFile) && !error) {
+        while (getline(fileName, readFromFile) && (errorIdentifier == OK)) {
             if (isDb && (readFromFile.find(';') == string::npos)) {
                 // here the string read from file is coming from database's file, and it hasn't the ";" field, so the field read in this case is the academic year
                 if (readFromFile[4] == '-') {
@@ -1623,7 +1641,6 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                         beginYear.setYear(stoi(readFromFile.substr(0, 4)));
                     }
                     catch (const invalid_argument& excepFromStoi) {
-                        error = true;
                         errorIdentifier = ERR_academic_year;
                         errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
                                         "incorrect element impossible to convert the academic start year field to int: " + readFromFile.substr(0, 4);
@@ -1632,26 +1649,22 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                         endYear.setYear(stoi(readFromFile.substr(6, 4)));
                     }
                     catch (const invalid_argument& excepFromStoi) {
-                        error = true;
                         errorIdentifier = ERR_academic_year;
                         errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
                                         "incorrect element impossible to convert the academic end year field to int: " + readFromFile.substr(0, 4);
                     }
                     if ((endYear < beginYear) || ((endYear - beginYear) > 0)) {
-                        error = true;
                         errorIdentifier = ERR_academic_year;
                         errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                         " the starting year is after the ending academic year";
                     }
                 } else {
-                    error = true;
                     errorIdentifier = ERR_academic_year;
                     errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) + " incorrect pattern for academic year" +
                                     readFromFile;
                 }
             } else if (!isDb && (readFromFile.find(';') == string::npos)) {
                 // here the string doesn't have a ";" but it isn't coming from a database file, so an error risen
-                error = true;
                 errorIdentifier = ERR_file_format;
                 errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) + " has no separator (;)";
             } else {
@@ -1661,7 +1674,7 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                 stringstream readFromFileStream;
 
                 readFromFileStream.str() = readFromFile;
-                while (getline(readFromFileStream, readFromLine, ';') && !error) {
+                while (getline(readFromFileStream, readFromLine, ';') && (errorIdentifier == OK)) {
                     int fieldNumber = 0;
 
                     if (first) {
@@ -1673,14 +1686,12 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                                     stoi(readFromLine.substr(1, readFromLine.size() - 1));
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
-                                    error = true;
                                     errorIdentifier = ERR_id_field;
                                     errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                     " incorrect element impossible to convert the numerical part of professor id to int: " + readFromLine;
                                 }
                                 itProfessorList = findProfessor(professorList, readFromLine);
                                 if (itProfessorList == professorList.end()) {
-                                    error = true;
                                     errorIdentifier = ERR_missing_professor;
                                     errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                     " can't find the given professor in database: " + readFromLine;
@@ -1688,7 +1699,6 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                                     if (!itProfessorList->getChangeInUnavail()) {
                                         itProfessorList->setChangeInUnavail(true);
                                     } else {
-                                        error = true;
                                         errorIdentifier = ERR_professor_changed;
                                         errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                         " the given professor has already been modified in a previous iteration" + readFromLine;
@@ -1696,13 +1706,11 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
 
                                 }
                             } else {
-                                error = true;
                                 errorIdentifier = ERR_id_field;
                                 errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                 " can't find the given professor in database: " + readFromLine;
                             }
                         } else {
-                            error = true;
                             errorIdentifier = ERR_missing_professor;
                             errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                             " the given string (string: " + readFromLine + ") is empty or its length doesn't match the required one";
@@ -1716,14 +1724,15 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                         AvailForExam unavailPeriod;
 
                         readFromLineStream.str() = readFromLine;
-                        while (getline(readFromLineStream, date, '|') && error) {
+                        while (getline(readFromLineStream, date, '|') && (errorIdentifier == OK)) {
                             int dateFieldCount = 0;
                             string dateField;
                             stringstream dateStream;
                             Date dummyUnavailDate;
 
                             dateStream.str() = date;
-                            while ((getline(dateStream, dateField, '-')) && !error) {
+                            while ((getline(dateStream, dateField, '-')) && (errorIdentifier == OK)) {
+                                bool error = false;
                                 int pattern;
 
                                 try {
@@ -1737,6 +1746,7 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                                         if (!error) {
                                             dummyUnavailDate.setYear(pattern);
                                         } else {
+                                            errorIdentifier = ERR_date_field_conversion;
                                             errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                             " incorrect year impossible to convert year field to int: " + dateField;
                                         }
@@ -1746,6 +1756,7 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                                         if (!error) {
                                             dummyUnavailDate.setMonth(pattern);
                                         } else {
+                                            errorIdentifier = ERR_date_field_conversion;
                                             errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                             " incorrect months impossible to convert month field to int: " + dateField;
                                         }
@@ -1755,12 +1766,14 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                                         if (!error) {
                                             dummyUnavailDate.setDay(pattern);
                                         } else {
+                                            errorIdentifier = ERR_date_field_conversion;
                                             errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                             " incorrect months impossible to convert day field to int: " + dateField;
                                         }
                                         break;
                                     }
                                     default: {
+                                        errorIdentifier = ERR_date_format;
                                         errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                         " the date " + date + " doesn't respect the the number valid (3) for that pattern";
                                         break;
@@ -1781,7 +1794,7 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                                     break;
                                 }
                                 default:{
-                                    error = true;
+                                    errorIdentifier = ERR_date_format;
                                     errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                     " the string has an incorrect number of of dates to identify an unavailability period";
                                     break;
@@ -1801,14 +1814,12 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
                                     itProfessorList->appendUnavailability(unavailPeriod, beginYear);
                                 }
                             } else {
-                                error = true;
                                 errorIdentifier = ERR_date_overlap;
                                 errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                 " the given pair of date (start: " + unavailPeriod.start.getCompleteDate() + ", stop: " +
                                                 unavailPeriod.stop.getCompleteDate() + ") may have an overlap with other dates range";
                             }
                         } else {
-                            error = true;
                             errorIdentifier = ERR_inverted_dates;
                             errorHandling = "Error: the start and stop dates for field number " + to_string(fieldNumber) + " are inverted";
                         }
@@ -1821,4 +1832,8 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
             // still reading line
         }
     }
+    if (fileName.is_open()) {
+        fileName.close();
+    }
+    return (int) errorIdentifier;
 }
