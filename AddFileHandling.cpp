@@ -1598,7 +1598,7 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
     int row = 0;
     ifstream fileName;
     string readFromFile;
-    t_typeErrorDefinitionReadingFile errorIdentifier = OK;
+    t_errorCodes errorIdentifier = OK;
     Date beginYear, endYear;
     list<Professor>::iterator itProfessorList;
 

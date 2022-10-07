@@ -27,6 +27,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
+    t_errorCodes errorIdentifier;
     int functionReturn;
     string errorLine;
     map<Date, vector<Date>> examSession;
@@ -55,7 +56,7 @@ int main(int argc, char** argv) {
                         }
                     }
                     if (functionReturn == numeric_limits<unsigned int>::max()) {
-                        updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
+                        functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
                     }
                     break;
                 }
@@ -68,6 +69,9 @@ int main(int argc, char** argv) {
                             functionReturn = ProfessorInputFile(errorLine, inputFromCommandLine, listOfProfessors, false);
                         }
                     }
+                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                        functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, listOfProfessors);
+                    }
                     break;
                 }
                 case 'a':{
@@ -78,6 +82,9 @@ int main(int argc, char** argv) {
                         if (functionReturn == 0) {
                             functionReturn = ClassroomInputFile(errorLine, inputFromCommandLine, listOfClassrooms, false);
                         }
+                    }
+                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                        functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, listOfClassrooms);
                     }
                     break;
                 }
@@ -93,6 +100,9 @@ int main(int argc, char** argv) {
                             functionReturn = CourseInputFile(errorLine, inputFromCommandLine, listOfCourses, listOfProfessors, false);
                         }
                     }
+                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                        functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, listOfCourses);
+                    }
                     break;
                 }
                 case 'f':{
@@ -104,10 +114,14 @@ int main(int argc, char** argv) {
                             functionReturn = CourseOfStudyInputFile(errorLine, inputFromCommandLine, listOfCoursesOfStudy, false);
                         }
                     }
+                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                        functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy);
+                    }
                     break;
                 }
                 default:{
-                    errorLine = "Error: no matching actions for command identifier: " + inputFromCommandLine.substr(0, 4);
+                    errorIdentifier = ERR_wrong_identifier;
+                    errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
                     break;
                 }
             }
@@ -117,22 +131,61 @@ int main(int argc, char** argv) {
             switch (inputFromCommandLine[3]) {
                 case 's':{
                     if (inputFromCommandLine != studentDatabaseName) {
-                        functionReturn = StudentToUpdateFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
-                        if (functionReturn == 0) {
-                            functionReturn = CourseOfStudyInputFile(errorLine, inputFromCommandLine, listOfCoursesOfStudy, false);
+                        functionReturn = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
+                        if (functionReturn == numeric_limits<unsigned int>::max()) {
+                            functionReturn = StudentToUpdateFile(errorLine, courseOfStudyDatabaseName, listOfStudents);
+                        } else {
+                            errorIdentifier = ERR_open_file;
+                            errorLine = "Error: impossible to update  \"db_studenti.txt\"  without database to start from";
                         }
                     } else {
-                        errorLine = "Error: can't update \"db_studenti.txt\" with the same database file"
+                        errorIdentifier = ERR_update_database;
+                        errorLine = "Error: can't update \"db_studenti.txt\" with the same database file";
+                    }
+                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                        functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
                     }
                     break;
                 }
                 case 'd':{
+                    if (inputFromCommandLine != professorDatabaseName) {
+                        functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                        if (functionReturn == numeric_limits<unsigned int>::max()) {
+                            functionReturn = ProfessorToUpdateFile(errorLine, professorDatabaseName, listOfProfessors);
+                        } else {
+                            errorIdentifier = ERR_open_file;
+                            errorLine = "Error: impossible to update \"db_professori.txt\" without database to start from";
+                        }
+                    } else {
+                        errorIdentifier = ERR_update_database;
+                        errorLine = "Error: can't update \"db_professori.txt\" with the same database file";
+                    }
+                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                        functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, listOfProfessors);
+                    }
                     break;
                 }
                 case 'a':{
+                    if (inputFromCommandLine != courseDatabaseName) {
+                        functionReturn = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
+                        if (functionReturn == numeric_limits<unsigned int>::max()) {
+                            functionReturn = ClassroomToUpdateFile(errorLine, classroomDatabaseName, listOfClassrooms);
+                        } else {
+                            errorIdentifier = ERR_open_file;
+                            errorLine = "Error: impossible to update \"db_aule.txt\" without database to start from";
+                        }
+                    } else {
+                        errorIdentifier = ERR_update_database;
+                        errorLine = "Error: can't update \"db_corsi.txt\" with the same database file";
+                    }
+                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                        functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, listOfClassrooms);
+                    }
                     break;
                 }
                 default:{
+                    errorIdentifier = ERR_wrong_identifier;
+                    errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
                     break;
                 }
             }
@@ -141,9 +194,23 @@ int main(int argc, char** argv) {
         case 'i': {
             switch (inputFromCommandLine[3]) {
                 case 'c':{
+                    if (inputFromCommandLine != classroomDatabaseName) {
+                        functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                        if (functionReturn == numeric_limits<unsigned int>::max()) {
+                            functionReturn = ClassroomToUpdateFile(errorLine, classroomDatabaseName, listOfClassrooms);
+                        } else {
+                            errorIdentifier = ERR_open_file;
+                            errorLine = "Error: impossible to update \"db_aule.txt\" without database to start from";
+                        }
+                    } else {
+                        errorIdentifier = ERR_update_database;
+                        errorLine = "Error: can't insert or modify a course in \"db_corsi.txt\" with the same database file";
+                    }
                     break;
                 }
                 default:{
+                    errorIdentifier = ERR_wrong_identifier;
+                    errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
                     break;
                 }
             }
@@ -152,12 +219,16 @@ int main(int argc, char** argv) {
         case 's':{
             break;
         }
-        case 'g':
+        case 'g':{
+            break;
+        }
         default: {
+            errorIdentifier = ERR_wrong_identifier;
+            errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
             break;
         }
     }
-    if (functionReturn != numeric_limits<unsigned int>::max()) {
+    if ((functionReturn != numeric_limits<unsigned int>::max()) || errorIdentifier) {
         cerr << errorLine;
     } else {
         cout << "program ended successfully";

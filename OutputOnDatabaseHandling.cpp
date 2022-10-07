@@ -5,7 +5,7 @@
 #include "OutputOnDatabaseHandling.h"
 
 int updateStudentDatabaseFile(string& errorHandling, const string& databaseStudentFileName, const list<Student>& updatedStudentList) {
-    t_typeErrorDefinitionReadingFile errorIdentifier = OK;
+    t_errorCodes errorIdentifier = OK;
     ofstream fileName;
 
     if (!databaseStudentFileName.empty()) {
@@ -36,7 +36,7 @@ int updateStudentDatabaseFile(string& errorHandling, const string& databaseStude
 }
 
 int updateProfessorDatabaseFile(string& errorHandling, const string& databaseProfessorFileName, const list<Professor>& updatedProfessorList) {
-    t_typeErrorDefinitionReadingFile errorIdentifier = OK;
+    t_errorCodes errorIdentifier = OK;
     ofstream fileName;
 
     if (!databaseProfessorFileName.empty()) {
@@ -67,7 +67,7 @@ int updateProfessorDatabaseFile(string& errorHandling, const string& databasePro
 }
 
 int updateClassroomDatabaseFile(string& errorHandling, const string& databaseClassroomFileName, const list<Classroom>& updatedClassroomList) {
-    t_typeErrorDefinitionReadingFile errorIdentifier = OK;
+    t_errorCodes errorIdentifier = OK;
     ofstream fileName;
 
     if (!databaseClassroomFileName.empty()) {
@@ -98,7 +98,7 @@ int updateClassroomDatabaseFile(string& errorHandling, const string& databaseCla
 }
 
 int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databaseCourseOfStudyFileName, const list<CourseOfStudy>& updatedCourseOfStudyList) {
-    t_typeErrorDefinitionReadingFile errorIdentifier = OK;
+    t_errorCodes errorIdentifier = OK;
     ofstream fileName;
 
     if (!databaseCourseOfStudyFileName.empty()) {
@@ -129,7 +129,7 @@ int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databas
 }
 
 int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourseFileName, const list<Course>& updatedCourseList) {
-    t_typeErrorDefinitionReadingFile errorIdentifier = OK;
+    t_errorCodes errorIdentifier = OK;
     ofstream fileName;
     bool firstVersion = true, closed = false;
     int tmpCourseAA;
