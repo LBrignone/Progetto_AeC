@@ -17,8 +17,6 @@
 #include "findSomethingInList.h"
 #include "PatternConstrainVerification.h"
 
-typedef enum {ERR_open_file, ERR_missing_field, ERR_file_format, ERR_parallel_course_number_inherit, ERR_not_found, OK = 255} t_typeErrorDefinitionReadingUpdateFile;
-
 int CourseToInsertFile(string& errorHandling, const string& courseFileName, list<Course>& databaseList, list<Professor>& professorList);
 
 #endif //PROGETTO_INSERTFILEHANDLING_H

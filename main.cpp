@@ -22,20 +22,20 @@
 #define classroomDatabaseName "db_aule.txt"
 #define courseDatabaseName "db_corsi.txt"
 #define courseOfStudyDatabaseName "db_corsi_studio.txt"
-
+#define examSessionPeriods "db_periodi_esami.txt"
 
 using namespace std;
 
 int main(int argc, char** argv) {
     t_errorCodes errorIdentifier;
-    int functionReturn;
+    int functionReturn = OK;
     string errorLine;
-    map<Date, vector<Date>> examSession;
     list<Student> listOfStudents;
     list<Professor> listOfProfessors;
     list<Classroom> listOfClassrooms;
     list<Course> listOfCourses;
     list<CourseOfStudy> listOfCoursesOfStudy;
+    map<Date, vector<Date>> examSession;
 
     if (argc != 2) {
         cerr << "numero di argomenti passati diverso dal numero richiesto";
@@ -47,43 +47,43 @@ int main(int argc, char** argv) {
         case 'a': {
             switch (inputFromCommandLine[3]) {
                 case 's':{
-                    if (inputFromCommandLine == studentDatabaseName) {
-                        functionReturn = StudentInputFile(errorLine, inputFromCommandLine, listOfStudents, true);
+                    if (fileNameFromCommandLine == studentDatabaseName) {
+                        functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, true);
                     } else {
                         functionReturn = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
                         if (functionReturn == 0) {
-                            functionReturn = StudentInputFile(errorLine, inputFromCommandLine, listOfStudents, false);
+                            functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, false);
                         }
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
                     }
                     break;
                 }
                 case 'd':{
-                    if (inputFromCommandLine == professorDatabaseName) {
-                        functionReturn = ProfessorInputFile(errorLine, inputFromCommandLine, listOfProfessors, true);
+                    if (fileNameFromCommandLine == professorDatabaseName) {
+                        functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, true);
                     } else {
                         functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
                         if (functionReturn == 0) {
-                            functionReturn = ProfessorInputFile(errorLine, inputFromCommandLine, listOfProfessors, false);
+                            functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, false);
                         }
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, listOfProfessors);
                     }
                     break;
                 }
                 case 'a':{
-                    if (inputFromCommandLine == classroomDatabaseName) {
-                        functionReturn = ClassroomInputFile(errorLine, inputFromCommandLine, listOfClassrooms, true);
+                    if (fileNameFromCommandLine == classroomDatabaseName) {
+                        functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, true);
                     } else {
                         functionReturn = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
                         if (functionReturn == 0) {
-                            functionReturn = ClassroomInputFile(errorLine, inputFromCommandLine, listOfClassrooms, false);
+                            functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, false);
                         }
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, listOfClassrooms);
                     }
                     break;
@@ -92,29 +92,29 @@ int main(int argc, char** argv) {
                     // it is necessary to recall in first place the professor's database, because it will be used when reading the course's database
                     // and perform proper controls
                     ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                    if (inputFromCommandLine == courseDatabaseName) {
-                        functionReturn = CourseInputFile(errorLine, inputFromCommandLine, listOfCourses, listOfProfessors, true);
+                    if (fileNameFromCommandLine == courseDatabaseName) {
+                        functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, true);
                     } else {
                         functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors,  true);
                         if (functionReturn == 0) {
-                            functionReturn = CourseInputFile(errorLine, inputFromCommandLine, listOfCourses, listOfProfessors, false);
+                            functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, false);
                         }
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, listOfCourses);
                     }
                     break;
                 }
                 case 'f':{
-                    if (inputFromCommandLine == courseOfStudyDatabaseName) {
-                        functionReturn = CourseOfStudyInputFile(errorLine, inputFromCommandLine, listOfCoursesOfStudy, true);
+                    if (fileNameFromCommandLine == courseOfStudyDatabaseName) {
+                        functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, true);
                     } else {
                         functionReturn = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
                         if (functionReturn == 0) {
-                            functionReturn = CourseOfStudyInputFile(errorLine, inputFromCommandLine, listOfCoursesOfStudy, false);
+                            functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, false);
                         }
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy);
                     }
                     break;
@@ -130,10 +130,10 @@ int main(int argc, char** argv) {
         case 'u': {
             switch (inputFromCommandLine[3]) {
                 case 's':{
-                    if (inputFromCommandLine != studentDatabaseName) {
+                    if (fileNameFromCommandLine != studentDatabaseName) {
                         functionReturn = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
-                        if (functionReturn == numeric_limits<unsigned int>::max()) {
-                            functionReturn = StudentToUpdateFile(errorLine, courseOfStudyDatabaseName, listOfStudents);
+                        if (functionReturn == OK) {
+                            functionReturn = StudentToUpdateFile(errorLine, fileNameFromCommandLine, listOfStudents);
                         } else {
                             errorIdentifier = ERR_open_file;
                             errorLine = "Error: impossible to update  \"db_studenti.txt\"  without database to start from";
@@ -142,16 +142,16 @@ int main(int argc, char** argv) {
                         errorIdentifier = ERR_update_database;
                         errorLine = "Error: can't update \"db_studenti.txt\" with the same database file";
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
                     }
                     break;
                 }
                 case 'd':{
-                    if (inputFromCommandLine != professorDatabaseName) {
+                    if (fileNameFromCommandLine != professorDatabaseName) {
                         functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                        if (functionReturn == numeric_limits<unsigned int>::max()) {
-                            functionReturn = ProfessorToUpdateFile(errorLine, professorDatabaseName, listOfProfessors);
+                        if (functionReturn == OK) {
+                            functionReturn = ProfessorToUpdateFile(errorLine, fileNameFromCommandLine, listOfProfessors);
                         } else {
                             errorIdentifier = ERR_open_file;
                             errorLine = "Error: impossible to update \"db_professori.txt\" without database to start from";
@@ -160,16 +160,16 @@ int main(int argc, char** argv) {
                         errorIdentifier = ERR_update_database;
                         errorLine = "Error: can't update \"db_professori.txt\" with the same database file";
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, listOfProfessors);
                     }
                     break;
                 }
                 case 'a':{
-                    if (inputFromCommandLine != courseDatabaseName) {
+                    if (fileNameFromCommandLine != courseDatabaseName) {
                         functionReturn = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
-                        if (functionReturn == numeric_limits<unsigned int>::max()) {
-                            functionReturn = ClassroomToUpdateFile(errorLine, classroomDatabaseName, listOfClassrooms);
+                        if (functionReturn == OK) {
+                            functionReturn = ClassroomToUpdateFile(errorLine, fileNameFromCommandLine, listOfClassrooms);
                         } else {
                             errorIdentifier = ERR_open_file;
                             errorLine = "Error: impossible to update \"db_aule.txt\" without database to start from";
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
                         errorIdentifier = ERR_update_database;
                         errorLine = "Error: can't update \"db_corsi.txt\" with the same database file";
                     }
-                    if (functionReturn == numeric_limits<unsigned int>::max()) {
+                    if (functionReturn == OK) {
                         functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, listOfClassrooms);
                     }
                     break;
@@ -194,17 +194,19 @@ int main(int argc, char** argv) {
         case 'i': {
             switch (inputFromCommandLine[3]) {
                 case 'c':{
-                    if (inputFromCommandLine != classroomDatabaseName) {
-                        functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                        if (functionReturn == numeric_limits<unsigned int>::max()) {
-                            functionReturn = ClassroomToUpdateFile(errorLine, classroomDatabaseName, listOfClassrooms);
+                    // the existence of professor's database is not a constraint for the insertion or modification of courses,
+                    // so the return is checked only for file correctness
+                    functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                    if ((functionReturn == OK) || (functionReturn == ERR_open_file)){
+                        functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors, true);
+                        if (functionReturn == OK) {
+                            functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors);
                         } else {
-                            errorIdentifier = ERR_open_file;
-                            errorLine = "Error: impossible to update \"db_aule.txt\" without database to start from";
+                            errorLine = "Error: can't perform an insertion or modification without the course's database file \"db_corsi.txt\"";
                         }
-                    } else {
-                        errorIdentifier = ERR_update_database;
-                        errorLine = "Error: can't insert or modify a course in \"db_corsi.txt\" with the same database file";
+                    }
+                    if (functionReturn == OK) {
+                        functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, listOfCourses);
                     }
                     break;
                 }
@@ -217,6 +219,10 @@ int main(int argc, char** argv) {
             break;
         }
         case 's':{
+            functionReturn = ExamSessionInputFile(errorLine, examSessionPeriods, examSession, true);
+            if (functionReturn == OK) {
+                functionReturn = ExamSessionInputFile(errorLine, fileNameFromCommandLine, examSession, false);
+            }
             break;
         }
         case 'g':{
@@ -228,7 +234,7 @@ int main(int argc, char** argv) {
             break;
         }
     }
-    if ((functionReturn != numeric_limits<unsigned int>::max()) || errorIdentifier) {
+    if ((functionReturn != OK) || errorIdentifier) {
         cerr << errorLine;
     } else {
         cout << "program ended successfully";
