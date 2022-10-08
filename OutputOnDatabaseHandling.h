@@ -28,4 +28,7 @@ int updateClassroomDatabaseFile(string& errorHandling, const string& databaseCla
 int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databaseCourseOfStudyFileName, const list<CourseOfStudy>& updatedCourseOfStudyList);
 
 int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourseFileName, const list<Course>& updatedCourseList);
+
+int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseExamSessionFileName, const map<Date, vector<Date>>& updatedExamSessionMap);
+
 #endif //PROGETTO_OUTPUTONDATABASEHANDLING_H

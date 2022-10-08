@@ -24,9 +24,9 @@ int updateStudentDatabaseFile(string& errorHandling, const string& databaseStude
                     fileName << endl;
                 }
             }
-        }
-        if (fileName.is_open()) {
-            fileName.close();
+            if (fileName.is_open()) {
+                fileName.close();
+            }
         }
     } else {
         errorIdentifier = ERR_empty_field;
@@ -55,9 +55,9 @@ int updateProfessorDatabaseFile(string& errorHandling, const string& databasePro
                     fileName << endl;
                 }
             }
-        }
-        if (fileName.is_open()) {
-            fileName.close();
+            if (fileName.is_open()) {
+                fileName.close();
+            }
         }
     } else {
         errorIdentifier = ERR_empty_field;
@@ -86,9 +86,9 @@ int updateClassroomDatabaseFile(string& errorHandling, const string& databaseCla
                     fileName << endl;
                 }
             }
-        }
-        if (fileName.is_open()) {
-            fileName.close();
+            if (fileName.is_open()) {
+                fileName.close();
+            }
         }
     } else {
         errorIdentifier = ERR_empty_field;
@@ -117,9 +117,9 @@ int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databas
                     fileName << endl;
                 }
             }
-        }
-        if (fileName.is_open()) {
-            fileName.close();
+            if (fileName.is_open()) {
+                fileName.close();
+            }
         }
     } else {
         errorIdentifier = ERR_empty_field;
@@ -131,7 +131,7 @@ int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databas
 int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourseFileName, const list<Course>& updatedCourseList) {
     t_errorCodes errorIdentifier = OK;
     ofstream fileName;
-    bool firstVersion = true, closed = false;
+    bool firstVersion = true;
     int tmpCourseAA;
     string tmpCourseId;
 
@@ -153,35 +153,48 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
                     tmpCourseId = itListCourse->getId();
                     itListCourse--;
                     itListCourse->printCourseOrganizationAcademicYearClosing(fileName);
-                    closed = true;
+                    fileName << endl;
                     itListCourse++;
-                    if (itListCourse != updatedCourseList.cend()) {
-                        itListCourse->printCourseOrganization(fileName);
-                        closed = false;
-                    }
+                    itListCourse->printCourseOrganization(fileName);
                 }
                 if (tmpCourseAA != itListCourse->getStartYear()) {
                     tmpCourseAA = itListCourse->getStartYear();
                     itListCourse->printCourseOrganizationAcademicYearOpening(fileName);
+                    firstVersion = true;
                 }
                 itListCourse->printCourseOrganizationVersionOpening(fileName, firstVersion);
                 firstVersion = false;
                 fileName << itListCourse.operator->();
                 itListCourse++;
-                if (itListCourse != updatedCourseList.cend()) {
-                    fileName << endl;
-                }
             }
-            // this error should never happen otherwise all the changes, even if correct, will be discarded resulting in a complete loss of changes
-            // moreover the database file will be irremediably modified resulting in corruption of database
-            if (!closed) {
-                errorIdentifier = ERR_update_database;
-                errorHandling = "Error: the update of file's database, named db_corsi.txt, resulted in an incorrect collection of stored data";
+            itListCourse--;
+            itListCourse->printCourseOrganizationAcademicYearClosing(fileName);
+            if (fileName.is_open()) {
+                fileName.close();
             }
         }
     } else {
         errorIdentifier = ERR_empty_field;
         errorHandling = "Error: missing file element";
+    }
+    return (int) errorIdentifier;
+}
+
+int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseExamSessionFileName, const map<Date, vector<Date>>& updatedExamSessionMap) {
+    ofstream fileName;
+    t_errorCodes errorIdentifier = OK;
+    map<Date, vector<Date>>::const_iterator itMapExamSession;
+
+    fileName.open(databaseExamSessionFileName, ofstream::trunc);
+    if (!fileName.is_open()) {
+        errorIdentifier = ERR_open_file;
+        errorHandling = "Error: file " + databaseExamSessionFileName + " not found";
+    } else {
+        itMapExamSession = updatedExamSessionMap.cbegin();
+        while (itMapExamSession != updatedExamSessionMap.cend()) {
+ggggggg
+            itMapExamSession++;
+        }
     }
     return (int) errorIdentifier;
 }

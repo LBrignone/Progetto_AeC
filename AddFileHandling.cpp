@@ -5,45 +5,45 @@
 #include "AddFileHandling.h"
 
 int StudentInputFile(string& errorHandling, const string& studentsFileName, list<Student>& studentList, const bool& isDb) {
+    t_errorCodes errorIdentifier = OK;
     ifstream fileName;
     string readFromLine, readFromFile;
+    bool empty = true;
     int lineOfFile = 0, patterField = 0;
-    bool errorInFormat = false;
 
     fileName.open(studentsFileName, 'r');
     if (!fileName.is_open()) {
         errorHandling = "Error: file: " + studentsFileName + " not found.";
         return (int)ERR_open_file;
     } else {
-        while ((getline(fileName , readFromFile)) && !errorInFormat) {
+        while ((getline(fileName , readFromFile)) && (errorIdentifier == OK)) {
+            empty = false;
             stringstream tmp(readFromFile);
             Student dummyStudent;
-
-            while((getline(tmp, readFromLine, ';')) && !errorInFormat) {
+            while((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                 switch (patterField) {
                     case 0:{
                         if (isDb) {
                             if (!dummyStudent.setId(readFromLine)) {
-                                errorInFormat = true;
+                                errorIdentifier = ERR_student_format;
                                 errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " incorrect id element: " + readFromLine;
                             } else {
                                 if (!studentList.empty()) {
                                     if (dummyStudent < studentList.back()) {
-                                        errorInFormat = true;
-                                        errorHandling =
-                                                "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " inchoerent id element: " + readFromLine;
+                                        errorIdentifier = ERR_student_format;
+                                        errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " inchoerent id element: " + readFromLine;
                                     }
                                 }
                             }
                         } else {
                             if (studentList.empty()) {
                                 if (dummyStudent.generateNewId("")) {
-                                    errorInFormat = true;
+                                    errorIdentifier = ERR_student_format;
                                     errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
                                 }
                             } else {
                                 if (dummyStudent.generateNewId(studentList.back().getId())) {
-                                    errorInFormat = true;
+                                    errorIdentifier = ERR_student_format;
                                     errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
                                 }
                             }
@@ -60,13 +60,13 @@ int StudentInputFile(string& errorHandling, const string& studentsFileName, list
                     }
                     case 3:{
                         if (!dummyStudent.setMail(readFromLine)) {
-                            errorInFormat = true;
+                            errorIdentifier = ERR_student_format;
                             errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " incorrect mail element: " + readFromLine;
                         }
                         break;
                     }
                     default:{
-                        errorInFormat = true;
+                        errorIdentifier = ERR_student_format;
                         errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " unexpected element number greater than " + to_string(4);
                     }
                 }
@@ -77,20 +77,20 @@ int StudentInputFile(string& errorHandling, const string& studentsFileName, list
                 studentList.push_back(dummyStudent);
                 patterField = 0;
             } else {
-                errorInFormat = true;
+                errorIdentifier = ERR_student_format;
                 errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " unexpected element number less than " + to_string(4);
             }
             lineOfFile++;
         }
     }
+    if (empty) {
+        errorIdentifier = ERR_empty_file;
+        errorHandling = "Error: file " + studentsFileName + "is empty";
+    }
     if (!fileName.is_open()) {
         fileName.close();
     }
-    if((errorInFormat)) {
-        return (int) ERR_file_format;
-    } else {
-        return (int) OK;
-    }
+    return (int) errorIdentifier;
 }
 
 int ProfessorInputFile(string& errorHandling, const string& professorFileName, list<Professor>& professorList, const bool& isDb) {
@@ -98,6 +98,7 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
     string readFromFile, readFromLine;
     int lineOfFile = 0, patternField = 0;
     bool errorInFormat = false, profIdExist = false;
+    bool empty = true;
     list<Professor>::iterator itOFProfessorList;
 
     fileName.open(professorFileName, 'r');
@@ -106,6 +107,7 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
         return (int)ERR_open_file;
     } else {
         while ((getline(fileName , readFromFile)) && !errorInFormat) {
+            empty = false;
             stringstream tmp(readFromFile);
             Professor dummyProfessor;
 
@@ -197,6 +199,10 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
             lineOfFile++;
         }
     }
+    if (empty) {
+        errorIdentifier = ERR_empty_file;
+        errorHandling = "Error: file " + studentsFileName + "is empty";
+    }
     if (!fileName.is_open()) {
         fileName.close();
     }
@@ -209,30 +215,32 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
 
 int ClassroomInputFile(string& errorHandling, const string& classroomFileName, list<Classroom>& classroomList, const bool& isDb) {
     ifstream fileName;
+    t_errorCodes errorIdentifier = OK;
     string readFromFile, readFromLine;
     int lineOfFile = 0, patterField = 0;
-    bool errorInFormat = false;
+    bool empty = true;
 
     fileName.open(classroomFileName, 'r');
     if (!fileName.is_open()) {
         errorHandling = "Error: file: " + classroomFileName + " not found.";
         return (int) ERR_open_file;
     } else {
-        while ((getline(fileName, readFromFile)) && !errorInFormat) {
+        while ((getline(fileName, readFromFile)) && (errorIdentifier == OK)) {
+            empty = false;
             stringstream tmp(readFromFile);
             Classroom dummyClassroom;
 
-            while ((getline(tmp, readFromLine, ';')) && !errorInFormat) {
+            while ((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                 switch (patterField) {
                     case 0:{
                         if (isDb) {
                             if (!dummyClassroom.setId(readFromLine)) {
-                                errorInFormat = true;
+                                errorIdentifier = ERR_classroom_format;
                                 errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
                             } else {
                                 if (!classroomList.empty()) {
                                     if (dummyClassroom < classroomList.back()) {
-                                        errorInFormat = true;
+                                        errorIdentifier = ERR_classroom_format;
                                         errorHandling = "Error: file: " + classroomFileName + " row: "+ to_string(lineOfFile + 1) + " inchoerent id element: " + readFromLine;
                                     }
                                 }
@@ -240,12 +248,12 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                         } else {
                             if (classroomList.empty()){ // se la lista di aule (il database in memoria) non è vuoto
                                 if (!dummyClassroom.generateNewId("")) {
-                                    errorInFormat = true;
+                                    errorIdentifier = ERR_classroom_format;
                                     errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
                                 }
                             } else {
                                 if (!dummyClassroom.generateNewId(classroomList.back().getId())) {
-                                    errorInFormat = true;
+                                    errorIdentifier = ERR_classroom_format;
                                     errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
                                 }
                             }
@@ -254,7 +262,7 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                     }
                     case 1:{
                         if (!dummyClassroom.setType(readFromLine[0])){
-                            errorInFormat = true;
+                            errorIdentifier = ERR_classroom_format;
                             errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect classroom type element: " + readFromLine;
                         }
                         break;
@@ -265,20 +273,20 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                     }
                     case 3:{
                         if (!dummyClassroom.setCapacity(stoi(readFromLine))) {
-                            errorInFormat = true;
+                            errorIdentifier = ERR_classroom_format;
                             errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect classroom capacity element: " + readFromLine;
                         }
                         break;
                     }
                     case 4:{
                         if (!dummyClassroom.setExamCapacity(stoi(readFromLine))) {
-                            errorInFormat = true;
+                            errorIdentifier = ERR_classroom_format;
                             errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect classroom exam capacity element: " + readFromLine;
                         }
                         break;
                     }
                     default:{
-                        errorInFormat = true;
+                        errorIdentifier = ERR_classroom_format;
                         errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number greater than: " + to_string(4);
                         break;
                     }
@@ -290,19 +298,19 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                 classroomList.push_back(dummyClassroom);
                 patterField = 0;
             } else {
-                errorInFormat = true;
+                errorIdentifier = ERR_classroom_format;
                 errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number less than: " + to_string(4);
             }
         }
     }
+    if (empty) {
+        errorIdentifier = ERR_empty_file;
+        errorHandling = "Error: file " + classroomFileName+ "is empty";
+    }
     if (!fileName.is_open()) {
         fileName.close();
     }
-    if (errorInFormat) {
-        return (int) ERR_file_format;
-    } else {
-        return (int) OK;
-    }
+    return (int) errorIdentifier;
 }
 
 int CourseInputFile(string& errorHandling, const string& courseFileName, list<Course>& courseList, const list<Professor>& professorList, const bool& isDb) {
@@ -310,6 +318,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
     string readFromFile, readFromLine;
     int lineOfFile = 0, patternField = 0;
     bool errorInFormat = false, errorIncoherentHour = false;
+    bool empty = true;
 
     fileName.open(courseFileName, 'r');
     if (!fileName.is_open()) {
@@ -318,6 +327,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
     } else {
         if (isDb) {
             while ((getline(fileName, readFromFile)) && !errorInFormat && !errorIncoherentHour) {
+                empty = false;
                 Course dummyCourse;
                 stringstream tmp(readFromFile);
                 stringstream associateProfessorListFormDb;
@@ -1180,6 +1190,10 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
             }
         }
     }
+    if (empty) {
+        errorIdentifier = ERR_empty_file;
+        errorHandling = "Error: file " + studentsFileName + "is empty";
+    }
     if (!fileName.is_open()) {
         fileName.close();
     }
@@ -1198,6 +1212,7 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
     string readFromFile, readFromLine;
     int lineOfFile = 0, patternField = 0;
     bool errorInFormat = false;
+    bool empty = true;
 
     fileName.open(courseOfStudyFileName, 'r');
     if (!fileName.is_open()) {
@@ -1214,6 +1229,7 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
         while (getline(fileName, readFromFile) && !errorInFormat) {
             stringstream courseOfStudyRow;
 
+            empty = false;
             courseOfStudyRow.str() = readFromFile;
             while (getline(courseOfStudyRow, readFromLine, ';') && !errorInFormat) {
                 switch (patternField) {
@@ -1327,6 +1343,10 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
             }
         }
     }
+    if (empty) {
+        errorIdentifier = ERR_empty_file;
+        errorHandling = "Error: file " + studentsFileName + "is empty";
+    }
     if (!fileName.is_open()) {
         fileName.close();
     }
@@ -1342,6 +1362,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
     bool errorInFile = false, errorAcademicYear = false, errorCommandIdentifier = false, errorDateField = false, errorExamPeriod = false,
          errorExamSession = false, errorDatesPlacement = false, errorInSessionOrder = false, errorSessionDuration = false;
     bool isFileInput = false, stringInsertionComplete = false;
+    bool empty = true;
     int examPeriod, row = 0;
     string startPattern, examDates, academicYear, examSession, errorLine;
     Date beginYear, endYear;
@@ -1373,6 +1394,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
         pair<Date, vector<Date>> pairToInsert;
         pair<map<Date,vector<Date>>::iterator, bool > itToMapElement;
 
+        empty = false;
         academicYear = examDates.substr(0, 9);
         if (academicYear[4] == '-') {
             try {
@@ -1568,6 +1590,10 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
             row++;
         }
     }
+    if (empty) {
+        errorIdentifier = ERR_empty_file;
+        errorHandling = "Error: file " + studentsFileName + "is empty";
+    }
     if (!fileName.is_open()) {
         fileName.close();
     }
@@ -1594,7 +1620,8 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
     }
 }
 
-int ProfessorUnavailability(string& errorHandling, const string& professorUnavailabilityFile, list<Professor>& professorList, const string& academicYear, const bool& isDb) {
+int ProfessorUnavailabilityInputFile(string& errorHandling, const string& professorUnavailabilityFile, list<Professor>& professorList, const string& academicYear, const bool& isDb) {
+    bool empty = true;
     int row = 0;
     ifstream fileName;
     string readFromFile;
@@ -1634,6 +1661,7 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
         errorIdentifier = ERR_open_file;
     } else {
         while (getline(fileName, readFromFile) && (errorIdentifier == OK)) {
+            empty = false;
             if (isDb && (readFromFile.find(';') == string::npos)) {
                 // here the string read from file is coming from database's file, and it hasn't the ";" field, so the field read in this case is the academic year
                 if (readFromFile[4] == '-') {
@@ -1834,6 +1862,10 @@ int ProfessorUnavailability(string& errorHandling, const string& professorUnavai
     }
     if (fileName.is_open()) {
         fileName.close();
+    }
+    if (empty) {
+        errorIdentifier = ERR_empty_file;
+        errorHandling = "Error: file " + studentsFileName + "is empty";
     }
     return (int) errorIdentifier;
 }

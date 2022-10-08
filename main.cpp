@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
                         functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, true);
                     } else {
                         functionReturn = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
-                        if (functionReturn == 0) {
+                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
                             functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, false);
                         }
                     }
@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
                         functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, true);
                     } else {
                         functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                        if (functionReturn == 0) {
+                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
                             functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, false);
                         }
                     }
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
                         functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, true);
                     } else {
                         functionReturn = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
-                        if (functionReturn == 0) {
+                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
                             functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, false);
                         }
                     }
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
                         functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, true);
                     } else {
                         functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors,  true);
-                        if (functionReturn == 0) {
+                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
                             functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, false);
                         }
                     }
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
                         functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, true);
                     } else {
                         functionReturn = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
-                        if (functionReturn == 0) {
+                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
                             functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, false);
                         }
                     }
@@ -135,8 +135,7 @@ int main(int argc, char** argv) {
                         if (functionReturn == OK) {
                             functionReturn = StudentToUpdateFile(errorLine, fileNameFromCommandLine, listOfStudents);
                         } else {
-                            errorIdentifier = ERR_open_file;
-                            errorLine = "Error: impossible to update  \"db_studenti.txt\"  without database to start from";
+                            errorLine += "\nImpossible to update  \"db_studenti.txt\"  without database to start from";
                         }
                     } else {
                         errorIdentifier = ERR_update_database;
@@ -153,8 +152,7 @@ int main(int argc, char** argv) {
                         if (functionReturn == OK) {
                             functionReturn = ProfessorToUpdateFile(errorLine, fileNameFromCommandLine, listOfProfessors);
                         } else {
-                            errorIdentifier = ERR_open_file;
-                            errorLine = "Error: impossible to update \"db_professori.txt\" without database to start from";
+                            errorLine += "\nImpossible to update \"db_professori.txt\" without database to start from";
                         }
                     } else {
                         errorIdentifier = ERR_update_database;
@@ -171,8 +169,7 @@ int main(int argc, char** argv) {
                         if (functionReturn == OK) {
                             functionReturn = ClassroomToUpdateFile(errorLine, fileNameFromCommandLine, listOfClassrooms);
                         } else {
-                            errorIdentifier = ERR_open_file;
-                            errorLine = "Error: impossible to update \"db_aule.txt\" without database to start from";
+                            errorLine += "\nImpossible to update \"" + (string)classroomDatabaseName + "\" without database to start from";
                         }
                     } else {
                         errorIdentifier = ERR_update_database;
@@ -197,12 +194,12 @@ int main(int argc, char** argv) {
                     // the existence of professor's database is not a constraint for the insertion or modification of courses,
                     // so the return is checked only for file correctness
                     functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                    if ((functionReturn == OK) || (functionReturn == ERR_open_file)){
+                    if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)){
                         functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors, true);
                         if (functionReturn == OK) {
                             functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors);
                         } else {
-                            errorLine = "Error: can't perform an insertion or modification without the course's database file \"db_corsi.txt\"";
+                            errorLine += "\nCan't perform an insertion or modification without the course's database file \"db_corsi.txt\"";
                         }
                     }
                     if (functionReturn == OK) {
@@ -222,6 +219,7 @@ int main(int argc, char** argv) {
             functionReturn = ExamSessionInputFile(errorLine, examSessionPeriods, examSession, true);
             if (functionReturn == OK) {
                 functionReturn = ExamSessionInputFile(errorLine, fileNameFromCommandLine, examSession, false);
+                hhhf
             }
             break;
         }

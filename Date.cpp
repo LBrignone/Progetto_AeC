@@ -83,6 +83,10 @@ string Date::getCompleteDate() const {
     return tmp.str();
 }
 
+void Date::getAcademicYear(ostream& os) {
+    os << _year << "-" << (_year + 1);
+}
+
 bool Date::operator <= (const Date &date) const {
     bool tmp;
     if (_year < date._year) {

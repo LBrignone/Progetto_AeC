@@ -129,35 +129,30 @@ ostream& CourseOfStudy::operator << (ostream& os) {
     itMapBySemester++;
     // print of active courses
     while (itMapBySemester != _semesterOfCourse.cend()) {
+        if (itMapBySemester != _semesterOfCourse.cbegin()) {
+            os << ",";
+        }
         itListOfCourses = itMapBySemester->second.cbegin();
         os << "{";
         while (itListOfCourses != itMapBySemester->second.cend()) {
-            itListOfCourses++;
-            if (itListOfCourses != itMapBySemester->second.cend()) {
-                os << itListOfCourses->c_str() << ",";
-            } else {
-                os << itListOfCourses->c_str();
+            if (itListOfCourses != itMapBySemester->second.cbegin()) {
+                os << ",";
             }
+            os << itListOfCourses->c_str();
+            itListOfCourses++;
         }
+        os << "}";
         itMapBySemester++;
-        if (itMapBySemester != _semesterOfCourse.cend()) {
-            os << "},";
-        } else {
-            os << "}];[";
-        }
     }
-    // print of eneded courses
-    if (_semesterOfCourse[-1].empty()) {
-        os << "]";
-    } else {
-        itListOfCourses = _semesterOfCourse[-1].cbegin();
-        while (itListOfCourses != _semesterOfCourse[-1].cend()) {
-            itListOfCourses++;
-            if (itListOfCourses != _semesterOfCourse[-1].cend()) {
-                os << itListOfCourses->c_str() << ",";
-            } else {
-                os << itListOfCourses->c_str() << "]";
-            }
+    os << "];[";
+    // print of ended courses
+    itListOfCourses = _semesterOfCourse[-1].cbegin();
+    while (itListOfCourses != _semesterOfCourse[-1].cend()) {
+        if (itListOfCourses != _semesterOfCourse[-1].cbegin()) {
+            os << ",";
         }
-    };
+        os << itListOfCourses->c_str();
+        itListOfCourses++;
+    }
+    os << "]";
 }

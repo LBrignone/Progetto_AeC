@@ -39,6 +39,6 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
 
 int ExamSessionInputFile(string& errorHandling, const string& examSessionStringFileName, map<Date, vector<Date>>& examSessionPerAcademicYear, bool readDatabase);
 
-int ProfessorUnavailability(string& errorHandling, const string& professorUnavailabilityFile, list<Professor>& professorList, const string& academicYear, const bool& isDb);
+int ProfessorUnavailabilityInputFile(string& errorHandling, const string& professorUnavailabilityFile, list<Professor>& professorList, const string& academicYear, const bool& isDb);
 
 #endif //PROGETTO_ADDFILEHANDLING_H

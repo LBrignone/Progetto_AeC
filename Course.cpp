@@ -502,23 +502,19 @@ ostream& Course::printCourseOrganizationVersionOpening(ostream& os, const bool& 
 }
 
 ostream& Course::printCourseOrganizationAcademicYearClosing(ostream& os) const {
+    list<string>::const_iterator itListGroupedCourses;
+
     os << "];{" << _examDuration << "," << _entryTime << "," << _exitTime << "," << _examType << "," << _examClassroomType <<
             "," << _partecipants << "};{";
-    if (!_coursesGroupedId.empty()) {
-        list<string>::const_iterator itListGroupedCourses;
-
-        itListGroupedCourses = _coursesGroupedId.cbegin();
-        while (itListGroupedCourses != _coursesGroupedId.cend()) {
-            itListGroupedCourses++;
-            if (itListGroupedCourses != _coursesGroupedId.cend()) {
-                os << itListGroupedCourses->c_str() << ",";
-            } else {
-                os << itListGroupedCourses->c_str() << "}";
-            }
+    itListGroupedCourses = _coursesGroupedId.cbegin();
+    while (itListGroupedCourses != _coursesGroupedId.cend()) {
+        if (itListGroupedCourses != _coursesGroupedId.cbegin()) {
+            os << ",";
         }
-    } else {
-        os << "}";
+        os << itListGroupedCourses->c_str();
+        itListGroupedCourses++;
     }
+    os << "}" << endl;
 }
 
 Course& Course::operator=(const Course &toCopy) {
@@ -568,12 +564,12 @@ ostream& Course::operator << (ostream& os) {
 
     itListAssociateProfessor = _assistant.cbegin();
     while (itListAssociateProfessor != _assistant.cend()) {
+        if(itListAssociateProfessor != _assistant.cbegin()) {
+            os<<",";
+        }
+        os << "{" << itListAssociateProfessor->getProfessorPointer()->getId() << itListAssociateProfessor->getLessonH() <<
+        itListAssociateProfessor->getExerciseH() << itListAssociateProfessor->getLabH() << "}";
         itListAssociateProfessor++;
-        if (itListAssociateProfessor == _assistant.cend()) {
-            os << "{" << itListAssociateProfessor->getProfessorPointer()->getId() << itListAssociateProfessor->getLessonH() <<
-                    itListAssociateProfessor->getExerciseH() << itListAssociateProfessor->getLabH() << "},";
-        } else {
-            os << "{" << itListAssociateProfessor->getProfessorPointer()->getId() << itListAssociateProfessor->getLessonH() <<
-               itListAssociateProfessor->getExerciseH() << itListAssociateProfessor->getLabH() << "}]}";        }
     }
+    os << "]}";
 }
