@@ -181,6 +181,7 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
 }
 
 int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseExamSessionFileName, const map<Date, vector<Date>>& updatedExamSessionMap) {
+    int separator = 0;
     ofstream fileName;
     t_errorCodes errorIdentifier = OK;
     map<Date, vector<Date>>::const_iterator itMapExamSession;
@@ -192,7 +193,32 @@ int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseE
     } else {
         itMapExamSession = updatedExamSessionMap.cbegin();
         while (itMapExamSession != updatedExamSessionMap.cend()) {
-ggggggg
+            vector<Date>::const_iterator itVectorDates;
+
+            itMapExamSession->first.getAcademicYear(fileName);
+            fileName << " ";
+            itVectorDates = itMapExamSession->second.cbegin();
+            while (itVectorDates != itMapExamSession->second.cend()) {
+                fileName << itVectorDates.operator->();
+                switch (separator) {
+                    case 0:{
+                        fileName << "_";
+                        separator++;
+                        break;
+                    }
+                    case 1:{
+                        fileName << " ";
+                        separator = 0;
+                        break;
+                    }
+                    default:{
+                        errorIdentifier = ERR_separator;
+                        errorHandling = " Error: separator not consistent with regard to session's date pattern";
+                        break;
+                    }
+                }
+                itVectorDates++;
+            }
             itMapExamSession++;
         }
     }

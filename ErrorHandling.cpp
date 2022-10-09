@@ -4,7 +4,7 @@
 
 #include "ErrorHandling.h"
 
-isNotMain::isNotMain():message("the first elemento of the list is not the regular professor");
+isNotMain::isNotMain():message("the first element of the list is not the regular professor") {}
 
 const char* isNotMain::what() const noexcept {
     return message;

@@ -83,7 +83,7 @@ string Date::getCompleteDate() const {
     return tmp.str();
 }
 
-void Date::getAcademicYear(ostream& os) {
+void Date::getAcademicYear(ostream& os) const {
     os << _year << "-" << (_year + 1);
 }
 

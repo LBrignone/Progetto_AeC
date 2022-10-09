@@ -24,7 +24,7 @@ public:
     int getYear() const;
     bool setYear(int year);
     string getCompleteDate() const;
-    void getAcademicYear(ostream& os);
+    void getAcademicYear(ostream& os) const ;
     bool operator <= (const Date& date) const;
     bool operator >= (const Date& date) const;
     bool operator > (const Date& date) const;
