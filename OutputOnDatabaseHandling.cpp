@@ -224,3 +224,8 @@ int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseE
     }
     return (int) errorIdentifier;
 }
+
+int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, const list<Professor>& updatedProfessorList) {
+    list<Professor>::const_iterator itMinInListProfessor;
+    itMinInListProfessor = min_element(updatedProfessorList.cbegin(), updatedProfessorList.cend(), findFirstYearProfessorUnavailability);
+}

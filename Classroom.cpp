@@ -81,6 +81,14 @@ bool Classroom::setExamCapacity(const int &examCapacity) {
     }
 }
 
+bool Classroom::getOccupation(const int& hourSlot) {
+    return _hourSlotOccupation[hourSlot];
+}
+
+void Classroom::setOccupation(const int& hourSlot, const bool& status) {
+    _hourSlotOccupation[hourSlot] = status;
+}
+
 const bool& Classroom::operator < (const Classroom& classroomToCompare) {
     int tmpIdRvalue, tmpIdLvalue;
     tmpIdRvalue = stoi(classroomToCompare.getId().substr(1, classroomToCompare.getId().size() - 1));

@@ -6,6 +6,7 @@
 #define PROGETTO_CLASSROOM_H
 
 #include <string>
+#include <vector>
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -26,6 +27,8 @@ public:
     bool setCapacity(const int& capacity);
     int getExamCapacity() const;
     bool setExamCapacity(const int& examCapacity);
+    bool getOccupation(const int& hourSlot);
+    void setOccupation(const int& hourSlot, const bool& status);
     const bool& operator < (const Classroom& classroomToCompare);
     ostream& operator << (ostream& os);
 
@@ -35,6 +38,7 @@ private:
     string _classroomName;
     int _capacity;
     int _examCapacity;
+    vector<bool> _hourSlotOccupation = {false, false, false, false, false, false};
 };
 
 

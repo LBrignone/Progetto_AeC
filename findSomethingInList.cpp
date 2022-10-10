@@ -134,13 +134,13 @@ list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const
         }
     }
     while ((itCourseList != copyOfCourseList.end()) && !found) {
-        if (itCourseList->getId() == idToFind) {
+        if (itCourseList->getId() != idToFind) {
             itCourseList++;
         } else {
             found = true;
         }
     }
-    return itCourseList--;
+    return itCourseList;
 }
 
 // COURSE 5
@@ -154,12 +154,23 @@ list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const
 
     itCourseList = startPos;
     while ((itCourseList != copyOfCourseList.end()) && !found) {
-        if (itCourseList->getId() == idToFind) {
+        if (itCourseList->getId() != idToFind) {
             itCourseList++;
         } else {
             found = true;
         }
     }
-    return itCourseList--;
+    return itCourseList;
 }
 
+// MIN UNAVAIL DATE
+bool findFirstYearProfessorUnavailability(const list<Professor>::const_iterator& professorToCompare, const list<Professor>::const_iterator& minimum) {
+    Professor copyOfProfessorToCompare = *professorToCompare, copyOfMinimum = *minimum;
+    list<Professor>::const_iterator itListProfessor;
+
+    if (copyOfProfessorToCompare.getMinDateForUnavail() < copyOfMinimum.getMinDateForUnavail()) {
+        return professorToCompare;
+    } else {
+        return minimum;
+    }
+}

@@ -21,5 +21,4 @@ public:
     const char* what() const noexcept;
 };
 
-
 #endif //PROGETTO_ERRORHANDLING_H

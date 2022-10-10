@@ -13,6 +13,9 @@ using namespace std;
 
 class Date {
 public:
+    Date();
+    Date(const int& day, const int& month, const int& year);
+    Date(const int& minutes, const int& hour, const int& day, const int& month, const int& year);
     int getMinutes() const;
     bool setMinutes(int minutes);
     int getHour() const;
@@ -35,8 +38,8 @@ public:
     ostream& operator << (ostream& os);
 
 private:
-    int _hour = 0;
     int _minutes = 0;
+    int _hour = 0;
     int _day = 0;
     int _month = 0;
     int _year = 0;

@@ -4,6 +4,28 @@
 
 #include "Date.h"
 
+Date::Date() {
+    _minutes = 0;
+    _hour = 0;
+    _day = 0;
+    _month = 0;
+    _year = 0;
+}
+
+Date::Date(const int& day, const int& month, const int& year) {
+    _day = day;
+    _month = month;
+    _year = year;
+}
+
+Date::Date(const int& minutes, const int& hour, const int& day, const int& month, const int& year) {
+    _minutes = minutes;
+    _hour = hour;
+    _day = day;
+    _month = month;
+    _year = year;
+}
+
 int Date::getMinutes() const {
     return _minutes;
 }

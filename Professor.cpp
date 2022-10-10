@@ -5,15 +5,15 @@
 #include "Professor.h"
 
 bool Professor::getChangeInUnavail() {
-    return changeInUnavail;
+    return _changeInUnavail;
 }
 
 void Professor::setChangeInUnavail(const bool& newState) {
-    changeInUnavail = newState;
+    _changeInUnavail = newState;
 }
 
 void Professor::resetChangeInUnavail() {
-    changeInUnavail = false;
+    _changeInUnavail = false;
 }
 
 bool Professor::isAvailExamProgramming(const Date& data, const Date& academicYear) {
@@ -48,6 +48,15 @@ list<AvailForExam> Professor::getUnavailListByAcademicYear (const Date& academic
     itMapByAcademicYear = _unavailability.find(academicYear);
     return itMapByAcademicYear->second;
 
+}
+
+Date Professor::getMinDateForUnavail() {
+    Date tmpDate;
+    if (_unavailability.empty()) {
+        return tmpDate;
+    } else {
+        return  _unavailability.cbegin()->first;
+    }
 }
 
 void Professor::appendUnavailability(const Date &startUnavail, const Date &stopUnavail, const Date& academicYear) {
@@ -134,6 +143,27 @@ bool Professor::operator < (const Professor& toCompare) {
     lVal = stoi(_id.substr(1, _id.size() - 1));
     rVal = stoi(toCompare.getId().substr(1, toCompare.getId().size() - 1));
     return lVal < rVal;
+}
+
+Professor& Professor::operator =(const Professor& toCopy) {
+    this->setId(toCopy.getId());
+    this->setName(toCopy.getName());
+    this->setSurname(toCopy.getSurname());
+    this->setMail(toCopy.getMail());
+    _changeInUnavail = toCopy._changeInUnavail;
+    _unavailability = toCopy._unavailability;
+    _unavailabilityForExam = toCopy._unavailabilityForExam;
+
+}
+
+Professor& Professor::operator =(const list<Professor>::const_iterator & toCopy) {
+    this->setId(toCopy->getId());
+    this->setName(toCopy->getName());
+    this->setSurname(toCopy->getSurname());
+    this->setMail(toCopy->getMail());
+    _changeInUnavail = toCopy->_changeInUnavail;
+    _unavailability = toCopy->_unavailability;
+    _unavailabilityForExam = toCopy->_unavailabilityForExam;
 }
 
 ostream& Professor::operator << (ostream& os) {

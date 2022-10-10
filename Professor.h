@@ -29,17 +29,20 @@ public:
     void resetChangeInUnavail();
     bool isAvailExamProgramming (const Date& data, const Date& academicYear);
     list<AvailForExam> getUnavailListByAcademicYear (const Date& academicYear);
+    Date getMinDateForUnavail();
     void appendUnavailability(const Date &startUnavail, const Date &stopUnavail, const Date& academicYear);
     bool appendUnavailability(const AvailForExam& unavailDates, const Date& academicYear);     // all the controls on date's coherency MUST be performed before colling this function (NO control is performed inside)
     void appendUnavailabilityForExam(const Date &startUnavail, const Date &stopUnavail);
     void clearMapAcademicYearUnavailability(const Date& academicYear);
     bool setId(const string& id);
-    const Professor operator ++ (int);
-    bool operator < (const Professor& toCompare);
-    ostream& operator << (ostream& os);
+    const Professor operator ++(int);
+    bool operator <(const Professor& toCompare);
+    Professor& operator =(const Professor& toCopy);
+    Professor& operator =(const list<Professor>::const_iterator & toCopy);
+    ostream& operator <<(ostream& os);
 
 private:
-    bool changeInUnavail = false;
+    bool _changeInUnavail = false;
     map<Date, list<AvailForExam>> _unavailability;
     list<AvailForExam> _unavailabilityForExam;
 };

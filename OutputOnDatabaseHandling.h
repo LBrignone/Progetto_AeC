@@ -9,6 +9,7 @@
 #include <list>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #include "Course.h"
 #include "Student.h"
@@ -16,6 +17,7 @@
 #include "Classroom.h"
 #include "CourseOfStudy.h"
 #include "ErrorHandling.h"
+#include "findSomethingInList.h"
 
 using namespace std;
 
@@ -30,5 +32,7 @@ int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databas
 int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourseFileName, const list<Course>& updatedCourseList);
 
 int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseExamSessionFileName, const map<Date, vector<Date>>& updatedExamSessionMap);
+
+int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, const list<Professor>& updatedProfessorList);
 
 #endif //PROGETTO_OUTPUTONDATABASEHANDLING_H
