@@ -22,13 +22,15 @@
 #define classroomDatabaseName "db_aule.txt"
 #define courseDatabaseName "db_corsi.txt"
 #define courseOfStudyDatabaseName "db_corsi_studio.txt"
-#define examSessionPeriods "db_periodi_esami.txt"
+#define examSessionPeriodsDatabaseName "db_periodi_esami.txt"
+#define unavailabilityDatabaseFile "db_indisponibilità.txt"
 
 using namespace std;
 
 int main(int argc, char** argv) {
     t_errorCodes errorIdentifier;
     int functionReturn = OK;
+    string commandIdentifier, actionIdentifier, fileNameFromCommandLine, academicYearFromCommandLine;
     string errorLine;
     list<Student> listOfStudents;
     list<Professor> listOfProfessors;
@@ -37,15 +39,40 @@ int main(int argc, char** argv) {
     list<CourseOfStudy> listOfCoursesOfStudy;
     map<Date, vector<Date>> examSession;
 
-    if (argc != 2) {
-        cerr << "numero di argomenti passati diverso dal numero richiesto";
-        return -1;
+    if (argc < 3) {
+        errorIdentifier = ERR_arguments_number;
+        errorLine = "number of argument is less than required";
     }
-    string inputFromCommandLine = argv[1];
-    string fileNameFromCommandLine = inputFromCommandLine.substr(5, (inputFromCommandLine.size() - 5));
-    switch (inputFromCommandLine[1]) {
+    commandIdentifier = argv[1];
+    switch (argc) {
+        case 3:{
+            fileNameFromCommandLine = argv[2];
+            break;
+        }
+        case 5:{
+            actionIdentifier = argv[2];
+            academicYearFromCommandLine = argv[3];
+            fileNameFromCommandLine = argv[4];
+            break;
+        }
+        case 7:{
+            actionIdentifier = argv[2];
+            for (int i = 0; i < 4; i++) {
+                academicYearFromCommandLine.append(argv[i + 3]);
+                academicYearFromCommandLine.append(" ");
+            }
+            break;
+        }
+        default:{
+            errorIdentifier = ERR_arguments_number;
+            errorLine = "number of argument is higher than the possible number required (3, 5 or 7)";
+            break;
+        }
+    }
+
+    switch (commandIdentifier[1]) {
         case 'a': {
-            switch (inputFromCommandLine[3]) {
+            switch (commandIdentifier[3]) {
                 case 's':{
                     if (fileNameFromCommandLine == studentDatabaseName) {
                         functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, true);
@@ -121,14 +148,14 @@ int main(int argc, char** argv) {
                 }
                 default:{
                     errorIdentifier = ERR_wrong_identifier;
-                    errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
+                    errorLine = "Error: no matching action for command identifier: " + commandIdentifier;
                     break;
                 }
             }
             break;
         }
         case 'u': {
-            switch (inputFromCommandLine[3]) {
+            switch (commandIdentifier[3]) {
                 case 's':{
                     if (fileNameFromCommandLine != studentDatabaseName) {
                         functionReturn = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
@@ -139,7 +166,7 @@ int main(int argc, char** argv) {
                         }
                     } else {
                         errorIdentifier = ERR_update_database;
-                        errorLine = "Error: can't update \"db_studenti.txt\" with the same database file";
+                        errorLine = "Error: can't update \"" + (string) studentDatabaseName + "\" with the same database file";
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
@@ -152,11 +179,11 @@ int main(int argc, char** argv) {
                         if (functionReturn == OK) {
                             functionReturn = ProfessorToUpdateFile(errorLine, fileNameFromCommandLine, listOfProfessors);
                         } else {
-                            errorLine += "\nImpossible to update \"db_professori.txt\" without database to start from";
+                            errorLine += "\nImpossible to update \"" + (string) professorDatabaseName + "\" without database to start from";
                         }
                     } else {
                         errorIdentifier = ERR_update_database;
-                        errorLine = "Error: can't update \"db_professori.txt\" with the same database file";
+                        errorLine = "Error: can't update \"" + (string) professorDatabaseName + "\" with the same database file";
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, listOfProfessors);
@@ -164,7 +191,7 @@ int main(int argc, char** argv) {
                     break;
                 }
                 case 'a':{
-                    if (fileNameFromCommandLine != courseDatabaseName) {
+                    if (fileNameFromCommandLine != classroomDatabaseName) {
                         functionReturn = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
                         if (functionReturn == OK) {
                             functionReturn = ClassroomToUpdateFile(errorLine, fileNameFromCommandLine, listOfClassrooms);
@@ -173,7 +200,7 @@ int main(int argc, char** argv) {
                         }
                     } else {
                         errorIdentifier = ERR_update_database;
-                        errorLine = "Error: can't update \"db_corsi.txt\" with the same database file";
+                        errorLine = "Error: can't update \"" + (string) courseDatabaseName + "\" with same database file";
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, listOfClassrooms);
@@ -182,14 +209,14 @@ int main(int argc, char** argv) {
                 }
                 default:{
                     errorIdentifier = ERR_wrong_identifier;
-                    errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
+                    errorLine = "Error: no matching action for command identifier: " + commandIdentifier;
                     break;
                 }
             }
             break;
         }
         case 'i': {
-            switch (inputFromCommandLine[3]) {
+            switch (commandIdentifier[3]) {
                 case 'c':{
                     // the existence of professor's database is not a constraint for the insertion or modification of courses,
                     // so the return is checked only for file correctness
@@ -199,7 +226,7 @@ int main(int argc, char** argv) {
                         if (functionReturn == OK) {
                             functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors);
                         } else {
-                            errorLine += "\nCan't perform an insertion or modification without the course's database file \"db_corsi.txt\"";
+                            errorLine += "\nCan't perform an insertion or modification without the course's database file \"" + (string) courseDatabaseName + "\"";
                         }
                     }
                     if (functionReturn == OK) {
@@ -209,26 +236,52 @@ int main(int argc, char** argv) {
                 }
                 default:{
                     errorIdentifier = ERR_wrong_identifier;
-                    errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
+                    errorLine = "Error: no matching action for command identifier: " + commandIdentifier;
                     break;
                 }
             }
             break;
         }
         case 's':{
-            functionReturn = ExamSessionInputFile(errorLine, examSessionPeriods, examSession, true);
-            if (functionReturn == OK) {
+            if (actionIdentifier == "current_a") {
+
+            } else if (actionIdentifier == "set_availability"){
+
+            } else {
+                errorIdentifier = ERR_wrong_identifier;
+                errorLine = "Error: no matching action for command identifier: " + commandIdentifier + " " + actionIdentifier;
+            }
+            functionReturn = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName, examSession, true);
+            if ((functionReturn == OK) && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
                 functionReturn = ExamSessionInputFile(errorLine, fileNameFromCommandLine, examSession, false);
-                hhhf
+            } else {
+                errorIdentifier = ERR_file_name;
+                errorLine += "\nCan't proceed updating \"" + (string) examSessionPeriodsDatabaseName + "\" with same database file";
+            }
+            if (functionReturn == OK) {
+                functionReturn = updateExamSessionDatabaseFile(errorLine, examSessionPeriodsDatabaseName, examSession);
             }
             break;
         }
         case 'g':{
+            string academicYearFromCommandLine, fileName;
+            academicYearFromCommandLine = fileNameFromCommandLine.substr(20, 9);
+            fileName = fileNameFromCommandLine.substr(30, fileNameFromCommandLine.size() - 30);
+            functionReturn = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile, listOfProfessors, "", true);
+            if ((functionReturn == OK) && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
+                functionReturn = ProfessorUnavailabilityInputFile(errorLine, fileName, listOfProfessors, academicYearFromCommandLine,false);
+            } else {
+                errorIdentifier = ERR_file_name;
+                errorLine += "\nCan't update \"" + (string) unavailabilityDatabaseFile + "\" with same database file";
+            }
+            if (functionReturn == OK) {
+                functionReturn = updateUnavailabilityDatabaseFile(errorLine, unavailabilityDatabaseFile, listOfProfessors);
+            }
             break;
         }
         default: {
             errorIdentifier = ERR_wrong_identifier;
-            errorLine = "Error: no matching action for command identifier: " + inputFromCommandLine.substr(0, 4);
+            errorLine = "Error: no matching action for command identifier: " + commandIdentifier;
             break;
         }
     }

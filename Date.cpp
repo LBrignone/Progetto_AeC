@@ -109,6 +109,10 @@ void Date::getAcademicYear(ostream& os) const {
     os << _year << "-" << (_year + 1);
 }
 
+void Date::increaseAcademicYear() {
+    this->_year += 1;
+}
+
 bool Date::operator <= (const Date &date) const {
     bool tmp;
     if (_year < date._year) {

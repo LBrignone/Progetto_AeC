@@ -42,20 +42,29 @@ bool Professor::isAvailExamProgramming(const Date& data, const Date& academicYea
     return flag;
 }
 
-list<AvailForExam> Professor::getUnavailListByAcademicYear (const Date& academicYear) {
-    map<Date, list<AvailForExam>>::iterator itMapByAcademicYear;
+const list<AvailForExam>& Professor::getUnavailListByAcademicYear (const Date& academicYear) const {
+    map<Date, list<AvailForExam>>::const_iterator itMapByAcademicYear;
 
     itMapByAcademicYear = _unavailability.find(academicYear);
     return itMapByAcademicYear->second;
 
 }
 
-Date Professor::getMinDateForUnavail() {
+Date Professor::getMinDateForUnavail() const {
     Date tmpDate;
     if (_unavailability.empty()) {
         return tmpDate;
     } else {
         return  _unavailability.cbegin()->first;
+    }
+}
+
+Date Professor::getMaxDateForUnavail() const {
+    Date tmpDate;
+    if (_unavailability.empty()) {
+        return tmpDate;
+    } else {
+        return  _unavailability.cend()->first;
     }
 }
 

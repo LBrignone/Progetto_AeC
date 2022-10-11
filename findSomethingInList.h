@@ -29,5 +29,7 @@ list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const
 
 list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const list<Course>::iterator& startPos);
 
-bool findFirstYearProfessorUnavailability(const list<Professor>::const_iterator& professorToCompare, const list<Professor>::const_iterator& minimum);
+Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
+
+bool comp(Professor professorToCompare, Professor minimum);
 #endif //PROGETTO_FINDSOMETHINGINLIST_H

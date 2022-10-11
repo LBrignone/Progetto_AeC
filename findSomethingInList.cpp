@@ -163,14 +163,22 @@ list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const
     return itCourseList;
 }
 
-// MIN UNAVAIL DATE
-bool findFirstYearProfessorUnavailability(const list<Professor>::const_iterator& professorToCompare, const list<Professor>::const_iterator& minimum) {
-    Professor copyOfProfessorToCompare = *professorToCompare, copyOfMinimum = *minimum;
+// MAX UNAVAIL DATE
+Date findMaxAcademicYearUnavail(const list<Professor>& professorList) {
+    Date tmpMax;
     list<Professor>::const_iterator itListProfessor;
 
-    if (copyOfProfessorToCompare.getMinDateForUnavail() < copyOfMinimum.getMinDateForUnavail()) {
-        return professorToCompare;
-    } else {
-        return minimum;
+    itListProfessor = professorList.cbegin();
+    while (itListProfessor != professorList.cend()) {
+        if (tmpMax < itListProfessor->getMaxDateForUnavail()) {
+            tmpMax = itListProfessor->getMaxDateForUnavail();
+        }
+        itListProfessor++;
     }
+    return tmpMax;
+}
+
+// MIN UNAVAIL DATE
+bool comp(Professor professorToCompare, Professor minimum) {
+    return (professorToCompare.getMinDateForUnavail() < minimum.getMinDateForUnavail());
 }

@@ -226,6 +226,47 @@ int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseE
 }
 
 int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, const list<Professor>& updatedProfessorList) {
-    list<Professor>::const_iterator itMinInListProfessor;
-    itMinInListProfessor = min_element(updatedProfessorList.cbegin(), updatedProfessorList.cend(), findFirstYearProfessorUnavailability);
+    t_errorCodes errorIdentifier = OK;
+    Date minDate, maxDate;
+    ofstream fileName;
+    Professor minInListProfessor;
+    list<Professor>::const_iterator itListProfessor;
+
+    fileName.open(databaseUnavailabilityFileName, ofstream::trunc);
+    if (!fileName.is_open()) {
+        errorIdentifier = ERR_open_file;
+        errorHandling = "Error: file " + databaseUnavailabilityFileName + " not found";
+    } else {
+        minInListProfessor = min_element(updatedProfessorList.begin(), updatedProfessorList.end(), comp);
+        minDate = minInListProfessor.getMinDateForUnavail();
+        maxDate = findMaxAcademicYearUnavail(updatedProfessorList);
+        itListProfessor = updatedProfessorList.cbegin();
+        while (minDate == maxDate) {
+            minDate.getAcademicYear(fileName);
+            while (itListProfessor != updatedProfessorList.cend()) {
+                Date tmpDate;
+                list<AvailForExam>::const_iterator itListUnavailDates;
+
+                fileName << itListProfessor->getId();
+                fileName << ";";
+                itListUnavailDates = itListProfessor->getUnavailListByAcademicYear(minDate).begin();
+                while (itListUnavailDates != itListProfessor->getUnavailListByAcademicYear(minDate).end()) {
+                    tmpDate = itListUnavailDates->start;
+                    tmpDate.operator<<(fileName);
+                    fileName << "|";
+                    tmpDate = itListUnavailDates->stop;
+                    tmpDate.operator<<(fileName);
+                    fileName << ";";
+                    itListUnavailDates++;
+                }
+
+                itListProfessor++;
+            }
+            minDate.increaseAcademicYear();
+        }
+        if (fileName.is_open()) {
+            fileName.close();
+        }
+    }
+    return (int) errorIdentifier;
 }
