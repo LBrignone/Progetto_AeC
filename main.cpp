@@ -30,14 +30,14 @@ using namespace std;
 int main(int argc, char** argv) {
     t_errorCodes errorIdentifier;
     int functionReturn = OK;
-    string commandIdentifier, actionIdentifier, fileNameFromCommandLine, academicYearFromCommandLine;
+    string commandIdentifier, actionIdentifier, fileNameFromCommandLine, academicYearFromCommandLine, academicYearFromCommandLineAndExamPeriod;
     string errorLine;
     list<Student> listOfStudents;
     list<Professor> listOfProfessors;
     list<Classroom> listOfClassrooms;
     list<Course> listOfCourses;
     list<CourseOfStudy> listOfCoursesOfStudy;
-    map<Date, vector<Date>> examSession;
+    map<Date, vector<Date>> mapOfExamSession;
 
     if (argc < 3) {
         errorIdentifier = ERR_arguments_number;
@@ -58,8 +58,10 @@ int main(int argc, char** argv) {
         case 7:{
             actionIdentifier = argv[2];
             for (int i = 0; i < 4; i++) {
-                academicYearFromCommandLine.append(argv[i + 3]);
-                academicYearFromCommandLine.append(" ");
+                academicYearFromCommandLineAndExamPeriod.append(argv[i + 3]);
+                if (i != 4) {
+                    academicYearFromCommandLineAndExamPeriod.append(" ");
+                }
             }
             break;
         }
@@ -244,39 +246,35 @@ int main(int argc, char** argv) {
         }
         case 's':{
             if (actionIdentifier == "current_a") {
-
+                functionReturn = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName, mapOfExamSession, true);
+                if ((functionReturn == OK) && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
+                    functionReturn = ExamSessionInputFile(errorLine, academicYearFromCommandLineAndExamPeriod, mapOfExamSession, false);
+                } else {
+                    errorIdentifier = ERR_file_name;
+                    errorLine += "\nCan't proceed updating \"" + (string) examSessionPeriodsDatabaseName + "\" with same database file";
+                }
+                if (functionReturn == OK) {
+                    functionReturn = updateExamSessionDatabaseFile(errorLine, examSessionPeriodsDatabaseName, mapOfExamSession);
+                }
             } else if (actionIdentifier == "set_availability"){
-
+                functionReturn = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile, listOfProfessors, "", true);
+                if ((functionReturn == OK) && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
+                    functionReturn = ProfessorUnavailabilityInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, academicYearFromCommandLine,false);
+                } else {
+                    errorIdentifier = ERR_file_name;
+                    errorLine += "\nCan't update \"" + (string) unavailabilityDatabaseFile + "\" with same database file";
+                }
+                if (functionReturn == OK) {
+                    functionReturn = updateUnavailabilityDatabaseFile(errorLine, unavailabilityDatabaseFile, listOfProfessors);
+                }
             } else {
                 errorIdentifier = ERR_wrong_identifier;
                 errorLine = "Error: no matching action for command identifier: " + commandIdentifier + " " + actionIdentifier;
             }
-            functionReturn = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName, examSession, true);
-            if ((functionReturn == OK) && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
-                functionReturn = ExamSessionInputFile(errorLine, fileNameFromCommandLine, examSession, false);
-            } else {
-                errorIdentifier = ERR_file_name;
-                errorLine += "\nCan't proceed updating \"" + (string) examSessionPeriodsDatabaseName + "\" with same database file";
-            }
-            if (functionReturn == OK) {
-                functionReturn = updateExamSessionDatabaseFile(errorLine, examSessionPeriodsDatabaseName, examSession);
-            }
             break;
         }
         case 'g':{
-            string academicYearFromCommandLine, fileName;
-            academicYearFromCommandLine = fileNameFromCommandLine.substr(20, 9);
-            fileName = fileNameFromCommandLine.substr(30, fileNameFromCommandLine.size() - 30);
-            functionReturn = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile, listOfProfessors, "", true);
-            if ((functionReturn == OK) && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
-                functionReturn = ProfessorUnavailabilityInputFile(errorLine, fileName, listOfProfessors, academicYearFromCommandLine,false);
-            } else {
-                errorIdentifier = ERR_file_name;
-                errorLine += "\nCan't update \"" + (string) unavailabilityDatabaseFile + "\" with same database file";
-            }
-            if (functionReturn == OK) {
-                functionReturn = updateUnavailabilityDatabaseFile(errorLine, unavailabilityDatabaseFile, listOfProfessors);
-            }
+
             break;
         }
         default: {

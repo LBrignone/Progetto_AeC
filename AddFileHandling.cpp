@@ -1358,6 +1358,7 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
 }
 
 int ExamSessionInputFile(string& errorHandling, const string& examSessionStringFileName, map<Date, vector<Date>>& examSessionPerAcademicYear, bool readDatabase) {
+    t_errorCodes errorIdentifier;
     ifstream fileName;
     bool errorInFile = false, errorAcademicYear = false, errorCommandIdentifier = false, errorDateField = false, errorExamPeriod = false,
          errorExamSession = false, errorDatesPlacement = false, errorInSessionOrder = false, errorSessionDuration = false;
@@ -1379,12 +1380,12 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
             isFileInput = true;
         }
     } else {
-        // the passed string is decomposed, and it'll update the database or add a new session
-        startPattern = examSessionStringFileName.substr(0, 12);
-        examDates = examSessionStringFileName.substr(13, examSessionStringFileName.size() - 13);
-        if (startPattern != "-s current_a ") {
-            errorCommandIdentifier = true;
-            errorHandling = "Error: the string passed by argument doesn't match the pattern used to identify the insertion of exam periods";
+        // the passed string is controlled if it isn't empty otherwise gives an error
+        if (!examSessionStringFileName.empty()) {
+            examDates = examSessionStringFileName;
+        } else {
+            errorIdentifier = ERR_empty_field;
+            errorHandling = "Error: the given string with session periods is empty";
         }
     }
 
