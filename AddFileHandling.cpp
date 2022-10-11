@@ -1360,8 +1360,6 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
 int ExamSessionInputFile(string& errorHandling, const string& examSessionStringFileName, map<Date, vector<Date>>& examSessionPerAcademicYear, bool readDatabase) {
     t_errorCodes errorIdentifier;
     ifstream fileName;
-    bool errorInFile = false, errorAcademicYear = false, errorCommandIdentifier = false, errorDateField = false, errorExamPeriod = false,
-         errorExamSession = false, errorDatesPlacement = false, errorInSessionOrder = false, errorSessionDuration = false;
     bool isFileInput = false, stringInsertionComplete = false;
     bool empty = true;
     int examPeriod, row = 0;
@@ -1373,7 +1371,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
     if (readDatabase) {
         fileName.open(examSessionStringFileName, 'r');
         if (!fileName.is_open()) {
-            errorInFile = true;
+            errorIdentifier = ERR_open_file;
             errorHandling = "Error: file: " + examSessionStringFileName + " not found.";
         } else {
             // the flag below is needed for distinguish the error messages in database readings
@@ -1389,7 +1387,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
         }
     }
 
-    while (((getline(fileName, examDates) && isFileInput) || (!stringInsertionComplete && !isFileInput)) && !errorAcademicYear && !errorExamPeriod && !errorDateField && !errorInFile && !errorCommandIdentifier) {
+    while (((getline(fileName, examDates) && isFileInput) || (!stringInsertionComplete && !isFileInput)) && (errorIdentifier == OK)) {
         examPeriod = 0;
         stringstream examDatesStream;
         pair<Date, vector<Date>> pairToInsert;
@@ -1402,7 +1400,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                 beginYear.setYear(stoi(academicYear.substr(0, 4)));
             }
             catch (const invalid_argument& excepFromStoi) {
-                errorAcademicYear = true;
+                errorIdentifier = ERR_academic_year;
                 if (isFileInput) {
                     errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row) +
                                     "incorrect element impossible to convert the academic start year field to int: " + academicYear.substr(0, 4);
@@ -1415,7 +1413,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                 endYear.setYear(stoi(academicYear.substr(6, 4)));
             }
             catch (const invalid_argument& excepFromStoi) {
-                errorAcademicYear = true;
+                errorIdentifier = ERR_academic_year;
                 if (isFileInput) {
                     errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row) +
                                     "incorrect element impossible to convert the academic ending year field to int: " + academicYear.substr(6, 4);
@@ -1425,7 +1423,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                 }
             }
             if ((endYear < beginYear) || ((endYear - beginYear) > 0)) {
-                errorAcademicYear = true;
+                errorIdentifier = ERR_academic_year;
                 if (isFileInput) {
                     errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row) +
                                     " the starting year is after the ending academic year";
@@ -1434,7 +1432,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                 }
             }
         } else {
-            errorAcademicYear = true;
+            errorIdentifier = ERR_academic_year;
             if (isFileInput) {
                 errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row) +
                                 " incorrect pattern for academic year" + academicYear;
@@ -1444,31 +1442,31 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
         }
         examDates = examDates.substr(10, examDates.size() - 10);
         examDatesStream.str() = examDates;
-        while ((getline(examDatesStream, examSession, ' ')) && !errorAcademicYear && !errorExamPeriod && !errorDateField) {
+        while ((getline(examDatesStream, examSession, ' ')) && (errorIdentifier == OK)) {
             string date;
             stringstream examSessionStream;
             int startStopDates = 0;
 
             examSessionStream.str() = examSession;
-            while ((getline(examSessionStream, date, '_')) && !errorDateField && !errorExamPeriod) {
+            while ((getline(examSessionStream, date, '_')) && (errorIdentifier == OK)) {
                 int dateFieldCount = 0;
                 string dateField;
                 stringstream dateStream;
                 Date dummyExamDate;
 
                 dateStream.str() = date;
-                while ((getline(dateStream, dateField, '-')) && !errorDateField) {
+                while ((getline(dateStream, dateField, '-')) && (errorIdentifier == OK)) {
                     int pattern;
 
                     try {
                         pattern = stoi(dateField);
                     }
                     catch (const invalid_argument& excepFromStoi) {
-                        errorDateField = true;
+                        errorIdentifier = ERR_date_field_conversion;
                     }
                     switch (dateFieldCount) {
                         case 0: {
-                            if (!errorAcademicYear) {
+                            if (errorIdentifier == OK) {
                                 dummyExamDate.setYear(pattern);
                             } else {
                                 if (isFileInput) {
@@ -1481,7 +1479,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                             break;
                         }
                         case 1: {
-                            if (!errorAcademicYear) {
+                            if (errorIdentifier == OK) {
                                 dummyExamDate.setMonth(pattern);
                             } else {
                                 if (isFileInput) {
@@ -1494,7 +1492,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                             break;
                         }
                         case 2: {
-                            if (!errorAcademicYear) {
+                            if (errorIdentifier == OK) {
                                 dummyExamDate.setDay(pattern);
                             } else {
                                 if (isFileInput) {
@@ -1513,14 +1511,14 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                     dateFieldCount++;
                 }
                 startStopDates++;
-                if (!errorDateField && !errorExamPeriod) {
+                if (errorIdentifier == OK) {
                     tmpSessionVector.push_back(dummyExamDate);
                 }
             }
             examPeriod++;
             // here the start and stop number is controlled (= 6), if it is uneven there's an error
             if (startStopDates != 2) {
-                errorExamSession = true;
+                errorIdentifier = ERR_exceeding_session_number;
                 if (isFileInput) {
                     errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row) +
                                     " has incorrect session's number date";
@@ -1531,7 +1529,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
         }
         // here the number of sessions is controlled (winter, summer and autumn session) and if there's a mismatch an error is risen
         if (examPeriod != 3) {
-            errorExamSession = true;
+            errorIdentifier = ERR_exceeding_session_number;
             if (isFileInput) {
                 errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row) +
                                 " has incorrect session's number defined";
@@ -1541,7 +1539,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
         }
         // the following four ifs are used to verify the coherency and correctness of data coming from input string or database file
         if (examSessionAcademicYearCoherencyTest(errorLine, (beginYear.getYear() - 1), tmpSessionVector)) {
-            errorAcademicYear = true;
+            errorIdentifier = ERR_academic_year;
             if (isFileInput) {
                 errorHandling = "Error: file: " + examSessionStringFileName + " has " + errorLine + " in row " +
                                 to_string(row);
@@ -1550,7 +1548,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
             }
         }
         if (examSessionBeginEndVerification(errorLine, tmpSessionVector)) {
-            errorDatesPlacement = true;
+            errorIdentifier = ERR_inverted_dates;
             if (isFileInput) {
                 errorHandling = "Error: file: " + examSessionStringFileName + " has " + errorLine + " in row " +
                                 to_string(row);
@@ -1559,7 +1557,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
             }
         }
         if (examSessionOrderVerification(errorLine, tmpSessionVector)) {
-            errorInSessionOrder = true;
+            errorIdentifier = ERR_session_planning;
             if (isFileInput) {
                 errorHandling = "Error: file: " + examSessionStringFileName + " has " + errorLine + " in row " +
                                 to_string(row);
@@ -1568,7 +1566,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
             }
         }
         if (sessionDurationConstrainVerification(errorLine, tmpSessionVector)) {
-            errorSessionDuration = true;
+            errorIdentifier = ERR_session_duration;
             if (isFileInput) {
                 errorHandling = "Error: file: " + examSessionStringFileName + " has " + errorLine + " in row " +
                                 to_string(row);
@@ -1593,32 +1591,12 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
     }
     if (empty) {
         errorIdentifier = ERR_empty_file;
-        errorHandling = "Error: file " + studentsFileName + "is empty";
+        errorHandling = "Error: file " + examSessionStringFileName + "is empty";
     }
     if (!fileName.is_open()) {
         fileName.close();
     }
-    if (errorInFile) {
-        return (int) ERR_open_file;
-    } else if (errorCommandIdentifier) {
-        return (int) ERR_string_identifier;
-    } else if (errorAcademicYear) {
-        return (int) ERR_academic_year;
-    } else if (errorDateField) {
-        return (int) ERR_date_field_conversion;
-    } else if (errorExamPeriod) {
-        return (int) ERR_exceeding_session_dates;
-    } else if (errorExamSession) {
-        return (int) ERR_exceeding_session_number;
-    } else if (errorDatesPlacement) {
-        return (int) ERR_inverted_dates;
-    } else if (errorInSessionOrder) {
-        return (int) ERR_session_planning;
-    } else if (errorSessionDuration) {
-        return (int) ERR_session_duration;
-    } else {
-        return (int) OK;
-    }
+    return (int) errorIdentifier
 }
 
 int ProfessorUnavailabilityInputFile(string& errorHandling, const string& professorUnavailabilityFile, list<Professor>& professorList, const string& academicYear, const bool& isDb) {
