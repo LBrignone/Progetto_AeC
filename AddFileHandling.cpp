@@ -11,10 +11,10 @@ int StudentInputFile(string& errorHandling, const string& studentsFileName, list
     bool empty = true;
     int lineOfFile = 0, patterField = 0;
 
-    fileName.open(studentsFileName, 'r');
+    fileName.open(studentsFileName, ifstream::in);
     if (!fileName.is_open()) {
         errorHandling = "Error: file: " + studentsFileName + " not found.";
-        return (int)ERR_open_file;
+        errorIdentifier = ERR_open_file;
     } else {
         while ((getline(fileName , readFromFile)) && (errorIdentifier == OK)) {
             empty = false;
@@ -26,12 +26,14 @@ int StudentInputFile(string& errorHandling, const string& studentsFileName, list
                         if (isDb) {
                             if (!dummyStudent.setId(readFromLine)) {
                                 errorIdentifier = ERR_student_format;
-                                errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " incorrect id element: " + readFromLine;
+                                errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                                                " incorrect id element: " + readFromLine;
                             } else {
                                 if (!studentList.empty()) {
                                     if (dummyStudent < studentList.back()) {
                                         errorIdentifier = ERR_student_format;
-                                        errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) + " inchoerent id element: " + readFromLine;
+                                        errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                                                        " incoherent id element: " + readFromLine;
                                     }
                                 }
                             }
@@ -39,12 +41,14 @@ int StudentInputFile(string& errorHandling, const string& studentsFileName, list
                             if (studentList.empty()) {
                                 if (dummyStudent.generateNewId("")) {
                                     errorIdentifier = ERR_student_format;
-                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
+                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    " incorrect id element: " + readFromLine;
                                 }
                             } else {
                                 if (dummyStudent.generateNewId(studentList.back().getId())) {
                                     errorIdentifier = ERR_student_format;
-                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
+                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    " incorrect id element: " + readFromLine;
                                 }
                             }
                         }
@@ -94,58 +98,56 @@ int StudentInputFile(string& errorHandling, const string& studentsFileName, list
 }
 
 int ProfessorInputFile(string& errorHandling, const string& professorFileName, list<Professor>& professorList, const bool& isDb) {
+    t_errorCodes errorIdentifier = OK;
     ifstream fileName;
     string readFromFile, readFromLine;
     int lineOfFile = 0, patternField = 0;
-    bool errorInFormat = false, profIdExist = false;
     bool empty = true;
-    list<Professor>::iterator itOFProfessorList;
 
-    fileName.open(professorFileName, 'r');
+    fileName.open(professorFileName, ifstream::in);
     if (!fileName.is_open()) {
         errorHandling = "Error: file: " + professorFileName + " not found.";
-        return (int)ERR_open_file;
+        errorIdentifier = ERR_open_file;
     } else {
-        while ((getline(fileName , readFromFile)) && !errorInFormat) {
+        while ((getline(fileName , readFromFile)) && (errorIdentifier == OK)) {
             empty = false;
             stringstream tmp(readFromFile);
             Professor dummyProfessor;
 
-            if (isDb) {
-                patternField = 1;
-            } else {
-                patternField = 0;
-            }
-            while((getline(tmp, readFromLine, ';')) && !errorInFormat) { // continua se non ho raggiunto la fine del file e NON ho errori di formato
-
+            while((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                 switch (patternField) {
                     case 0:{
-                        if (!dummyProfessor.setId(readFromLine)) {
-                            errorInFormat = true;
-                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
+                        if (isDb) {
+                            if (!dummyProfessor.setId(readFromLine)) {
+                                errorIdentifier = ERR_professor_format;
+                                errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
+                                                " incorrect id element: " + readFromLine;
+                            } else {
+                                if (!professorList.empty()) {
+                                    // the correct order of ids is checked below here
+                                    if (dummyProfessor < professorList.back()) {
+                                        errorIdentifier = ERR_professor_format;
+                                        errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        " inchoerent id element: " + readFromLine;
+                                    }
+                                }
+                            }
                         } else {
-                            if (!professorList.empty()) { // se la lista non è vuota allora
-                                if (dummyProfessor < professorList.back()) { // verifico l'ordinamennto corretto degli id: se l'ultimo id della lista è maggiore (>) di quello che vogli inserire do errore
-                                    errorInFormat = true;
-                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) + " inchoerent id element: " + readFromLine;
+                            if (professorList.empty()) {
+                                if (!dummyProfessor.generateNewId("")) {
+                                    errorIdentifier = ERR_professor_format;
+                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    " incorrect id element: " + readFromLine;
+                                }
+                            } else {
+                                if (!dummyProfessor.generateNewId(professorList.back().getId())) {
+                                    errorIdentifier = ERR_professor_format;
+                                    errorHandling =
+                                            "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
+                                            " incorrect id element: " + readFromLine;
                                 }
                             }
                         }
-
-
-
-
-                            //if (professorList.empty()) {
-                            //    if (!dummyProfessor.generateNewId("")) {
-                            //        errorInFormat = true;
-                            //        errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
-                            //    }
-                            //} else {
-                            //    if (!dummyProfessor.generateNewId(professorList.back().getId())) {
-                            //        errorInFormat = true;
-                            //        errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
-                            //    }
-                            //}
                         break;
                     }
                     case 1:{
@@ -158,42 +160,23 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
                     }
                     case 3:{
                         if (!dummyProfessor.setMail(readFromLine)) {
-                            errorInFormat = true;
+                            errorIdentifier = ERR_professor_format;
                             errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) + " incorrect mail element: " + readFromLine;
                         }
                         break;
                     }
                     default:{
-                        errorInFormat = true;
+                        errorIdentifier = ERR_professor_format;
                         errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number greater than " + to_string(4);
                     }
                 }
                 patternField++;
             }
             if(patternField == 4) {
-                if (isDb) {
-                    professorList.push_back(dummyProfessor);
-                } else {
-                    dummyProfessor.setId("d000001");
-                    while (!profIdExist) {
-                        itOFProfessorList = findProfessor(professorList, dummyProfessor.getId());
-                        if (itOFProfessorList != professorList.end()){
-                            if (!itOFProfessorList->getMail().empty()){
-                                dummyProfessor++;
-                            } else {
-                                itOFProfessorList->setName(dummyProfessor.getName());
-                                itOFProfessorList->setSurname(dummyProfessor.getSurname());
-                                itOFProfessorList->setMail(dummyProfessor.getMail());
-                                profIdExist = true;
-                            }
-                        } else {
-                            professorList.push_back(dummyProfessor);
-                            profIdExist = true;
-                        }
-                    }
-                }
+                professorList.push_back(dummyProfessor);
+                patternField = 0;
             } else {
-                errorInFormat = true;
+                errorIdentifier = ERR_professor_format;
                 errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number less than " + to_string(4);
             }
             lineOfFile++;
@@ -201,21 +184,17 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
     }
     if (empty) {
         errorIdentifier = ERR_empty_file;
-        errorHandling = "Error: file " + studentsFileName + "is empty";
+        errorHandling = "Error: file " + professorFileName + "is empty";
     }
     if (!fileName.is_open()) {
         fileName.close();
     }
-    if (errorInFormat) {
-        return (int) ERR_file_format;
-    } else {
-        return (int) OK;
-    }
+    return (int) errorIdentifier;
 }
 
 int ClassroomInputFile(string& errorHandling, const string& classroomFileName, list<Classroom>& classroomList, const bool& isDb) {
-    ifstream fileName;
     t_errorCodes errorIdentifier = OK;
+    ifstream fileName;
     string readFromFile, readFromLine;
     int lineOfFile = 0, patterField = 0;
     bool empty = true;
@@ -223,7 +202,7 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
     fileName.open(classroomFileName, 'r');
     if (!fileName.is_open()) {
         errorHandling = "Error: file: " + classroomFileName + " not found.";
-        return (int) ERR_open_file;
+        errorIdentifier = ERR_open_file;
     } else {
         while ((getline(fileName, readFromFile)) && (errorIdentifier == OK)) {
             empty = false;
@@ -236,12 +215,14 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                         if (isDb) {
                             if (!dummyClassroom.setId(readFromLine)) {
                                 errorIdentifier = ERR_classroom_format;
-                                errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
+                                errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                " incorrect id element: " + readFromLine;
                             } else {
                                 if (!classroomList.empty()) {
                                     if (dummyClassroom < classroomList.back()) {
                                         errorIdentifier = ERR_classroom_format;
-                                        errorHandling = "Error: file: " + classroomFileName + " row: "+ to_string(lineOfFile + 1) + " inchoerent id element: " + readFromLine;
+                                        errorHandling = "Error: file: " + classroomFileName + " row: "+ to_string(lineOfFile + 1) +
+                                                        " inchoerent id element: " + readFromLine;
                                     }
                                 }
                             }
@@ -249,12 +230,14 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                             if (classroomList.empty()){ // se la lista di aule (il database in memoria) non è vuoto
                                 if (!dummyClassroom.generateNewId("")) {
                                     errorIdentifier = ERR_classroom_format;
-                                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
+                                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    " incorrect id element: " + readFromLine;
                                 }
                             } else {
                                 if (!dummyClassroom.generateNewId(classroomList.back().getId())) {
                                     errorIdentifier = ERR_classroom_format;
-                                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
+                                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    " incorrect id element: " + readFromLine;
                                 }
                             }
                         }
@@ -263,7 +246,8 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                     case 1:{
                         if (!dummyClassroom.setType(readFromLine[0])){
                             errorIdentifier = ERR_classroom_format;
-                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect classroom type element: " + readFromLine;
+                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                            " incorrect classroom type element: " + readFromLine;
                         }
                         break;
                     }
@@ -274,20 +258,23 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
                     case 3:{
                         if (!dummyClassroom.setCapacity(stoi(readFromLine))) {
                             errorIdentifier = ERR_classroom_format;
-                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect classroom capacity element: " + readFromLine;
+                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                            " incorrect classroom capacity element: " + readFromLine;
                         }
                         break;
                     }
                     case 4:{
                         if (!dummyClassroom.setExamCapacity(stoi(readFromLine))) {
                             errorIdentifier = ERR_classroom_format;
-                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " incorrect classroom exam capacity element: " + readFromLine;
+                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                            " incorrect classroom exam capacity element: " + readFromLine;
                         }
                         break;
                     }
                     default:{
                         errorIdentifier = ERR_classroom_format;
-                        errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number greater than: " + to_string(4);
+                        errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                        " unexpected element number greater than: " + to_string(4);
                         break;
                     }
                 }
@@ -314,10 +301,11 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
 }
 
 int CourseInputFile(string& errorHandling, const string& courseFileName, list<Course>& courseList, const list<Professor>& professorList, const bool& isDb) {
+    t_errorCodes errorIdentifier = OK;
     ifstream fileName;
     string readFromFile, readFromLine;
     int lineOfFile = 0, patternField = 0;
-    bool errorInFormat = false, errorIncoherentHour = false;
+    //bool errorInFormat = false, errorIncoherentHour = false;
     bool empty = true;
 
     fileName.open(courseFileName, 'r');
@@ -326,7 +314,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
         return (int) ERR_open_file;
     } else {
         if (isDb) {
-            while ((getline(fileName, readFromFile)) && !errorInFormat && !errorIncoherentHour) {
+            while ((getline(fileName, readFromFile)) && (errorIdentifier == OK)) {
                 empty = false;
                 Course dummyCourse;
                 stringstream tmp(readFromFile);
@@ -334,12 +322,13 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
 
                 if(getline(tmp, readFromLine, ';')){
                     if(readFromLine == "c") {
-                        while ((getline(tmp, readFromLine, ';')) && !errorInFormat) {
+                        while ((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                             switch (patternField) {
                                 case 0: {
                                     if (!dummyCourse.setId(readFromLine)) {
-                                        errorInFormat = true;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect id element: " + readFromLine;
+                                        errorIdentifier = ERR_id_field;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + 
+                                                        " incorrect id element: " + readFromLine;
                                     }
                                     break;
                                 }
@@ -349,26 +338,37 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                 }
                                 case 2: {
                                     try {
-                                        if (!dummyCourse.setCfu(stoi(readFromLine))) {
-                                            errorInFormat = true;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given value of cfu is below 0 (zero): " + readFromLine;
+                                        try {
+                                            if (!dummyCourse.setCfu(stoi(readFromLine))) {
+                                                errorIdentifier = ERR_cfu_field;
+                                                errorHandling = "Error: file: " + courseFileName + " row: " +
+                                                                to_string(lineOfFile + 1) +
+                                                                "the given value of cfu is below 0 (zero): " +
+                                                                readFromLine;
+                                            }
+                                        }
+                                        catch (const invalid_argument &excepFromStoi) {
+                                            errorIdentifier = ERR_stoi_conversion;
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile) +
+                                                            " can't convert student id number to int";
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert cfu field to int: " + readFromLine;
+                                        errorIdentifier = ERR_course_format;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        " incorrect element impossible to convert cfu field to int: " + readFromLine;
                                     }
                                     break;
                                 }
                                 case 3: {
                                     try {
                                         if (!dummyCourse.setCourseLessonH(stoi(readFromLine))) {
-                                            errorInFormat = true;
+                                            errorIdentifier = ERR_hour_set;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given value of lesson hour is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
+                                        errorIdentifier = ERR_stoi_conversion;
                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert lesson hour field to int: " + readFromLine;
                                     }
                                     break;
@@ -376,12 +376,12 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                 case 4: {
                                     try {
                                         if (!dummyCourse.setCourseExerciseH(stoi(readFromLine))) {
-                                            errorInFormat = true;
+                                            errorIdentifier = ERR_hour_set;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given value of exercise hour is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
+                                        errorIdentifier = ERR_stoi_conversion;
                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert exercise hour field to int: " + readFromLine;
                                     }
                                     break;
@@ -389,18 +389,18 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                 case 5: {
                                     try {
                                         if (!dummyCourse.setCourseLabH(stoi(readFromLine))) {
-                                            errorInFormat = true;
+                                            errorIdentifier = ERR_hour_set;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given value of laboratory hour is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
+                                        errorIdentifier = ERR_stoi_conversion;
                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert laboratory hour field to int: " + readFromLine;
                                     }
                                     break;
                                 }
                                 default: {
-                                    errorInFormat = true;
+                                    errorIdentifier = ERR_course_format;
                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number greater than: " + to_string(7);
                                     break;
                                 }
@@ -410,18 +410,21 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                     } else if(readFromLine == "a") {
                         string associateProfessorFromDb;
 
-                        while ((getline(tmp, readFromLine, ';')) && !errorInFormat) {
+                        while ((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                             switch (patternField) {
                                 case 0: {
+//!!!!!!----------------------------> devo copiare qui il controllo sull AA
                                     try {
                                         if (!dummyCourse.setStartYear(stoi(readFromLine.substr(0, 4)))) {
-                                            errorInFormat = true;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given accademic year is below 0 (zero): " + readFromLine;
+                                            errorIdentifier = ERR_academic_year;
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                            "the given accademic year is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert accademic year field to Date class (int): " + readFromLine;
+                                        errorIdentifier = ERR_stoi_conversion;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        " incorrect element impossible to convert academic year field to Date class (int): " + readFromLine;
                                     }
                                     break;
                                 }
@@ -431,21 +434,24 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                     } else if (readFromLine == "non_attivo"){
                                         dummyCourse.setActiveCourse(false);
                                     } else {
-                                        errorInFormat = true;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given string doesn't idenfy if the course is or is not active: " + readFromLine;
+                                        errorIdentifier = ERR_course_status;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        "the given string doesn't identify if the course is or is not active: " + readFromLine;
                                     }
                                     break;
                                 }
                                 case 2: {
                                     try {
                                         if (!dummyCourse.setParallelCoursesNumber(stoi(readFromLine))) {
-                                            errorInFormat = true;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given number of parallel courses is below 0 (zero): " + readFromLine;
+                                            errorIdentifier = ERR_parallel_course_number;
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                            "the given number of parallel courses is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert the number of parallel version of the given course to int: " + readFromLine;
+                                        errorIdentifier = ERR_stoi_conversion;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        " incorrect element impossible to convert the number of parallel version of the given course to int: " + readFromLine;
                                     }
                                     break;
                                 }
@@ -459,60 +465,67 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                     int patternOfExamOrganization = 0;
 
                                     strExamOrganization.str() = readFromLine.substr(1, readFromLine.size() - 2);
-                                    while (getline(strExamOrganization,readExamOraganzation, ',') && !errorInFormat) {
+                                    while (getline(strExamOrganization,readExamOraganzation, ',') && (errorIdentifier == OK)) {
                                         switch (patternOfExamOrganization) {
                                             case 0:{
                                                 try {
                                                     if (!dummyCourse.setExamDuration(stoi(readExamOraganzation))) {
-                                                        errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given exam duration is below 0 (zero): " + readExamOraganzation;
+                                                        errorIdentifier = ERR_exam_duration;
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                                        "the given exam duration is below 0 (zero): " + readExamOraganzation;
                                                     }
                                                 }
                                                 catch (const invalid_argument &excepFromStoi) {
-                                                    errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert the exam duration field to int: " + readExamOraganzation + " (field number: " +
-                                                            to_string(patternOfExamOrganization) + ")";
+                                                    errorIdentifier = ERR_stoi_conversion;
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                                    " incorrect element impossible to convert the exam duration field to int: " +
+                                                                    readExamOraganzation + " (field number: " + to_string(patternOfExamOrganization) + ")";
                                                 }
                                                 break;
                                             }
                                             case 1:{
                                                 try {
                                                     if (!dummyCourse.setEntranceTime(stoi(readExamOraganzation))) {
-                                                        errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given entrance time is below 0 (zero): " + readExamOraganzation;
+                                                        errorIdentifier = ERR_entrance_time;
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                                        " the given entrance time is below 0 (zero): " + readExamOraganzation;
                                                     }
                                                 }
                                                 catch (const invalid_argument &excepFromStoi) {
-                                                    errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert entrance time field to int: " + readExamOraganzation + " (field number: " +
-                                                                    to_string(patternOfExamOrganization) + ")";
+                                                    errorIdentifier = ERR_stoi_conversion;
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                                    " incorrect element impossible to convert entrance time field to int: " +
+                                                                    readExamOraganzation + " (field number: " + to_string(patternOfExamOrganization) + ")";
                                                 }
                                                 break;
                                             }
                                             case 2:{
                                                 try {
                                                     if (!dummyCourse.setExitTime(stoi(readExamOraganzation))) {
-                                                        errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given exit time is below 0 (zero): " + readExamOraganzation;
+                                                        errorIdentifier = ERR_exit_time;
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                                        "the given exit time is below 0 (zero): " + readExamOraganzation;
                                                     }
                                                 }
                                                 catch (const invalid_argument &excepFromStoi) {
-                                                    errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert exit time field to int: " + readExamOraganzation + " (field number: " +
-                                                                    to_string(patternOfExamOrganization) + ")";
+                                                    errorIdentifier = ERR_stoi_conversion;
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                                    " incorrect element impossible to convert exit time field to int: " +
+                                                                    readExamOraganzation + " (field number: " + to_string(patternOfExamOrganization) + ")";
                                                 }
                                                 break;
                                             }
                                             case 3:{
                                                 if (!dummyCourse.setExamType(readExamOraganzation)) {
-                                                    errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given exam type doesn't match the acronym set (S/SO/O/P): " + readExamOraganzation;
+                                                    errorIdentifier = ERR_exam_type;
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                                    "the given exam type doesn't match the acronym set (S/SO/O/P): " + readExamOraganzation;
                                                 }
                                                 break;
                                             }
                                             case 4:{
                                                 if (!dummyCourse.setExamClassroomType(readExamOraganzation[0])) {
-                                                    errorInFormat = true;
+                                                    errorIdentifier = ERR_classroom_type;
                                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given classroom type doesn't match the acronym set (A/L): " + readExamOraganzation;
                                                 }
                                                 break;
@@ -520,19 +533,19 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                             case 5: {
                                                 try {
                                                     if (!dummyCourse.setPartecipants(stoi(readExamOraganzation))) {
-                                                        errorInFormat = true;
+                                                        errorIdentifier = ERR_partecipants;
                                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given number of students is below 0 (zero): " + readExamOraganzation;
                                                     }
                                                 }
                                                 catch (const invalid_argument &excepFromStoi) {
-                                                    errorInFormat = true;
+                                                    errorIdentifier = ERR_stoi_conversion;
                                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " incorrect element impossible to convert the number of students field to int: " + readExamOraganzation + " (field number: " +
                                                                     to_string(patternOfExamOrganization) + ")";
                                                 }
                                                 break;
                                             }
                                             default:{
-                                                errorInFormat = true;
+                                                errorIdentifier = ERR_course_format;
                                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + " unexpected element number greater than: " + to_string(6);
                                             }
                                         }
@@ -545,7 +558,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                     stringstream strGroupingAssembly;
 
                                     strGroupingAssembly.str() = readFromLine.substr(1, readFromLine.size() - 2);
-                                    while (getline(strGroupingAssembly,readGroupingCourses, ',') && !errorInFormat) {
+                                    while (getline(strGroupingAssembly,readGroupingCourses, ',') && (errorIdentifier == OK)) {
                                         if (!dummyCourse.appendGroupedId(readGroupingCourses)) {
                                             errorInFormat = true;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) + "the given element of the grouped list of courses doesn't match the pattern (01XXXXX): " + readGroupingCourses;
@@ -1518,7 +1531,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
             examPeriod++;
             // here the start and stop number is controlled (= 6), if it is uneven there's an error
             if (startStopDates != 2) {
-                errorIdentifier = ERR_exceeding_session_number;
+                errorIdentifier = ERR_exceeding_session_dates;
                 if (isFileInput) {
                     errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row) +
                                     " has incorrect session's number date";
@@ -1568,8 +1581,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
         if (sessionDurationConstrainVerification(errorLine, tmpSessionVector)) {
             errorIdentifier = ERR_session_duration;
             if (isFileInput) {
-                errorHandling = "Error: file: " + examSessionStringFileName + " has " + errorLine + " in row " +
-                                to_string(row);
+                errorHandling = "Error: file: " + examSessionStringFileName + " has " + errorLine + " in row " + to_string(row);
             } else {
                 errorHandling = "Error: the string has " + errorLine;
             }
