@@ -305,7 +305,6 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
     ifstream fileName;
     string readFromFile, readFromLine;
     int row = 0, patternField = 0;
-    //bool errorInFormat = false, errorIncoherentHour = false;
     bool empty = true;
 
     fileName.open(courseFileName, 'r');
@@ -817,7 +816,6 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                 while ((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                     switch (patternField) {
                         case 0:{
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                             if (readFromLine[4] == '-') {
                                 try {
                                     beginYear.setYear(stoi(readFromLine.substr(0, 4)));

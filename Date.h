@@ -29,13 +29,15 @@ public:
     string getCompleteDate() const;
     void getAcademicYear(ostream& os) const ;
     void increaseAcademicYear();
-    bool operator <= (const Date& date) const;
-    bool operator >= (const Date& date) const;
-    bool operator > (const Date& date) const;
-    bool operator < (const Date& date) const;
-    bool operator == (const Date& date) const;
+    Date& operator =(Date date);
+    bool operator <=(const Date& date) const;
+    bool operator >=(const Date& date) const;
+    bool operator >(const Date& date) const;
+    bool operator <(const Date& date) const;
+    bool operator ==(const Date& date) const;
+    bool operator !=(const Date& date) const;
     int operator - (const Date& rValDate) const;
-    const Date operator ++ (int);
+    Date operator ++ (int);
     ostream& operator << (ostream& os);
 
 private:

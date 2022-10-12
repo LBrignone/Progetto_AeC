@@ -113,6 +113,14 @@ void Date::increaseAcademicYear() {
     this->_year += 1;
 }
 
+Date& Date::operator =(Date date) {
+    if ((this) == &date) {
+        return *this;
+    }
+    date.swap
+    return *this;
+}
+
 bool Date::operator <= (const Date &date) const {
     bool tmp;
     if (_year < date._year) {
@@ -197,6 +205,14 @@ bool Date::operator == (const Date& date) const {
     }
 }
 
+bool Date::operator !=(const Date& date) const {
+    if ((_year == date.getYear()) && (_month == date.getMonth()) && (_day == date.getDay()) && (_hour == date.getHour()) && (_minutes == date.getMinutes())) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 // the "-" operator overload will return a difference in days between the given dates
 int Date::operator - (const Date& rValDate) const {
     int tmp, tmpMonth, tmpYear;
@@ -257,7 +273,8 @@ int Date::operator - (const Date& rValDate) const {
     }
 }
 
-const Date Date::operator ++ (int) {
+Date Date::operator ++ (int) {
+    Date old = *this;
     if (_month == 2) {
         if (_day < 28) {
             _day++;
@@ -283,9 +300,9 @@ const Date Date::operator ++ (int) {
                 _month = 1;
                 _year++;
             }
-
         }
     }
+    return old;
 }
 
 ostream& Date::operator << (ostream& os) {
