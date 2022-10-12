@@ -8,7 +8,7 @@
 int CourseToInsertFile(string& errorHandling, const string& courseFileName, list<Course>& databaseList, list<Professor>& professorList) {
     ifstream fileName;
     string readFromFile, readFromLine, errorLine = "";
-    int lineOfFile = 0, patternFiled = 0;
+    int row = 0, patternFiled = 0;
     bool errorFile = false, errorInFormat = false, errorAbsence = false, yearIsPresent = false, errorInData = false, errorIncoherentHour = false, errorInParallelCourseNumber = false;
     Course dummyCourse;
     list<Course> dummyCoursesList;
@@ -21,14 +21,14 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
         while (getline(fileName, readFromFile) && !errorInFormat && !errorAbsence) {
             patternFiled = 0;
             int startYear;
-            string academicYear, courseId, courseProfessorOrganization;
+            string courseId, courseProfessorOrganization;
             stringstream lineToInsertFromFile;
             list<Course>::iterator itCourseListId, itCourseListYear;
 
             lineToInsertFromFile.str() = readFromFile;
 
             while (getline(lineToInsertFromFile, readFromLine, ';') && !errorInFormat && !errorAbsence && ! errorInData) {
-                int tmpAcademicYear;
+                Date beginYear, endYear;
 
                 switch (patternFiled) {
                     case 0:{
@@ -36,14 +36,45 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             dummyCourse.setId(readFromLine);
                         } else {
                             errorAbsence = true;
-                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                             " the course id must be present";
                         }
                         break;
                     }
                     case 1:{
                         if (!readFromLine.empty()) {
-                            dummyCourse.setStartYear(stoi(readFromLine.substr(0, 4)));
+                            if (readFromLine[4] == '-') {
+                                try {
+                                    beginYear.setYear(stoi(readFromLine.substr(0, 4)));
+                                }
+                                catch (const invalid_argument& excepFromStoi) {
+                                    errorIdentifier = ERR_academic_year;
+                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                    "incorrect element impossible to convert the academic start year field to int: " + readFromLine.substr(0, 4);
+                                }
+                                try {
+                                    endYear.setYear(stoi(readFromLine.substr(6, 4)));
+                                }
+                                catch (const invalid_argument& excepFromStoi) {
+                                    errorIdentifier = ERR_academic_year;
+                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                    "incorrect element impossible to convert the academic ending year field to int: " + readFromLine.substr(6, 4);
+                                }
+                                if ((endYear < beginYear) || ((endYear - beginYear) > 0)) {
+                                    errorIdentifier = ERR_academic_year;
+                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                    " the starting year is after the ending academic year";
+                                }
+                            } else {
+                                errorIdentifier = ERR_academic_year;
+                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                " incorrect pattern for academic year" + readFromLine;
+                            }
+                            if (!dummyCourse.setStartYear(beginYear.getYear())) {
+                                errorIdentifier = ERR_academic_year;
+                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                " the given academic year is below 0 (zero): " + readFromLine;
+                            }
                             itCourseListYear = findCourse(databaseList, dummyCourse.getId(), dummyCourse.getStartYear());
                             if (itCourseListYear != databaseList.end()) {
                                 dummyCourse.inheritCourse(itCourseListYear) ;
@@ -54,13 +85,13 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                     dummyCourse.inheritCourse(itCourseListId);
                                 } else {
                                     errorAbsence = true;
-                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     " can't find course id " + readFromLine + " into the list of courses";
                                 }
                             }
                         } else {
                             errorInFormat = true;
-                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                             " the course's academic year must be present";
                         }
                         break;
@@ -73,7 +104,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 dummyCourse.setActiveCourse(false);
                             } else {
                                 errorInFormat = true;
-                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " the given course has wrong definition of active or not active course: " +
                                                 readFromLine;
                             }
@@ -87,13 +118,13 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             try {
                                 if (!dummyCourse.setParallelCoursesNumber(stoi(readFromFile))) {
                                     errorInFormat = true;
-                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     " the given number of parallel course is below 0 (zero): " + readFromLine;
                                 }
                             }
                             catch (const invalid_argument &excepFromStoi) {
                                 errorInFormat = true;
-                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " incorrect element impossible to convert the number of parallel courses field to int: " +
                                                 readFromLine;
                             }
@@ -114,7 +145,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                         if (!readFromLine.empty()) {
                             if (readFromLine == "{}") {
                                 errorInFormat = true;
-                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile) +
+                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                                 " the exam organization has the field identifiers (\"{}\") but without contents";
                             }
                             examOrganization.str() = readFromLine.substr(1, readFromLine.size() - 2);
@@ -126,7 +157,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 if (!dummyCourse.setExamDuration(stoi(examField))) {
                                                     errorInFormat = true;
                                                     errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                    to_string(lineOfFile + 1) +
+                                                                    to_string(row + 1) +
                                                                     " the given exam duration is below 0 (zero): " +
                                                                     examField;
                                                 }
@@ -134,7 +165,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorInFormat = true;
                                                 errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                to_string(lineOfFile + 1) +
+                                                                to_string(row + 1) +
                                                                 " incorrect element impossible to convert exam duration field to int: " +
                                                                 examField;
                                             }
@@ -147,7 +178,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 if (!dummyCourse.setEntranceTime(stoi(examField))) {
                                                     errorInFormat = true;
                                                     errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                    to_string(lineOfFile + 1) +
+                                                                    to_string(row + 1) +
                                                                     " the given entrance time is below 0 (zero): " +
                                                                     examField;
                                                 }
@@ -155,7 +186,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorInFormat = true;
                                                 errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                to_string(lineOfFile + 1) +
+                                                                to_string(row + 1) +
                                                                 " incorrect element impossible to convert entrance time field to int: " +
                                                                 examField;
                                             }
@@ -168,7 +199,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 if (!dummyCourse.setExitTime(stoi(examField))) {
                                                     errorInFormat = true;
                                                     errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                    to_string(lineOfFile + 1) +
+                                                                    to_string(row + 1) +
                                                                     " the given exit time is below 0 (zero): " +
                                                                     examField;
                                                 }
@@ -176,7 +207,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorInFormat = true;
                                                 errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                to_string(lineOfFile + 1) +
+                                                                to_string(row + 1) +
                                                                 " incorrect element impossible to convert exit time field to int: " +
                                                                 examField;
                                             }
@@ -188,7 +219,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             if (!dummyCourse.setExamType(examField)) {
                                                 errorInFormat = true;
                                                 errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                to_string(lineOfFile + 1) +
+                                                                to_string(row + 1) +
                                                                 "the given exam type doesn't match the acronym set (S/SO/O/P): " +
                                                                 examField;
                                             }
@@ -200,7 +231,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             if (!dummyCourse.setExamClassroomType(examField[0])) {
                                                 errorInFormat = true;
                                                 errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                to_string(lineOfFile + 1) +
+                                                                to_string(row + 1) +
                                                                 "the given classroom type doesn't match the acronym set (A/L): " +
                                                                 examField;
                                             }
@@ -213,7 +244,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 if (!dummyCourse.setPartecipants(stoi(examField))) {
                                                     errorInFormat = true;
                                                     errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                    to_string(lineOfFile + 1) +
+                                                                    to_string(row + 1) +
                                                                     "the given number of students is below 0 (zero): " +
                                                                     examField;
                                                 }
@@ -221,7 +252,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorInFormat = true;
                                                 errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                                to_string(lineOfFile + 1) +
+                                                                to_string(row + 1) +
                                                                 " incorrect element impossible to convert number of students field to int: " +
                                                                 examField;
                                             }
@@ -231,7 +262,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                     default: {
                                         errorInFormat = true;
                                         errorHandling = "Error: file: " + courseFileName + " row: " +
-                                                        to_string(lineOfFile + 1) +
+                                                        to_string(row + 1) +
                                                         " unexpected element number greater than: " + to_string(6);
                                     }
                                 }
@@ -262,7 +293,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 while (getline(groupedCourses, courseToAppend, ',') && !errorInFormat) {
                                     if (!dummyCourse.appendGroupedId(courseToAppend)) {
                                         errorInFormat = true;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                         "the given course id in grouped courses doesn't matche the course's pattern (01AAAAA): " +
                                                         courseToAppend;
                                     }
@@ -273,7 +304,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                     }
                     default:{
                         errorInFormat = true;
-                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                         " unexpected element number greater than: " + to_string(7);
                     }
                 }
@@ -340,14 +371,14 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 if (dummyCoursesList.empty() || (itCourseFromFind == dummyCoursesList.end())) {
                                                     if (!dummyCourse.setParallelCoursesId(professorOrganizationForVersion)) {
                                                         errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + "row: " + to_string(lineOfFile) +
+                                                        errorHandling = "Error: file: " + courseFileName + "row: " + to_string(row) +
                                                                         "the given version id is not compatible with the pattern for that field (P000): " +
                                                                         professorOrganizationForVersion;
                                                     }
                                                 } else {
                                                     // in case the passed version id already exists an error is risen
                                                     errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + "row: " + to_string(lineOfFile) +
+                                                    errorHandling = "Error: file: " + courseFileName + "row: " + to_string(row) +
                                                                     "the given version id is not compatible with the pattern for that field (P000): " +
                                                                     professorOrganizationForVersion;
                                                 }
@@ -362,7 +393,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         }
                                         default:{
                                             errorInFormat = true;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                             " unexpected element number there may be an incorrect number or type of brackets, plese controll the regular professor and version id of the element " +
                                                             to_string(patternFieldForEachLevel[0]/2) + " of the course's professor organization";
                                             break;
@@ -388,7 +419,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                     dummyAssociateProfessor.setToCek(true);
                                                 } else if (mainProfessorCourse != professorOrganizationForVersion) {
                                                     errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                     "the regular professor for the version " + dummyCourse.getParallelCoursesId() + " is " +
                                                                     mainProfessorCourse + " which is different from the one on first place of  the course organization: " +
                                                                     professorOrganizationForVersion;
@@ -403,7 +434,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                     // (it must be controlled in the professor's list if the other fields are filled in)
                                                     if (!dummyProfessor.setId(professorOrganizationForVersion)) {
                                                         errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "incorrect professor id: " + professorOrganizationForVersion;
                                                     }
 
@@ -425,7 +456,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                             dummyAssociateProfessor.setProfessorPointer(itProfessorFromFind);
                                                         } else {
                                                             errorInFormat = true;
-                                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                             "error ceeating the unexisting professor with id: " + professorOrganizationForVersion;
                                                         }
                                                     }
@@ -443,13 +474,13 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 try {
                                                     if (dummyAssociateProfessor.setLessonH(stoi(professorOrganizationForVersion))) {
                                                         errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "the given lesson hour is below 0 (zero): " + professorOrganizationForVersion;
                                                     }
                                                 }
                                                 catch (const invalid_argument& excepFromStoi) {
                                                     errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                     " incorrect element impossible to convert the lesson hour field to int: " +
                                                                     professorOrganizationForVersion + " (field number: " + to_string(patternFieldForEachLevel[level - 1]) + ")";
                                                 }
@@ -462,13 +493,13 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 try {
                                                     if (dummyAssociateProfessor.setExerciseH(stoi(professorOrganizationForVersion))) {
                                                         errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "the given exercise hour is below 0 (zero): " + professorOrganizationForVersion;
                                                     }
                                                 }
                                                 catch (const invalid_argument &excepFromStoi) {
                                                     errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                     " incorrect element impossible to convert the exercise hour field to int: " +
                                                                     professorOrganizationForVersion + " (field number: " + to_string(patternFieldForEachLevel[level - 1]) + ")";
                                                 }
@@ -481,13 +512,13 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 try {
                                                     if (dummyAssociateProfessor.setLabH(stoi(professorOrganizationForVersion))) {
                                                         errorInFormat = true;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "the given laboratory hour is below 0 (zero): " + professorOrganizationForVersion;
                                                     }
                                                 }
                                                 catch (const invalid_argument &excepFromStoi) {
                                                     errorInFormat = true;
-                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                     " incorrect element impossible to convert the laboratory hour field to int: " +
                                                                     professorOrganizationForVersion + " (field number: " + to_string(patternFieldForEachLevel[level - 1]) + ")";
                                                 }
@@ -501,7 +532,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         }
                                         default:{
                                             errorInFormat = true;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                             " unexpected element number there may be an incorrect number or type of brackets, please control the professor (id: " +
                                                             dummyAssociateProfessor.getProfessorPointer()->getId() + ") and version (id: " + dummyCourse.getParallelCoursesId() +
                                                             "of the element " + to_string(patternFieldForEachLevel[0]/2) + " of the course's professor organization";
@@ -512,7 +543,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 }
                                 default:{
                                     errorInFormat = true;
-                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     " unexpected element number there may be an incorrect number or type of brackets, please control the professor (id: " +
                                                     dummyAssociateProfessor.getProfessorPointer()->getId() + ") and version (id: " + dummyCourse.getParallelCoursesId() +
                                                     "of the element " + to_string(patternFieldForEachLevel[0]/2) + " of the course's professor organization";
@@ -528,7 +559,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         dummyAssociateProfessorsList.clear();
                                     } else {
                                         errorIncoherentHour = true;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile + 1) +
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                         " incoherent number of hour, when pushing db temporary list, between the total amount given to the course and the sum of those of the given professors";
                                     }
                                 }
@@ -554,12 +585,12 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                     } else {
                         // here the square brackets are present but empty so is an error
                         errorInFormat = true;
-                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile) +
+                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                         "the parallel version organization has the field identifiers (\"[]\") but without contents";
                     }
                 } else {
                     errorInFormat = true;
-                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(lineOfFile) +
+                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                     " incorrect start and ending character of the pattern: " + courseProfessorOrganization.front() +
                                     " " + courseProfessorOrganization.back();
                 }
@@ -587,7 +618,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                     " require a complete inheritance of course's hour organization but the number of version to insert is greater than the number from which is possible to inherit data";
                 }
             }
-            lineOfFile++;
+            row++;
         }
     }
 
