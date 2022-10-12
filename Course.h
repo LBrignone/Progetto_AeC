@@ -77,7 +77,6 @@ public:
     ostream& operator << (ostream& os);
 
 private:
-    typedef enum {ERR_hour_incompatibility, ERR_negative_hour, ERR_hours_not_set, OK = 255} t_error;
     typedef enum {S, O, SO, P, NO_TYPE} t_examType;
 
     string _id;

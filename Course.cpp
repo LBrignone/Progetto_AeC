@@ -178,11 +178,11 @@ list<AssociateProfessor>& Course::getListAssistant() {
 }
 
 int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant) {
-    list<AssociateProfessor>::const_iterator itAssociateProfessor;
-    itAssociateProfessor = assistant.begin();
+    t_errorCodes errorIdentifier = OK;
     int tmpLessonH = 0, tmpExerciseH = 0, tmpLabH = 0;
-    bool errorHourNotSet = false, errorIncoherentHour = false, errorInProfessorHour = false;
+    list<AssociateProfessor>::const_iterator itAssociateProfessor;
 
+    itAssociateProfessor = assistant.begin();
     if ((_courseLessonH != -1) && (_courseExerciseH != -1) && (_courseLabH != -1)){
         while (itAssociateProfessor != assistant.end()) {
             tmpLabH += itAssociateProfessor->getLabH();
@@ -190,41 +190,39 @@ int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& 
             tmpLessonH += itAssociateProfessor->getLessonH();
         }
         if (tmpLessonH != _courseLessonH) {
-            errorIncoherentHour = true;
+            errorIdentifier = ERR_hour_incompatibility;
             errorInAssistant = "Error: the sum of lesson hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
         } else if (tmpExerciseH != _courseLabH) {
-            errorIncoherentHour = true;
+            errorIdentifier = ERR_hour_incompatibility;
             errorInAssistant = "Error: the sum of exercise hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
         } else if (tmpLabH != _courseLabH) {
-            errorIncoherentHour = true;
+            errorIdentifier = ERR_hour_incompatibility;
             errorInAssistant = "Error: the sum of laboratory hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
         }
     } else {
         if (_courseLessonH != -1) {
-            errorHourNotSet = true;
+            errorIdentifier = ERR_hours_not_set;
             errorInAssistant = "Error: course has no lesson hour setted";
         } else if (_courseExerciseH != -1) {
-            errorHourNotSet = true;
+            errorIdentifier = ERR_hours_not_set;
             errorInAssistant = "Error: course has no exercise hour setted";
         } else if (_courseLabH != -1) {
-            errorHourNotSet = true;
+            errorIdentifier = ERR_hours_not_set;
             errorInAssistant = "Error: course has no laboratory hour setted";
         }
     }
-    if (errorHourNotSet) {
-        return (int) ERR_hours_not_set;
-    } else if (errorIncoherentHour) {
-        return (int) ERR_hour_incompatibility;
-    } else {
+    if (errorIdentifier == OK) {
         _assistant = assistant;
-        return (int) OK;
+        return (int) errorIdentifier;
+    } else {
+        return (int) errorIdentifier;
     }
 }
 
 int Course::appendAssistant(const AssociateProfessor &toAppend, string &errorInAppend) {
+    t_errorCodes errorIdentifier = OK;
     int tmpLessonH = 0, tmpExerciseH = 0, tmpLabH = 0;
     list<AssociateProfessor>::iterator itAssociateProfessorList;
-    bool errorHourNotSet = false, errorIncoherentHour = false;
 
     itAssociateProfessorList = _assistant.begin();
     if ((_courseLessonH != -1) && (_courseExerciseH != -1) && (_courseLabH != -1)) {
@@ -240,13 +238,13 @@ int Course::appendAssistant(const AssociateProfessor &toAppend, string &errorInA
             tmpExerciseH += toAppend.getExerciseH();
             tmpLabH += toAppend.getLabH();
             if (tmpLessonH > _courseLessonH) {
-                errorIncoherentHour = true;
+                errorIdentifier = ERR_hour_incompatibility;
                 errorInAppend = "Error: the sum of lesson hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
             } else if (tmpExerciseH > _courseLabH) {
-                errorIncoherentHour = true;
+                errorIdentifier = ERR_hour_incompatibility;
                 errorInAppend = "Error: the sum of exercise hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
             } else if (tmpLabH > _courseLabH) {
-                errorIncoherentHour = true;
+                errorIdentifier = ERR_hour_incompatibility;
                 errorInAppend = "Error: the sum of laboratory hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
             } else {
                 _assistant.push_back(toAppend);
@@ -254,23 +252,17 @@ int Course::appendAssistant(const AssociateProfessor &toAppend, string &errorInA
         }
     } else {
         if (_courseLessonH != -1) {
-            errorHourNotSet = true;
+            errorIdentifier = ERR_hours_not_set;
             errorInAppend = "Error: course has no lesson hour setted";
         } else if (_courseExerciseH != -1) {
-            errorHourNotSet = true;
+            errorIdentifier = ERR_hours_not_set;
             errorInAppend = "Error: course has no exercise hour setted";
         } else if (_courseLabH != -1) {
-            errorHourNotSet = true;
+            errorIdentifier = ERR_hours_not_set;
             errorInAppend = "Error: course has no laboratory hour setted";
         }
     }
-    if (errorHourNotSet) {
-        return (int) ERR_hours_not_set;
-    } else if (errorIncoherentHour) {
-        return (int) ERR_hour_incompatibility;
-    } else {
-        return (int) OK;
-    }
+    return (int) errorIdentifier;
 }
 
 string Course::getMainProfessor() {

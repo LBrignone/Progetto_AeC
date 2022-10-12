@@ -47,7 +47,6 @@ const list<AvailForExam>& Professor::getUnavailListByAcademicYear (const Date& a
 
     itMapByAcademicYear = _unavailability.find(academicYear);
     return itMapByAcademicYear->second;
-
 }
 
 Date Professor::getMinDateForUnavail() const {

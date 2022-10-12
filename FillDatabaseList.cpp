@@ -7,8 +7,9 @@
 // if the database has the course we are looking for (course id + academic year) an update of itself is performed
 // possible version(s) not included previously are inserted consequentially to their relative course (course id + academic year)
 bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCoursesList, list<Professor>& professorList) {
+    t_errorCodes errorIdentifier = OK;
     int i = 0, accLessonH, accExH, accLabH, courseVersion = 0;
-    bool errorInListElementNumber = false, errorInVersion = false, errorInProfessorList = false, errorInProfessorHour = false, errorInData = false, errorInFill = false, fromInsert;
+    bool fromInsert;
     string errorString;
     list<Course>::iterator itCourseMain, itCourseDummy;
     list<AssociateProfessor>::iterator itAssociateProfessorHourCheck;
@@ -16,7 +17,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
 
     itCourseDummy = dummyCoursesList.begin();
     if (dummyCoursesList.size() == versionCounter) {
-        while ((i < versionCounter) && !errorInProfessorList && !errorInProfessorHour && !errorInData && !errorInVersion) {
+        while ((i < versionCounter) && (errorIdentifier == OK)) {
             accLessonH = 0;
             accExH = 0;
             accLabH = 0;
@@ -58,12 +59,12 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
 
                         associateProfessorFromDatabase = itCourseMain->getListAssistant();
                         if (!fillAssociateProfessor(errorString, itCourseMain->getListAssistant(), itCourseDummy->getListAssistant(), professorList.end())) {
-                            errorInProfessorList = true;
+                            errorIdentifier = ERR_professor_list;
                             errorHandling = errorString;
                         } else {
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
-                            if (itCourseMain->setListAssistant(associateProfessorFromDatabase, errorString) < 255) {
-                                errorInProfessorHour = true;
+                            if (itCourseMain->setListAssistant(associateProfessorFromDatabase, errorString) < std::numeric_limits<unsigned int>::max()) {
+                                errorIdentifier = ERR_professor_hour;
                                 errorHandling = errorString;
                             }
                         }
@@ -73,62 +74,62 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
                     // here the database course version's list is ended but the inserted course versions has some more elements
                     // the exceeding elements must be controlled so that all the fields are complete with data
                     if (itCourseDummy->getActiveCourseFieldEmpty()) {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined if the given course is active";
                     }
                     if (itCourseDummy->getParallelCoursesNumber() == -1) {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the number of parallel courses";
                     }
                     if (itCourseDummy->getExamType() == "NO_TYPE") {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the type of exam";
                     }
                     if (itCourseDummy->getExamClassroomType() == '\0') {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the classroom type";
                     }
                     if (itCourseDummy->getEntranceTime() == -1) {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the entrance time";
                     }
                     if (itCourseDummy->getExitTime() == -1) {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the exit time";
                     }
                     if (itCourseDummy->getExamDuration() == -1) {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the exam duration";
                     }
                     if (itCourseDummy->getPartecipants() != -1) {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the number of enrolled students";
                     }
                     if (!itCourseDummy->getListAssistant().empty()) { // if there's something to modify it'll be updated with the function otherwise the database remain intact
                         associateProfessorFromDatabase = itCourseMain->getListAssistant();
                         if (!fillAssociateProfessor(errorString, associateProfessorFromDatabase, itCourseDummy->getListAssistant(), professorList.end())) {
-                            errorInProfessorList = true;
+                            errorIdentifier = ERR_professor_format;
                             errorHandling = errorString;
                         } else {
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
                             if (itCourseMain->setListAssistant(associateProfessorFromDatabase, errorString) < 255) {
-                                errorInProfessorHour = true;
+                                errorIdentifier = ERR_professor_hour;
                                 errorHandling = errorString;
                             }
                         }
                     } else {
-                        errorInData = true;
+                        errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the professor's hour organization list";
                     }
                     // after the given course is controlled the same one is inserted in the database maintaining the versions ascending order
-                    if (!errorInData) {
+                    if (errorIdentifier != ERR_missing_field) {
                         itCourseMain++;
                         databaseList.insert(itCourseMain, *itCourseDummy);
                         fromInsert = true;
                     }
                 }
             } else {
-                errorInVersion = true;
+                errorIdentifier = ERR_version;
                 errorHandling = "the version in dummy course's list doesn't respect the ascending order";
             }
             if (!fromInsert) {
@@ -146,11 +147,11 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
             itCourseMain = findCourse(databaseList, generateVersion(i), itCourseDummy->getStartYear());
         }
     } else {
-        errorInListElementNumber = true;
+        errorIdentifier = ERR_incoherent_version_number;
         errorHandling = "the number of elements in dummy list is incoherent with regard to counter of versions";
     }
 
-    if (!errorInListElementNumber && !errorInProfessorList && !errorInProfessorHour && !errorInVersion && !errorInData) {
+    if (errorIdentifier == OK) {
         return true;
     } else {
         return false;
@@ -160,8 +161,8 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
 // if the course we are looking for in database has only the course id the missing element are inherited from last element of database with same course id
 // version(s) previously not included in database rise an error due to incapability of inheriting missing elements for that version(s)
 bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCourseList, list<Professor>& profesorList) {
+    t_errorCodes errorIdentifier = OK;
     int i = 0;
-    bool errorNumVersion = false, errorInProfessorList = false, errorInProfessorHour = false;
     string errorLine;
     list<Course>::iterator itDummyCourseList, itLastDbCourseId;
     list<AssociateProfessor> associateProfessorFromDummyNewOrg;
@@ -208,18 +209,18 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
                 if (!itDummyCourseList->getListAssistant().empty()) {
                     associateProfessorFromDummyNewOrg = itDummyCourseList->getListAssistant();
                     if (!insertAssociateProfessor(errorLine, itDbCourseId->getListAssistant(), associateProfessorFromDummyNewOrg, profesorList.end())) {
-                        errorInProfessorList = true;
+                        errorIdentifier = ERR_professor_list;
                         errorHandling = errorLine;
                     } else {
                         // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
                         if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) < 255) {
-                            errorInProfessorHour = true;
+                            errorIdentifier = ERR_professor_hour;
                             errorHandling = errorLine;
                         }
                     }
                 }
             } else {
-                errorNumVersion = true;
+                errorIdentifier = ERR_version;
                 errorHandling = "the version to be handled doesn't respect the ascending order";
             }
             itDbCourseId++;
@@ -227,15 +228,15 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
             i++;
         }
         itLastDbCourseId++;
-        if (!errorInProfessorHour && !errorInProfessorList && !errorNumVersion) {
+        if (errorIdentifier == OK) {
             databaseList.insert(itLastDbCourseId, dummyCourseList.begin(), dummyCourseList.end());
         }
     } else {
-        errorNumVersion = true;
+        errorIdentifier = ERR_incoherent_version_number;
         errorHandling = " the number of version(s) for the new course doesn't match the number of version(s) coming from the database's last element for same id";
     }
 
-    if (!errorNumVersion && !errorInProfessorList && !errorInProfessorHour) {
+    if (errorIdentifier == OK) {
         return true;
     } else {
         return false;
@@ -245,9 +246,9 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
 // the list of associate professor is updated in database and if there's some exceding element is handled with proper controls
 // performed only for course id + academic year
 bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& associateProfessorListDb, const list<AssociateProfessor> &associateProfessorListDummy, list<Professor>::iterator professorListEnd) {
-    bool errorIncoherent = false, errorMissing = false; // error identifiers
-    bool writeOrInherit;
+    t_errorCodes errorIdentifier = OK;
     int associateProfessorElement = 0;
+    bool writeOrInherit;
     list<AssociateProfessor>::iterator itAssociateProfessorMain;
     list<AssociateProfessor>::const_iterator itAssociateProfessorDummy;
 
@@ -268,7 +269,7 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
                     itAssociateProfessorMain->setProfessorPointer(itAssociateProfessorDummy->getProfessorPointer());
                     writeOrInherit = true;
                 } else {
-                    errorIncoherent = true;
+                    errorIdentifier = ERR_regular_professor;
                     errorHandling = "the given regular professor ("+ itAssociateProfessorDummy->getProfessorPointer()->getId() +") does not coincide with the regular professor in database";
                 }
             } else {
@@ -285,25 +286,25 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
             if (itAssociateProfessorDummy->getProfessorPointer() != professorListEnd) {
                 itAssociateProfessorMain->setProfessorPointer(itAssociateProfessorDummy->getProfessorPointer());
             } else {
-                errorMissing = true;
+                errorIdentifier = ERR_missing_field;
                 errorHandling = "the first field (id) of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
             }
             if (itAssociateProfessorDummy->getLessonH() != -1) {
                 itAssociateProfessorMain->setLessonH(itAssociateProfessorDummy->getLessonH());
             } else {
-                errorMissing = true;
+                errorIdentifier = ERR_missing_field;
                 errorHandling = "the second field (lesson hour) of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
             }
             if (itAssociateProfessorDummy->getExerciseH() != -1) {
                 itAssociateProfessorMain->setExerciseH(itAssociateProfessorDummy->getExerciseH());
             } else {
-                errorMissing = true;
+                errorIdentifier = ERR_missing_field;
                 errorHandling = "the third field of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
             }
             if (itAssociateProfessorDummy->getLabH() != -1) {
                 itAssociateProfessorMain->setLabH(itAssociateProfessorDummy->getLabH());
             } else {
-                errorMissing = true;
+                errorIdentifier = ERR_missing_field;
                 errorHandling = "the fourth field of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
             }
         }
@@ -333,7 +334,7 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
         itAssociateProfessorMain++;
     }
 
-    if (!errorIncoherent && !errorMissing) {
+    if (errorIdentifier == OK) {
         return true;
     } else {
         return false;
@@ -343,7 +344,7 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
 // the list of associate professor is completed with elements read from the last course corresponding version from database
 // performed only for course id
 bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfessor>& associateProfessorListDb, list<AssociateProfessor>& associateProfessorListDummy, list<Professor>::iterator professorListEnd) {
-    bool errorInData = false, errorInFormat = false;
+    t_errorCodes errorIdentifier = OK;
     int associateProfessorElement = 0;
     list<AssociateProfessor>::iterator itAssociateProfessorDummy;
     list<AssociateProfessor>::const_iterator itAssociateProfessorMain;
@@ -354,11 +355,9 @@ bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfes
         if (itAssociateProfessorMain != associateProfessorListDb.end()) {
             if (itAssociateProfessorDummy->getProfessorPointer() != professorListEnd) {
                 if ((itAssociateProfessorDummy->getProfessorPointer()->getId() != itAssociateProfessorMain->getProfessorPointer()->getId()) && itAssociateProfessorDummy->getToCheck()) {
-                    errorInData = true;
-                    errorHandling = "the course's regular professor with id: " +
-                                    itAssociateProfessorDummy->getProfessorPointer()->getId() +
-                                    " doesn't match the inherited regular professor's id: " +
-                                    itAssociateProfessorMain->getProfessorPointer()->getId();
+                    errorIdentifier = ERR_regular_professor;
+                    errorHandling = "the course's regular professor with id: " + itAssociateProfessorDummy->getProfessorPointer()->getId() +
+                                    " doesn't match the inherited regular professor's id: " + itAssociateProfessorMain->getProfessorPointer()->getId();
                 }
             } else {
                 itAssociateProfessorDummy->setProfessorPointer(itAssociateProfessorMain->getProfessorPointer());
@@ -374,26 +373,26 @@ bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfes
             }
             if (associateProfessorElement == 0) {
                 if (!itAssociateProfessorDummy->getIsMain()) {
-                    errorInData = true;
+                    errorIdentifier = ERR_regular_professor;
                     errorHandling = "the first professor " + itAssociateProfessorDummy->getProfessorPointer()->getId() +
                                     " is not set as regular professor";
                 }
             } else {
                 if (itAssociateProfessorDummy->getIsMain()) {
-                    errorInData = true;
+                    errorIdentifier = ERR_regular_professor;
                     errorHandling = "the professor " + itAssociateProfessorDummy->getProfessorPointer()->getId() +
                                     " is set as regular professor but s/he is not";
                 }
             }
         } else {
-            errorInFormat = true;
+            errorIdentifier = ERR_professor_format;
             errorHandling = "the number of associate professor is greater than the one present for the database's associate professor for the given course";
         }
         itAssociateProfessorDummy++;
         itAssociateProfessorDummy++;
         associateProfessorElement++;
     }
-    if (!errorInData && !errorInFormat) {
+    if (errorIdentifier == OK) {
         return true;
     } else {
         return false;

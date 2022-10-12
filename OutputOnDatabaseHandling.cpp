@@ -181,9 +181,9 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
 }
 
 int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseExamSessionFileName, const map<Date, vector<Date>>& updatedExamSessionMap) {
+    t_errorCodes errorIdentifier = OK;
     int separator = 0;
     ofstream fileName;
-    t_errorCodes errorIdentifier = OK;
     map<Date, vector<Date>>::const_iterator itMapExamSession;
 
     fileName.open(databaseExamSessionFileName, ofstream::trunc);
