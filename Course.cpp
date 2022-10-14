@@ -4,6 +4,29 @@
 
 #include "Course.h"
 
+Course::Course(const Course& toCopy) {
+    this->_id = toCopy._id;
+    this->_startYear = toCopy._startYear;
+    this->_parallelCoursesId = toCopy._parallelCoursesId;
+    this->_title = toCopy._title;
+    this->_cfu = toCopy._cfu;
+    this->_parallelCoursesNumber = toCopy._parallelCoursesNumber;
+    this->_activeCourse = toCopy._activeCourse;
+    this->_courseLessonH = toCopy._courseLessonH;
+    this->_courseExerciseH = toCopy._courseExerciseH;
+    this->_courseLabH = toCopy._courseLabH;
+    this->_assistant = toCopy._assistant;
+    this->_examType = toCopy._examType;
+    this->_examClassroomType = toCopy._examClassroomType;
+    this->_entryTime = toCopy._entryTime;
+    this->_exitTime = toCopy._exitTime;
+    this->_examDuration = toCopy._examDuration;
+    this->_partecipants = toCopy._partecipants;
+    this->_coursesGroupedId = toCopy._coursesGroupedId;
+    this->_isScheduled = toCopy._isScheduled;
+    this->_constrain = toCopy._constrain;
+}
+
 string Course::getId() const {
     return _id;
 }
@@ -436,6 +459,18 @@ void Course::resetExamIsScheduled(int i) {
     _isScheduled[i] = false;
 }
 
+void Course::increaseConstrain() {
+    _constrain++;
+}
+
+void Course::decreaseConstrain() {
+    _constrain--;
+}
+
+void Course::resetConstrain() {
+    _constrain = 0;
+}
+
 Course& Course::inheritCourse(const list<Course>::iterator& toInherit) {
     _id = toInherit->_id;
     _startYear = toInherit->_startYear;
@@ -514,6 +549,7 @@ Course& Course::operator=(const Course &toCopy) {
     _startYear = toCopy._startYear;
     _parallelCoursesId = toCopy._parallelCoursesId;
     _title = toCopy._title;
+    _cfu = toCopy._cfu;
     _parallelCoursesNumber = toCopy._parallelCoursesNumber;
     _activeCourse = toCopy._activeCourse;
     _courseLessonH = toCopy._courseLessonH;
@@ -528,6 +564,8 @@ Course& Course::operator=(const Course &toCopy) {
     _partecipants = toCopy._partecipants;
     _coursesGroupedId = toCopy._coursesGroupedId;
     _isScheduled = toCopy._isScheduled;
+    _constrain = toCopy._constrain;
+    return *this;
 }
 
 Course& Course::operator = (const list<Course>::iterator& toCopy) {
@@ -535,6 +573,7 @@ Course& Course::operator = (const list<Course>::iterator& toCopy) {
     _startYear = toCopy->_startYear;
     _parallelCoursesId = toCopy->_parallelCoursesId;
     _title = toCopy->_title;
+    _cfu = toCopy->_cfu;
     _parallelCoursesNumber = toCopy->_parallelCoursesNumber;
     _activeCourse = toCopy->_activeCourse;
     _courseLessonH = toCopy->_courseLessonH;
@@ -549,6 +588,8 @@ Course& Course::operator = (const list<Course>::iterator& toCopy) {
     _partecipants = toCopy->_partecipants;
     _coursesGroupedId = toCopy->_coursesGroupedId;
     _isScheduled = toCopy->_isScheduled;
+    _constrain = toCopy->_constrain;
+    return *this;
 }
 
 ostream& Course::operator << (ostream& os) {

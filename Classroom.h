@@ -16,6 +16,8 @@ using namespace std;
 class Classroom {
 public:
     Classroom() {};
+    Classroom(const Classroom& toCopy);
+    ~Classroom() {};
     const string& getId() const;
     bool setId(const string& id);
     bool generateNewId(const string& id);
@@ -29,8 +31,9 @@ public:
     bool setExamCapacity(const int& examCapacity);
     bool getOccupation(const int& hourSlot);
     void setOccupation(const int& hourSlot, const bool& status);
-    const bool& operator < (const Classroom& classroomToCompare);
-    ostream& operator << (ostream& os);
+    bool operator <(const Classroom& classroomToCompare);
+    Classroom& operator =(const Classroom& toAssign);
+    ostream& operator <<(ostream& os);
 
 private:
     string _id;

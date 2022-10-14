@@ -4,6 +4,14 @@
 
 #include "Date.h"
 
+Date::Date(const Date& dateToCopy) {
+    this->_minutes = dateToCopy._minutes;
+    this->_hour = dateToCopy._hour;
+    this->_day = dateToCopy._day;
+    this->_month = dateToCopy._month;
+    this->_year = dateToCopy._year;
+}
+
 Date::Date() {
     _minutes = 0;
     _hour = 0;
@@ -106,18 +114,26 @@ string Date::getCompleteDate() const {
 }
 
 void Date::getAcademicYear(ostream& os) const {
-    os << _year << "-" << (_year + 1);
+    os << setfill ('0') << setw (4) << _year << "-" << setfill ('0') << setw (4) << (_year + 1);
+}
+
+void Date::getTimeSlot(ostream& os) {
+    os << setfill ('0') << setw (4) << _hour << ":00-" << setfill ('0') << setw (4) << (_hour + 1) << ":00;";
 }
 
 void Date::increaseAcademicYear() {
     this->_year += 1;
 }
 
-Date& Date::operator =(Date date) {
-    if ((this) == &date) {
-        return *this;
+Date& Date::operator =(const Date& date) {
+    Date tmpDate(date);
+    if ((this) != &date) {
+        _minutes = date._minutes;
+        _hour = date._hour;
+        _day = date._day;
+        _month = date._month;
+        _year = date._year;
     }
-    date.swap
     return *this;
 }
 
@@ -206,7 +222,7 @@ bool Date::operator == (const Date& date) const {
 }
 
 bool Date::operator !=(const Date& date) const {
-    if ((_year == date.getYear()) && (_month == date.getMonth()) && (_day == date.getDay()) && (_hour == date.getHour()) && (_minutes == date.getMinutes())) {
+    if (*this == date) {
         return false;
     } else {
         return true;

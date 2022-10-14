@@ -4,6 +4,15 @@
 
 #include "Classroom.h"
 
+Classroom::Classroom(const Classroom& toCopy) {
+    this->_id = toCopy._id;
+    this->_type = toCopy._type;
+    this->_classroomName = toCopy._classroomName;
+    this->_capacity = toCopy._capacity;
+    this->_examCapacity = toCopy._examCapacity;
+    this->_hourSlotOccupation = toCopy._hourSlotOccupation;
+}
+
 const string& Classroom::getId() const {
     return _id;
 }
@@ -89,11 +98,21 @@ void Classroom::setOccupation(const int& hourSlot, const bool& status) {
     _hourSlotOccupation[hourSlot] = status;
 }
 
-const bool& Classroom::operator < (const Classroom& classroomToCompare) {
+bool Classroom::operator < (const Classroom& classroomToCompare) {
     int tmpIdRvalue, tmpIdLvalue;
     tmpIdRvalue = stoi(classroomToCompare.getId().substr(1, classroomToCompare.getId().size() - 1));
     tmpIdLvalue = stoi(_id.substr(1, _id.size() - 1));
     return tmpIdLvalue < tmpIdRvalue;
+}
+
+Classroom& Classroom::operator =(const Classroom& toAssign) {
+    _id = toAssign._id;
+    _type = toAssign._type;
+    _classroomName = toAssign._classroomName;
+    _capacity = toAssign._capacity;
+    _examCapacity = toAssign._examCapacity;
+    _hourSlotOccupation = toAssign._hourSlotOccupation;
+    return *this;
 }
 
 ostream& Classroom::operator << (ostream& os) {

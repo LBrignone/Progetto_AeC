@@ -20,6 +20,7 @@ using namespace std;
 
 class Course {
 public:
+    Course(const Course& toCopy);
     string getId() const;
     bool setId(const string& id);
     bool generateNewId(const string& lastId);
@@ -67,14 +68,17 @@ public:
     bool getExamIsScheduled(int i) const;
     void setExamIsScheduled(int i);
     void resetExamIsScheduled(int i);
+    void increaseConstrain();
+    void decreaseConstrain();
+    void resetConstrain();
     Course& inheritCourse(const list<Course>::iterator& toInherit);
     ostream& printCourseOrganization(ostream& os) const;
     ostream& printCourseOrganizationAcademicYearOpening(ostream& os) const;
     ostream& printCourseOrganizationVersionOpening(ostream& os, const bool& first) const; // see implementation to further comment
     ostream& printCourseOrganizationAcademicYearClosing(ostream& os) const;
-    Course& operator = (const Course& toCopy);
-    Course& operator = (const list<Course>::iterator& toCopy);
-    ostream& operator << (ostream& os);
+    Course& operator =(const Course& toCopy);
+    Course& operator =(const list<Course>::iterator& toCopy);
+    ostream& operator <<(ostream& os);
 
 private:
     typedef enum {S, O, SO, P, NO_TYPE} t_examType;
@@ -99,6 +103,7 @@ private:
     int _partecipants = -1;
     list<string> _coursesGroupedId;
     vector<bool> _isScheduled = {false, false, false, false};
+    int _constrain = 0;
 
     vector<string> error {"ERR_hour_incompatibility", "ERR_negative_hour", "ERR_hours_not_set", "OK"};
     vector<string> examTypeVect {"S", "O", "SO", "P", "NO_TYPE"};

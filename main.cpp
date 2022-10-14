@@ -15,6 +15,7 @@
 #include "AddFileHandling.h"
 #include "InsertFileHandling.h"
 #include "UpdateFileHandling.h"
+#include "SchedulingHandling.h"
 #include "OutputOnDatabaseHandling.h"
 
 #define studentDatabaseName "db_studenti.txt"
@@ -38,6 +39,7 @@ int main(int argc, char** argv) {
     list<Course> listOfCourses;
     list<CourseOfStudy> listOfCoursesOfStudy;
     map<Date, vector<Date>> mapOfExamSession;
+    map<Date, map<Date, vector<examScheduled>>> mapExamPlanning;
 
     if (argc < 3) {
         errorIdentifier = ERR_arguments_number;
@@ -274,7 +276,9 @@ int main(int argc, char** argv) {
             break;
         }
         case 'g':{
-
+            for (int i = 0; i < 3; i++) {
+                schedulingInitializer(errorLine, i, );
+            }
             break;
         }
         default: {
