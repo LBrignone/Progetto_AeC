@@ -15,6 +15,7 @@ class Date {
 public:
     Date(const Date& dateToCopy);
     Date();
+    Date(const int& hour);
     Date(const int& day, const int& month, const int& year);
     Date(const int& minutes, const int& hour, const int& day, const int& month, const int& year);
     int getMinutes() const;
@@ -31,6 +32,7 @@ public:
     void getAcademicYear(ostream& os) const;
     void getTimeSlot(ostream& os);
     void increaseAcademicYear();
+    void increaseTimeSlot();
     Date& operator =(const Date& date);
     bool operator <=(const Date& date) const;
     bool operator >=(const Date& date) const;

@@ -20,6 +20,10 @@ Date::Date() {
     _year = 0;
 }
 
+Date::Date(const int& hour) {
+    _hour = hour;
+}
+
 Date::Date(const int& day, const int& month, const int& year) {
     _day = day;
     _month = month;
@@ -123,6 +127,10 @@ void Date::getTimeSlot(ostream& os) {
 
 void Date::increaseAcademicYear() {
     this->_year += 1;
+}
+
+void Date::increaseTimeSlot() {
+    this->_hour += 2;
 }
 
 Date& Date::operator =(const Date& date) {

@@ -34,11 +34,11 @@ int schedulingInitializer(string& errorHandling, const int& sessionNumber, const
                           const list<CourseOfStudy>& courseOfStudyList);
 
 int schedulingPermutationOnDay(string& errorHandling, const int& sessionNumber, const Date& dayToSchedule, const list<Professor>& professorList,
-                               const list<Classroom>& classroomList, list<Course>& Course, const list<CourseOfStudy>& courseOfStudyList,
-                               pair<Date, pair<Date, vector<examScheduled>>>& examSchedulingPerDay);
+                               const list<Classroom>& classroomList, list<Course>& course, const list<CourseOfStudy>& courseOfStudyList,
+                               pair<Date, pair<Date, vector<examScheduled>>>& examSchedulingPerDay, bool& isDayScheduled);
 
-int schedulingPermutationOnTimeSlot(const Date& timeSlotBegin, const list<Professor>& professorList, list<Course>& availCourseList,
-                                    list<Classroom>& updatedAvailClassroom, const list<CourseOfStudy>& courseOfStudyList,
-                                    pair<Date, vector<examScheduled>>& examSchedulingPerSlotHour);
+int schedulingPermutationOnTimeSlot(string& errorHandling, const Date& timeSlotBegin, const list<Professor>& professorList,
+                                    list<Course>& availCourseList, list<Classroom>& updatedAvailClassroom, const list<CourseOfStudy>& courseOfStudyList,
+                                    pair<Date, vector<examScheduled>>& examSchedulingPerSlotHour, bool& isSlotScheduled);
 
 #endif //PROGETTO_SCHEDULINGHANDLING_H
