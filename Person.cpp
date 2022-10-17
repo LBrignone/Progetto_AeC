@@ -33,9 +33,9 @@ string &Person::getMail() const {
 bool Person::setMail(const string& mail) {
     int position;
     position = mail.find('@', 0);
-    if (position != string::npos){
+    if ((position != string::npos) && (position != 0)){
         position = mail.find('.', position);
-        if (position != string::npos){
+        if ((position != string::npos) && (position != (mail.size() - 1))){
             _mail = mail;
             return true;
         } else {

@@ -20,6 +20,7 @@ using namespace std;
 
 class Course {
 public:
+    Course(){};
     Course(const Course& toCopy);
     string getId() const;
     bool setId(const string& id);
@@ -64,7 +65,7 @@ public:
     list<string> getListGroupedId() const;
     bool setListGroupedId(const list<string> &groupingId);
     bool appendGroupedId(const string& toAppend);
-    void deleteLastElementGroupedId();
+    void deleteGroupedId();
     bool getExamIsScheduled(int i) const;
     void setExamIsScheduled(int i);
     void resetExamIsScheduled(int i);

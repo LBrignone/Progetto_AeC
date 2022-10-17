@@ -395,10 +395,11 @@ bool Course::setListGroupedId(const list<string>& groupingId) {
     list<string>::iterator groupingListIt;
     string tmpGroupingId;
     bool errorInId = false;
-    int positionIdString = 2;
+    int positionIdString;
 
     groupingListIt = _coursesGroupedId.begin();
     while ((groupingListIt != _coursesGroupedId.end()) && !errorInId) {
+        positionIdString = 2;
         if ((groupingListIt->at(0) == '0') && (groupingListIt->at(1) == '1')) {
             while ((positionIdString < 6) && !errorInId) {
                 if ((groupingListIt->at(positionIdString) > 64) && (groupingListIt->at(positionIdString) < 91)) {
@@ -422,10 +423,11 @@ bool Course::setListGroupedId(const list<string>& groupingId) {
 }
 
 bool Course::appendGroupedId(const string& toAppend) {
-    int positionToAppenString = 0;
+    int positionToAppenString;
     bool errorInId = false;
     if ((toAppend[0] == '0') && (toAppend[1] == '1')) {
         while ((positionToAppenString < 6) && !errorInId) {
+            positionToAppenString = 2;
             if ((toAppend[positionToAppenString] > 64) && (toAppend[positionToAppenString] < 91)) {
                 positionToAppenString++;
             } else {
@@ -443,8 +445,8 @@ bool Course::appendGroupedId(const string& toAppend) {
     }
 }
 
-void Course::deleteLastElementGroupedId() {
-    _coursesGroupedId.pop_back();
+void Course::deleteGroupedId() {
+    _coursesGroupedId.erase(_coursesGroupedId.begin(), _coursesGroupedId.end());
 }
 
 bool Course::getExamIsScheduled(int i) const {

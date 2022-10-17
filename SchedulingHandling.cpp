@@ -10,14 +10,22 @@ int schedulingInitializer(string& errorHandling, const int& sessionNumber, const
     t_errorCodes errorIdentifier = OK;
     bool dayScheduled = false;
     string errorLine;
-    Date copyOfSessionBegin(sessionBegin);
+    Date sessionEqualSemester, sessionOtherSemester;
     list<Course> copyOfCourseList(courseList);
+    list<Course>::const_iterator itOriginalCourseList;
+    list<Course>::iterator itCopy;
     map<Date, pair<Date, vector<examScheduled>>> sessionSchedule;
     pair<Date, pair<Date, vector<examScheduled>>> toInsertInSessionSchedule;
 
-    while((copyOfSessionBegin != sessionEnd) && (errorIdentifier == OK) && !dayScheduled) {
-        schedulingPermutationOnDay(errorLine, sessionNumber, copyOfSessionBegin, professorList, classroomList, copyOfCourseList, courseOfStudyList, toInsertInSessionSchedule, dayScheduled);
-        copyOfSessionBegin++;
+    itOriginalCourseList = courseList.cbegin();
+    while(itOriginalCourseList != courseList.cend()){
+        if (courseIdISInSemester(itOriginalCourseList->getId(), sessionNumber, courseOfStudyList)) {
+
+        }
+    }
+    while((sessionEqualSemester != sessionEnd) && (errorIdentifier == OK) && !dayScheduled) {
+        schedulingPermutationOnDay(errorLine, sessionNumber, sessionEqualSemester, professorList, classroomList, copyOfCourseList, courseOfStudyList, toInsertInSessionSchedule, dayScheduled);
+        sessionEqualSemester++;
     }
 }
 
@@ -39,5 +47,5 @@ int schedulingPermutationOnDay(string& errorHandling, const int& sessionNumber, 
 int schedulingPermutationOnTimeSlot(string& errorHandling, const Date& timeSlotBegin, const list<Professor>& professorList,
                                     list<Course>& availCourseList, list<Classroom>& updatedAvailClassroom, const list<CourseOfStudy>& courseOfStudyList,
                                     pair<Date, vector<examScheduled>>& examSchedulingPerSlotHour, bool& isSlotScheduled) {
-    
+
 }

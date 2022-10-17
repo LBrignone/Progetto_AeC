@@ -15,9 +15,9 @@ typedef enum {ERR_arguments_number, ERR_file_name, ERR_open_file, ERR_empty_file
               ERR_stoi_conversion, ERR_entrance_time, ERR_exit_time, ERR_exam_type, ERR_classroom_type, ERR_partecipants,
               ERR_grouped_id, ERR_parallel_course, ERR_professor_pointer, ERR_list_association, ERR_regular_professor, ERR_course_of_study_format,
               ERR_graduation_type, ERR_course_list, ERR_hour_incompatibility, ERR_negative_hour, ERR_hours_not_set, ERR_professor_list,
-              ERR_professor_hour, ERR_version, ERR_incoherent_version_number, ERR_unavailability_format,
-              ERR_id_field, ERR_missing_professor, ERR_date_overlap, ERR_professor_changed, ERR_update_database, ERR_wrong_identifier,
-              ERR_missing_field, ERR_parallel_course_number_inherit, ERR_separator, OK = std::numeric_limits<unsigned int>::max()} t_errorCodes;
+              ERR_professor_hour, ERR_version, ERR_incoherent_version_number, ERR_unavailability_format, ERR_id_field, ERR_missing_professor,
+              ERR_date_overlap, ERR_professor_changed, ERR_update_database, ERR_wrong_identifier, ERR_missing_field, ERR_parallel_course_number_inherit,
+              ERR_separator, ERR_other_semester, ERR_both_semester, OK = std::numeric_limits<unsigned int>::max()} t_errorCodes;
 
 class isNotMain : public std::exception {
 private:

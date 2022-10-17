@@ -18,6 +18,7 @@
 #include "Classroom.h"
 #include "CourseOfStudy.h"
 #include "ErrorHandling.h"
+#include "schedulingChecks.h"
 #include "findSomethingInList.h"
 #include "OutputOnDatabaseHandling.h"
 #include "PatternConstrainVerification.h"

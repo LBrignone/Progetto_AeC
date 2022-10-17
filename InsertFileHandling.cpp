@@ -14,7 +14,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
     Course dummyCourse;
     list<Course> dummyCoursesList;
 
-    fileName.open(courseFileName, 'r');
+    fileName.open(courseFileName, ifstream::in);
     if (!fileName.is_open()) {
         errorIdentifier = ERR_open_file;
         errorHandling = "Error: file: " + courseFileName + " not found.";
@@ -34,7 +34,11 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                 switch (patternFiled) {
                     case 0:{
                         if (!readFromLine.empty()) {
-                            dummyCourse.setId(readFromLine);
+                            if (!dummyCourse.setId(readFromLine)) {
+                                errorIdentifier = ERR_id_field;
+                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                " the course id is not valid";
+                            }
                         } else {
                             errorIdentifier = ERR_missing_field;
                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
@@ -108,9 +112,10 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " the given course has wrong definition of active or not active course: " + readFromLine;
                             }
-                        } else {
-                            dummyCourse.setActiveCourseFieldEmpty(true);
                         }
+//                        else {
+//                            dummyCourse.setActiveCourseFieldEmpty(true);
+//                        }
                         break;
                     }
                     case 3:{
@@ -281,14 +286,11 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             if (readFromLine == "{}"){
                                 // here the inserted course doesn't have grouped courses
                                 // all the grouped courses inherited from the database be deleted
-                                list<string>::iterator itGroupedCourses;
 
-                                itGroupedCourses = dummyCourse.getListGroupedId().begin();
-                                while (itGroupedCourses != dummyCourse.getListGroupedId().end()) {
-                                    dummyCourse.deleteLastElementGroupedId();
-                                }
+                                dummyCourse.deleteGroupedId();
                             } else {
                                 // here a new grouped courses list is present so it'll be updated
+                                dummyCourse.deleteGroupedId();
                                 groupedCourses.str() = readFromLine.substr(1, readFromLine.size() - 2);
                                 while (getline(groupedCourses, courseToAppend, ',') && (errorIdentifier == OK)) {
                                     if (!dummyCourse.appendGroupedId(courseToAppend)) {
@@ -312,11 +314,11 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
             }
 // -------> here the professor organization for each version is reconstructed and memorized
             if (!courseProfessorOrganization.empty()) {
-                if ((courseProfessorOrganization.front() == '[') && (courseProfessorOrganization.back() == ']')){
+                if ((courseProfessorOrganization.front() == '[') && (courseProfessorOrganization.back() == ']')) {
                     stringstream versionOrganization;
 
                     versionOrganization.str() = courseProfessorOrganization.substr(1, courseProfessorOrganization.size() - 2);
-                    if (courseProfessorOrganization.empty()) {
+                    if (!courseProfessorOrganization.empty()) {
                         int  level = 0, levelIncrement = 0, levelDecrement = 0, versionCounter = 0;
                         bool isLevelCorrect = false;
                         string professorOrganizationForVersion, mainProfessorCourse;
@@ -379,7 +381,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                     // in case the passed version id already exists an error is risen
                                                     errorIdentifier = ERR_file_format;
                                                     errorHandling = "Error: file: " + courseFileName + "row: " + to_string(row) +
-                                                                    "the given version id is not compatible with the pattern for that field (P000): " +
+                                                                    "the given version id already exist and it has been previously set: " +
                                                                     professorOrganizationForVersion;
                                                 }
                                             } else {
@@ -425,7 +427,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                                     professorOrganizationForVersion;
                                                 }
                                             }
-                                            if (!professorOrganizationForVersion.empty()) {
+                                            if ((!professorOrganizationForVersion.empty()) && (errorIdentifier == OK)) {
                                                 itProfessorFromFind = findProfessor(professorList, professorOrganizationForVersion);
                                                 if (itProfessorFromFind != professorList.end()) {
                                                     dummyAssociateProfessor.setProfessorPointer(itProfessorFromFind);
@@ -554,7 +556,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             if (level == 0) {
                                 patternFieldForEachLevel[2] = 0;
                                 if (errorIdentifier == OK) {
-                                    if (dummyCourse.setListAssistant(dummyAssociateProfessorsList, errorHandling) == 255){
+                                    if (dummyCourse.setListAssistant(dummyAssociateProfessorsList, errorHandling) == 255) {
                                         dummyCoursesList.push_back(dummyCourse);
                                         dummyAssociateProfessorsList.clear();
                                     } else {

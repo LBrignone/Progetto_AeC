@@ -27,14 +27,15 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
 
             if (versionCoherencyTest(errorString, i, itCourseDummy->getParallelCoursesId()) || itCourseDummy->getParallelCoursesId().empty()) {
                 if (itCourseMain != databaseList.end()) {
-                    if ((itCourseMain->isActiveCourse() != itCourseDummy->isActiveCourse()) && !itCourseDummy->getActiveCourseFieldEmpty()) {
+                    if (itCourseMain->isActiveCourse() != itCourseDummy->isActiveCourse()) {
+//                         && !itCourseDummy->getActiveCourseFieldEmpty()) {
                         itCourseMain->setActiveCourse(itCourseDummy->isActiveCourse());
                     }
-                    if (itCourseDummy->getParallelCoursesNumber() != -1) {
-                        if (itCourseMain->getParallelCoursesNumber() != itCourseDummy->getParallelCoursesNumber()) {
-                            itCourseMain->setParallelCoursesNumber(itCourseDummy->getParallelCoursesNumber());
-                        }
+//                    if (itCourseDummy->getParallelCoursesNumber() != -1) {
+                    if (itCourseMain->getParallelCoursesNumber() != itCourseDummy->getParallelCoursesNumber()) {
+                        itCourseMain->setParallelCoursesNumber(itCourseDummy->getParallelCoursesNumber());
                     }
+//                    }
                     if (itCourseDummy->getExamType() != "NO_TYPE") {
                         itCourseMain->setExamType(itCourseDummy->getExamType());
                     }
@@ -73,10 +74,10 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
                 } else {
                     // here the database course version's list is ended but the inserted course versions has some more elements
                     // the exceeding elements must be controlled so that all the fields are complete with data
-                    if (itCourseDummy->getActiveCourseFieldEmpty()) {
-                        errorIdentifier = ERR_missing_field;
-                        errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined if the given course is active";
-                    }
+//                    if (itCourseDummy->getActiveCourseFieldEmpty()) {
+//                        errorIdentifier = ERR_missing_field;
+//                        errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined if the given course is active";
+//                    }
                     if (itCourseDummy->getParallelCoursesNumber() == -1) {
                         errorIdentifier = ERR_missing_field;
                         errorHandling = "the course " + itCourseDummy->getId() + " with version number " + to_string(i) + "has not defined the number of parallel courses";
@@ -107,7 +108,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
                     }
                     if (!itCourseDummy->getListAssistant().empty()) { // if there's something to modify it'll be updated with the function otherwise the database remain intact
                         associateProfessorFromDatabase = itCourseMain->getListAssistant();
-                        if (!fillAssociateProfessor(errorString, associateProfessorFromDatabase, itCourseDummy->getListAssistant(), professorList.end())) {
+                        if (!fillAssociateProfessor(errorString, itCourseMain->getListAssistant(), itCourseDummy->getListAssistant(), professorList.end())) {
                             errorIdentifier = ERR_professor_format;
                             errorHandling = errorString;
                         } else {
@@ -126,6 +127,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
                         itCourseMain++;
                         databaseList.insert(itCourseMain, *itCourseDummy);
                         fromInsert = true;
+                        itCourseMain--;
                     }
                 }
             } else {
@@ -170,40 +172,40 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
 
     // first the course id that we are looking for is searched in database
     itLastDbCourseId = findCourse(databaseList, dummyCourseList.begin()->getId());
-    if (itLastDbCourseId == databaseList.end()) {
+    if (itLastDbCourseId != databaseList.end()) {
         // when the id previously found exist the last element of it is searched
         itLastDbCourseId = findCourseLastForId(databaseList, dummyCourseList.begin()->getId(), itLastDbCourseId);
         // at the same time the first element with same course id and academic year is searched (the P001 version is expected)
         itDbCourseId = findCourse(databaseList, itLastDbCourseId->getId(), itLastDbCourseId->getStartYear(),generateVersion(i));
     }
     itDummyCourseList = dummyCourseList.begin();
-    if ((dummyCourseList.begin()->getParallelCoursesNumber() == versionCounter) && (itLastDbCourseId->getParallelCoursesNumber() <= versionCounter)){
+    if ((dummyCourseList.begin()->getParallelCoursesNumber() == versionCounter) && (itLastDbCourseId->getParallelCoursesNumber() <= versionCounter)) {
         while (i < versionCounter) {
             if ((versionCoherencyTest(errorLine, i, itDummyCourseList->getParallelCoursesId()) || itDummyCourseList->getParallelCoursesId().empty()) && versionCoherencyTest(errorLine, i, itDbCourseId->getParallelCoursesId())) {
-                if (!itDummyCourseList->getActiveCourseFieldEmpty()) {
-                    itDummyCourseList->setActiveCourse(itDbCourseId->isActiveCourse());
-                }
-                if (itDummyCourseList->getParallelCoursesNumber() == -1) {
-                    itDummyCourseList->setParallelCoursesNumber(itDbCourseId->getParallelCoursesNumber());
-                }
-                if (itDummyCourseList->getExamType() == "NO_TYPE") {
-                    itDummyCourseList->setExamType(itDbCourseId->getExamType());
-                }
-                if (itDummyCourseList->getExamClassroomType() == '\0') {
-                    itDummyCourseList->setExamClassroomType(itDbCourseId->getExamClassroomType());
-                }
-                if (itDummyCourseList->getEntranceTime() == -1) {
-                    itDummyCourseList->setEntranceTime(itDbCourseId->getEntranceTime());
-                }
-                if (itDummyCourseList->getExitTime() == -1) {
-                    itDummyCourseList->setExitTime(itDbCourseId->getExitTime());
-                }
-                if (itDummyCourseList->getExamDuration() == -1) {
-                    itDummyCourseList->setExamDuration(itDbCourseId->getExamDuration());
-                }
-                if (itDummyCourseList->getPartecipants() == -1) {
-                    itDummyCourseList->setPartecipants(itDbCourseId->getPartecipants());
-                }
+//               if (!itDummyCourseList->getActiveCourseFieldEmpty()) {
+//                   itDummyCourseList->setActiveCourse(itDbCourseId->isActiveCourse());
+//               }
+//               if (itDummyCourseList->getParallelCoursesNumber() == -1) {
+//                   itDummyCourseList->setParallelCoursesNumber(itDbCourseId->getParallelCoursesNumber());
+//               }
+//               if (itDummyCourseList->getExamType() == "NO_TYPE") {
+//                   itDummyCourseList->setExamType(itDbCourseId->getExamType());
+//               }
+//               if (itDummyCourseList->getExamClassroomType() == '\0') {
+//                   itDummyCourseList->setExamClassroomType(itDbCourseId->getExamClassroomType());
+//               }
+//               if (itDummyCourseList->getEntranceTime() == -1) {
+//                   itDummyCourseList->setEntranceTime(itDbCourseId->getEntranceTime());
+//               }
+//               if (itDummyCourseList->getExitTime() == -1) {
+//                   itDummyCourseList->setExitTime(itDbCourseId->getExitTime());
+//               }
+//               if (itDummyCourseList->getExamDuration() == -1) {
+//                   itDummyCourseList->setExamDuration(itDbCourseId->getExamDuration());
+//               }
+//               if (itDummyCourseList->getPartecipants() == -1) {
+//                   itDummyCourseList->setPartecipants(itDbCourseId->getPartecipants());
+//               }
                 // if there's some missing field in dummy course's list it will be inherited
                 // otherwise when the dummy list is empty all the associate professors' organization will be inherited from the database
                 if (!itDummyCourseList->getListAssistant().empty()) {
@@ -267,7 +269,6 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
                 // in the file, this necessitates to control the coherency for the given id with the database, if they match is OK
                 if (itAssociateProfessorDummy->getProfessorPointer()->getId() == itAssociateProfessorMain->getProfessorPointer()->getId()) {
                     itAssociateProfessorMain->setProfessorPointer(itAssociateProfessorDummy->getProfessorPointer());
-                    writeOrInherit = true;
                 } else {
                     errorIdentifier = ERR_regular_professor;
                     errorHandling = "the given regular professor ("+ itAssociateProfessorDummy->getProfessorPointer()->getId() +") does not coincide with the regular professor in database";
@@ -277,52 +278,45 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
                 // will be inherited (nothing is modified in database)
                 if (itAssociateProfessorDummy->getProfessorPointer() != professorListEnd) {
                     itAssociateProfessorMain->setProfessorPointer(itAssociateProfessorDummy->getProfessorPointer());
-                    writeOrInherit = true;
                 }
+            }
+            // here there won't be controls because the fields are already controlled in a previous step ad now is sure they are coherent with the patterns
+            if (itAssociateProfessorDummy->getLessonH() != -1) {
+                itAssociateProfessorMain->setLessonH(itAssociateProfessorDummy->getLessonH());
+            }
+            if (itAssociateProfessorDummy->getExerciseH() != -1) {
+                itAssociateProfessorMain->setExerciseH(itAssociateProfessorDummy->getExerciseH());
+            }
+            if (itAssociateProfessorDummy->getLabH() != -1) {
+                itAssociateProfessorMain->setLabH(itAssociateProfessorDummy->getLabH());
             }
         } else {
             // here the list of associate professor in database is finished so missing fields couldn't be inherited
             // here will take place all the controls to guarantee the presence of all fields
-            if (itAssociateProfessorDummy->getProfessorPointer() != professorListEnd) {
-                itAssociateProfessorMain->setProfessorPointer(itAssociateProfessorDummy->getProfessorPointer());
-            } else {
+            if (itAssociateProfessorDummy->getProfessorPointer() == professorListEnd) {
+//                itAssociateProfessorMain->setProfessorPointer(itAssociateProfessorDummy->getProfessorPointer());
+//            } else {
                 errorIdentifier = ERR_missing_field;
                 errorHandling = "the first field (id) of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
-            }
-            if (itAssociateProfessorDummy->getLessonH() != -1) {
-                itAssociateProfessorMain->setLessonH(itAssociateProfessorDummy->getLessonH());
-            } else {
+            } else if (itAssociateProfessorDummy->getLessonH() == -1) {
+//               itAssociateProfessorMain->setLessonH(itAssociateProfessorDummy->getLessonH());
+//           } else {
                 errorIdentifier = ERR_missing_field;
                 errorHandling = "the second field (lesson hour) of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
-            }
-            if (itAssociateProfessorDummy->getExerciseH() != -1) {
-                itAssociateProfessorMain->setExerciseH(itAssociateProfessorDummy->getExerciseH());
-            } else {
+            } else if (itAssociateProfessorDummy->getExerciseH() == -1) {
+//               itAssociateProfessorMain->setExerciseH(itAssociateProfessorDummy->getExerciseH());
+//           } else {
                 errorIdentifier = ERR_missing_field;
                 errorHandling = "the third field of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
-            }
-            if (itAssociateProfessorDummy->getLabH() != -1) {
-                itAssociateProfessorMain->setLabH(itAssociateProfessorDummy->getLabH());
-            } else {
+            } else if (itAssociateProfessorDummy->getLabH() == -1) {
+//                itAssociateProfessorMain->setLabH(itAssociateProfessorDummy->getLabH());
+//            } else {
                 errorIdentifier = ERR_missing_field;
                 errorHandling = "the fourth field of the " + to_string(associateProfessorElement) + " element in professor organization is missing and there's no way to inherit it";
             }
-        }
-        if (writeOrInherit) {
-            // this part is common for all associate professors in the list (if the dummy list is not ended) in which case the given field will be
-            // inherited (nothing is done to the database) or overwritten with an updated version
-            // here there won't be controls because the fields are already controlled in a previous step ad now is shure they are coherent with th patterns
-            if (itAssociateProfessorDummy->getProfessorPointer() != professorListEnd) {
-                itAssociateProfessorMain->setProfessorPointer(itAssociateProfessorDummy->getProfessorPointer());
-            }
-            if (itAssociateProfessorDummy->getLessonH() != -1) {
-                itAssociateProfessorMain->setLessonH(itAssociateProfessorDummy->getLessonH());
-            }
-            if (itAssociateProfessorDummy->getExerciseH() != -1) {
-                itAssociateProfessorMain->setExerciseH(itAssociateProfessorDummy->getExerciseH());
-            }
-            if (itAssociateProfessorDummy->getLabH() != -1) {
-                itAssociateProfessorMain->setLabH(itAssociateProfessorDummy->getLabH());
+
+            if (errorIdentifier == OK) {
+                associateProfessorListDb.push_back(*itAssociateProfessorDummy);
             }
         }
         itAssociateProfessorMain++;
@@ -333,7 +327,6 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
         associateProfessorListDb.erase(itAssociateProfessorMain);
         itAssociateProfessorMain++;
     }
-
     if (errorIdentifier == OK) {
         return true;
     } else {
