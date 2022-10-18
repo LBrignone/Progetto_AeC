@@ -136,7 +136,7 @@ bool examSessionAcademicYearCoherencyTest (string& errorHandling, int academicYe
     int dateFieldSession = 0;
 
     while ((dateFieldSession < 6) && (errorIdentifier == OK)) {
-        if ((sessionToVerify.at(dateFieldSession).getYear() != academicYearStd) || sessionToVerify.at(dateFieldSession).getYear() != (academicYearStd + 1))) {
+        if ((sessionToVerify.at(dateFieldSession).getYear() != academicYearStd) || (sessionToVerify.at(dateFieldSession).getYear() != (academicYearStd + 1))) {
             errorIdentifier = ERR_academic_year;
             if ((dateFieldSession % 2) == 0) {
                 errorHandling = "the year set as ending session number " + to_string(dateFieldSession / 2) + " is not compatible with academic year " +
@@ -244,10 +244,10 @@ bool unavailabilityDatesVerification (const AvailForExam& dateToVerify, const li
         if ((itListUnavailDates->start == dateToVerify.start) || (itListUnavailDates->stop == dateToVerify.stop)) {
             errorIdentifier = ERR_unavailability_format;
         }
-        if (((itListUnavailDates->start <= dateToVerify.stop) && (itListUnavailDates->start >= dateToVerify.start)) && !problemInDatesSet) {
+        if (((itListUnavailDates->start <= dateToVerify.stop) && (itListUnavailDates->start >= dateToVerify.start)) && (errorIdentifier == OK)) {
             errorIdentifier = ERR_unavailability_format;
         }
-        if (((itListUnavailDates->stop <= dateToVerify.stop) && (itListUnavailDates->stop >= dateToVerify.start)) && !problemInDatesSet) {
+        if (((itListUnavailDates->stop <= dateToVerify.stop) && (itListUnavailDates->stop >= dateToVerify.start)) && (errorIdentifier == OK)) {
             errorIdentifier = ERR_unavailability_format;
         }
             itListUnavailDates++;
@@ -261,3 +261,82 @@ bool unavailabilityDatesVerification (const AvailForExam& dateToVerify, const li
         return false;
     }
 }
+
+bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompare, list<Course>& courseList, list<CourseOfStudy>& courseToHandle) {
+    bool allEnded = false;
+    vector<bool> courseStatus;
+    list<Course>::iterator itFirstForId, itLastForId;
+    list<CourseOfStudy>::iterator itListCourseOfStudy;
+
+    itFirstForId = findCourse(courseList, courseToCompare.getId());
+    if (itFirstForId != courseList.end()) {
+        itLastForId = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
+        if (itLastForId != courseList.end()) {
+            while (itFirstForId != itLastForId) {
+                if (courseToCompare.getStartYear() != itFirstForId->getStartYear()){
+                    courseStatus.push_back(itFirstForId->isActiveCourse());
+                }
+                itFirstForId++;
+            }
+            if (!courseStatus.empty()) {
+                for (int i = 0; i < (courseStatus.size() - 2); i++) {
+                    allEnded = courseStatus[i] || courseStatus[i + 1] || allEnded;
+                }
+            }
+            itListCourseOfStudy = courseToHandle.begin();
+            // allEnded = false -> all the courses are "non_attivo"
+            // allEnded = true  -> at least one course is "attivo", so is not necessary to perform the remove/copy in ended courses
+            while ((itListCourseOfStudy != courseToHandle.end()) && errorHandling.empty()) {
+                itListCourseOfStudy->deleteEndedCourseFormActiveCourse(errorHandling, courseToCompare.getId(), allEnded);
+            }
+        } else {
+            errorHandling = "course " + courseToCompare.getId() + "  ending not found";
+        }
+    } else {
+        errorHandling = "course " + courseToCompare.getId() + " not found";
+    }
+    return errorHandling.empty();
+}
+
+bool removeCourseFromEndedCourses(string& errorHandling, const Course& courseToCompare, list<Course>& courseList, list<CourseOfStudy>& courseToHandle) {
+    bool allActive = true;
+    vector<bool> courseStatus;
+    list<Course>::iterator itFirstForId, itLastForId;
+    list<CourseOfStudy>::iterator itListCourseOfStudy;
+
+    // the following find are used to select the starting and ending position regarding the given course, this is used
+    // to verify all the academic years with same course's id if they are active or not, so the course to reactivate is
+    // maintained in accordance with the course's database
+    itFirstForId = findCourse(courseList, courseToCompare.getId());
+    if (itFirstForId != courseList.end()) {
+        itLastForId = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
+        if (itLastForId != courseList.end()) {
+            while (itFirstForId != itLastForId) {
+                if (courseToCompare.getStartYear() != itFirstForId->getStartYear()){
+                    courseStatus.push_back(itFirstForId->isActiveCourse());
+                }
+                itFirstForId++;
+            }
+            if (!courseStatus.empty()) {
+                for (int i = 0; i < (courseStatus.size() - 2); i++) {
+                    allActive = courseStatus[i] && courseStatus[i + 1] && allActive;                }
+            }
+            itListCourseOfStudy = courseToHandle.begin();
+            // allActive = true -> all the courses for that id are "attivo"
+            // allActive = false -> at least one course is "non_attivo", so is not necessary to perform the remove/copy in ended courses
+            // if at least one course with given id is "non_attivo" no action needs to be performed (the course will remain in ended
+            // course's list while the proper semester will be assigned through the update of course of study
+            if (allActive) {
+                while ((itListCourseOfStudy != courseToHandle.end()) && errorHandling.empty()) {
+                    itListCourseOfStudy->activateCourseFormEndedCourse(errorHandling, courseToCompare.getId(), allActive);
+                }
+            }
+        } else {
+            errorHandling = "course " + courseToCompare.getId() + "  ending not found";
+        }
+    } else {
+        errorHandling = "course " + courseToCompare.getId() + " not found";
+    }
+    return errorHandling.empty();
+}
+

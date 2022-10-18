@@ -15,7 +15,6 @@
 #include "AddFileHandling.h"
 #include "InsertFileHandling.h"
 #include "UpdateFileHandling.h"
-#include "SchedulingHandling.h"
 #include "OutputOnDatabaseHandling.h"
 
 #define studentDatabaseName "db_studenti.txt"
@@ -39,7 +38,6 @@ int main(int argc, char** argv) {
     list<Course> listOfCourses;
     list<CourseOfStudy> listOfCoursesOfStudy;
     map<Date, vector<Date>> mapOfExamSession;
-    map<Date, map<Date, vector<examScheduled>>> mapExamPlanning;
 
     if (argc < 3) {
         errorIdentifier = ERR_arguments_number;
@@ -225,13 +223,31 @@ int main(int argc, char** argv) {
                     // the existence of professor's database is not a constraint for the insertion or modification of courses,
                     // so the return is checked only for file correctness
                     functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                    if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)){
-                        functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors, true);
-                        if (functionReturn == OK) {
-                            functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors);
+                    if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                        // also the presence of course of study's database isn't a constraint to the correct functioning of
+                        // courses insertion, but if if it is present it is necessary to perform some actions on itself too
+                        // if a course is set as "non_attivo" if the same course is used in some course of study then:
+                        // - if all other academic years, for that same course is "attivo" then in course of study that course is
+                        //   COPIED in non-active list
+                        // - if all years for which is defined are "non_attivo" then it is REMOVED from its semester and inserted
+                        //   in non-active list
+                        functionReturn = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
+                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                            functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses,
+                                                             listOfProfessors, true);
+                            if (functionReturn == OK) {
+                                functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, listOfCoursesOfStudy);
+                            } else {
+                                errorLine += "\nCan't perform an insertion or modification without the course's database file \"" +
+                                             (string) courseDatabaseName + "\"";
+                            }
                         } else {
-                            errorLine += "\nCan't perform an insertion or modification without the course's database file \"" + (string) courseDatabaseName + "\"";
+                            errorLine += "\nCan't perform the insertion command, because the file \"" + (string) courseOfStudyDatabaseName +
+                                         "\" has been found corrupted";
                         }
+                    } else {
+                        errorLine += "\nCan't perform the insertion command, because the file \"" + (string) courseOfStudyDatabaseName +
+                                     "\" has been found corrupted";
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, listOfCourses);
@@ -277,7 +293,6 @@ int main(int argc, char** argv) {
         }
         case 'g':{
             for (int i = 0; i < 3; i++) {
-                schedulingInitializer(errorLine, i, );
             }
             break;
         }

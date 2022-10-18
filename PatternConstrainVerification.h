@@ -14,7 +14,9 @@
 #include "Date.h"
 #include "Course.h"
 #include "Professor.h"
+#include "CourseOfStudy.h"
 #include "AssociateProfessor.h"
+#include "findSomethingInList.h"
 
 using namespace std;
 
@@ -35,4 +37,9 @@ bool examSessionOrderVerification (string& errorHandling, const vector<Date>& se
 bool sessionDurationConstrainVerification (string& errorHandling, const vector<Date>& sessionToVerify);
 
 bool unavailabilityDatesVerification (const AvailForExam& dateToVerify, const list<AvailForExam>& datesToVerifyWith);
+
+bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompare, list<Course>& courseList, list<CourseOfStudy>& courseToHandle);
+
+bool removeCourseFromEndedCourses(string& errorHandling, const Course& courseToCompare, list<Course>& courseList, list<CourseOfStudy>& courseToHandle);
+
 #endif //PROGETTO_PATTERNCONSTRAINVERIFICATION_H

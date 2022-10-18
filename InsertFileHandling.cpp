@@ -5,10 +5,10 @@
 #include "InsertFileHandling.h"
 
 // here is handled the update or changes for existing courses
-int CourseToInsertFile(string& errorHandling, const string& courseFileName, list<Course>& databaseList, list<Professor>& professorList) {
+int CourseToInsertFile(string& errorHandling, const string& courseFileName, list<Course>& databaseCourseList, list<Professor>& professorList, list<CourseOfStudy>& courseOfStudy) {
     t_errorCodes errorIdentifier = OK;
     ifstream fileName;
-    string readFromFile, readFromLine, errorLine = "";
+    string readFromFile, readFromLine, errorLine;
     int row = 0, patternFiled = 0;
     // bool errorFile = false, errorInFormat = false, errorAbsence = false, yearIsPresent = false, errorInData = false, errorIncoherentHour = false, errorInParallelCourseNumber = false;
     Course dummyCourse;
@@ -80,13 +80,13 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " the given academic year is below 0 (zero): " + readFromLine;
                             }
-                            itCourseListYear = findCourse(databaseList, dummyCourse.getId(), dummyCourse.getStartYear());
-                            if (itCourseListYear != databaseList.end()) {
+                            itCourseListYear = findCourse(databaseCourseList, dummyCourse.getId(), dummyCourse.getStartYear());
+                            if (itCourseListYear != databaseCourseList.end()) {
                                 dummyCourse.inheritCourse(itCourseListYear) ;
                             } else {
-                                itCourseListId = findCourse(databaseList, dummyCourse.getId());
-                                if (itCourseListId != databaseList.end()) {
-                                    itCourseListId = findCourseLastForId(databaseList, dummyCourse.getId(), itCourseListId);
+                                itCourseListId = findCourse(databaseCourseList, dummyCourse.getId());
+                                if (itCourseListId != databaseCourseList.end()) {
+                                    itCourseListId = findCourseLastForId(databaseCourseList, dummyCourse.getId(), itCourseListId);
                                     dummyCourse.inheritCourse(itCourseListId);
                                 } else {
                                     errorIdentifier = ERR_missing_field;
@@ -103,15 +103,18 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                     }
                     case 2:{
                         if (!readFromLine.empty()) {
-                            if (readFromLine == "attivo") {
-                                dummyCourse.setActiveCourse(true);
-                            } else if (readFromLine == "non_attivo") {
-                                dummyCourse.setActiveCourse(false);
-                            } else {
+                            if ((readFromLine != "attivo") && (readFromLine != "non_attivo")) {
                                 errorIdentifier = ERR_file_format;
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " the given course has wrong definition of active or not active course: " + readFromLine;
+                            } else if ((readFromLine == "attivo") != dummyCourse.isActiveCourse()) {
+                                dummyCourse.setActiveCourse(true);
+                                removeCourseFromEndedCourses(errorHandling, dummyCourse, databaseCourseList, courseOfStudy);
+                            } else if ((readFromLine == "non_attivo") != !dummyCourse.isActiveCourse()) {
+                                dummyCourse.setActiveCourse(false);
+                                putCourseInEndedCourses(errorHandling, dummyCourse, databaseCourseList, courseOfStudy);
                             }
+                            // if there's no change in course's status ("attivo/non_attivo") remains valid the status inherited from database
                         }
 //                        else {
 //                            dummyCourse.setActiveCourseFieldEmpty(true);
@@ -568,16 +571,16 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             }
                         }
                         // here the row of given file is completely decoded
-                        // the following part will take care of controlling the database (databaseList) with regard to updated versions
-                        if (itCourseListYear != databaseList.end()) {
-                            if (!fillCourseDatabase(errorLine, versionCounter, databaseList, dummyCoursesList, professorList)) {
+                        // the following part will take care of controlling the database (databaseCourseList) with regard to updated versions
+                        if (itCourseListYear != databaseCourseList.end()) {
+                            if (!fillCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
                                 errorIdentifier = ERR_update_database;
                                 errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYear->getId() +
                                                 " and year " + to_string(itCourseListYear->getStartYear()) + "-" + to_string(itCourseListYear->getStartYear() + 1) +
                                                 " has " + errorLine;
                             }
-                        } else if (itCourseListId != databaseList.end()) {
-                            if (insertCourseDatabase(errorLine, versionCounter, databaseList, dummyCoursesList, professorList)) {
+                        } else if (itCourseListId != databaseCourseList.end()) {
+                            if (insertCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
                                 errorIdentifier = ERR_update_database;
                                 errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYear->getId() +
                                                 " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +
@@ -598,15 +601,18 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                 }
             } else {
                 if (dummyCourse.getParallelCoursesNumber() <= itCourseListId->getParallelCoursesNumber()) {
-                    if (itCourseListYear != databaseList.end()) {
-                        if (!fillCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseList, dummyCoursesList, professorList)) {
+                    if (itCourseListYear != databaseCourseList.end()) {
+                        // this part will be performed if both the id and the academic year is present, and is going to updte the database with the correct data
+                        if (!fillCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
                             errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYear->getId() +
                                             " and year " + to_string(itCourseListYear->getStartYear()) + "-" + to_string(itCourseListYear->getStartYear() + 1) +
                                             " has " + errorLine;
                         }
-                    } else if (itCourseListId != databaseList.end()) {
-                        if (insertCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseList, dummyCoursesList, professorList)) {
+                    } else if (itCourseListId != databaseCourseList.end()) {
+                        // this part will be done only if the course id is present and will result in a fill of missing fields
+                        // in the dummy list and an insertion of them in database in the  proper position
+                        if (insertCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
                             errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYear->getId() +
                                             " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +

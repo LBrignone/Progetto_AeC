@@ -20,7 +20,7 @@ using namespace std;
 
 class Course {
 public:
-    Course(){};
+    Course() {};
     Course(const Course& toCopy);
     string getId() const;
     bool setId(const string& id);

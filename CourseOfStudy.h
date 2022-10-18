@@ -18,15 +18,18 @@ typedef enum {BS, MS, NO_TYPE} t_graduationType;
 
 class CourseOfStudy {
 public:
+    CourseOfStudy() {};
     string getCourseOfStudyId() const;
     bool generateCourseOfStudyId(const string& lastCourseOfStudy);
     bool setCourseOfStudyId(const string& toSetcourseOfStudyId);
     string getGraduationType() const;
     bool setGaraduationType(const string& graduationType);
     const list<string>& getListOfCoursesBySemester(const int& key) const;
-    bool setListOfCoursesBySemester(string& errorHandlingFormPattern, const int& semesterKey, const string& Course);
-    bool deleteEndedCourseFormActiveCourse(string& errorHandlingToDelete, const int& semester, const string& Course);
-    int findCourse(int startSemester, const string& Course);
+    bool setListOfCoursesBySemester(string& errorHandlingFormPattern, const int& semesterKey, const string& courseId);
+    bool deleteEndedCourseFormActiveCourse(string& errorHandling, const string& courseId,
+                                           const bool& allInactive);
+    bool activateCourseFormEndedCourse(string& errorHandling, const string& courseId, const bool& allActive);
+    int findCourse(int startSemester, const string& courseId);
     ostream& operator << (ostream& os);
 
 private:
