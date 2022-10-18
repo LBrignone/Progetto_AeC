@@ -629,6 +629,8 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
             row++;
         }
     }
-
+    if (fileName.is_open()) {
+        fileName.close();
+    }
     return (int) errorIdentifier;
 }

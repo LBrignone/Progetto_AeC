@@ -1779,48 +1779,48 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
                         if (first) {
                             // here the first field is the professor id
                             stringstream tmp;
-                            if ((readFromLine != "") && (readFromLine.size() == 7)) {
+                            Professor dummyProfessorFromNotFound;
+
+                            if ((!readFromLine.empty()) && (readFromLine.size() == 7)) {
                                 if (readFromLine[0] == 'd') {
                                     try {
                                         stoi(readFromLine.substr(1, readFromLine.size() - 1));
                                     }
                                     catch (const invalid_argument& excepFromStoi) {
                                         errorIdentifier = ERR_id_field;
-                                        errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " +
-                                                        to_string(row) +
+                                        errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
                                                         " incorrect element impossible to convert the numerical part of professor id to int: " +
                                                         readFromLine;
                                     }
                                     itProfessorList = findProfessor(professorList, readFromLine);
+                                    // with the professor present in the database of professors no further action are required
+                                    // if the searched professor isn't in the list it will be created and populated with its unavailability further below
                                     if (itProfessorList == professorList.end()) {
-                                        errorIdentifier = ERR_missing_professor;
-                                        errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " +
-                                                        to_string(row) +
-                                                        " can't find the given professor in database: " + readFromLine;
-                                    } else {
-                                        if (!itProfessorList->getChangeInUnavail()) {
-                                            itProfessorList->setChangeInUnavail(true);
-                                        } else {
-                                            errorIdentifier = ERR_professor_changed;
-                                            errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " +
-                                                            to_string(row) +
-                                                            " the given professor has already been modified in a previous iteration" +
-                                                            readFromLine;
+                                        // here a dummy professor is created if no professor is found in professor's list
+                                        // here I don't care if alla other fields will be compiled, because is a prerogative of professor's list
+                                        if (!dummyProfessorFromNotFound.setId(readFromLine)) {
+                                            errorIdentifier = ERR_id_field;
+                                            errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
+                                                            " incorrect professor id: " + readFromLine;
                                         }
-
+/// PROBLEM HERE !!!!! ---------------> INSERT NOT PUSH BACK
+                                        professorList.push_back(dummyProfessorFromNotFound);
+                                        itProfessorList = findProfessor(professorList, readFromLine);
+                                        if (itProfessorList == professorList.end()) {
+                                            errorIdentifier = ERR_professor_pointer;
+                                            errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
+                                                            " error creating the nonexisting professor with id: " + readFromLine;
+                                        }
                                     }
                                 } else {
                                     errorIdentifier = ERR_id_field;
-                                    errorHandling =
-                                            "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
-                                            " can't find the given professor in database: " + readFromLine;
+                                    errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
+                                                    " can't find the given professor in database: " + readFromLine;
                                 }
                             } else {
                                 errorIdentifier = ERR_missing_professor;
-                                errorHandling =
-                                        "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
-                                        " the given string (string: " + readFromLine +
-                                        ") is empty or its length doesn't match the required one";
+                                errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
+                                                " the given string (string: " + readFromLine + ") is empty or its length doesn't match the required one";
                             }
                             first = false;
                         } else {
@@ -1928,9 +1928,7 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
                                  ((beginYear.getYear() == unavailPeriod.stop.getYear()) ||
                                   (endYear.getYear() == unavailPeriod.stop.getYear())))) {
                                 // before inserting/appending the start and stop date a control is performed
-                                if (unavailabilityDatesVerification(unavailPeriod,
-                                                                    itProfessorList->getUnavailListByAcademicYear(
-                                                                            beginYear))) {
+                                if (unavailabilityDatesVerification(unavailPeriod, itProfessorList->getUnavailListByAcademicYear(beginYear))) {
                                     // if the return of append is TRUE the inserted element is correctly inserted
                                     if (!itProfessorList->appendUnavailability(unavailPeriod, beginYear)) {
                                         // (database update) if the return of append is FALSE the inserted element has a key that already
@@ -1940,18 +1938,14 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
                                     }
                                 } else {
                                     errorIdentifier = ERR_date_overlap;
-                                    errorHandling =
-                                            "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
-                                            " the given pair of date (start: " + unavailPeriod.start.getCompleteDate() +
-                                            ", stop: " +
-                                            unavailPeriod.stop.getCompleteDate() +
-                                            ") may have an overlap with other dates range";
+                                    errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row) +
+                                                    " the given pair of date (start: " + unavailPeriod.start.getCompleteDate() +
+                                                     ", stop: " + unavailPeriod.stop.getCompleteDate() + ") may have an overlap with other dates range";
                                 }
                             } else {
                                 errorIdentifier = ERR_inverted_dates;
-                                errorHandling =
-                                        "Error: the start and stop dates for field number " + to_string(fieldNumber) +
-                                        " are inverted";
+                                errorHandling = "Error: the start and stop dates for field number " + to_string(fieldNumber) +
+                                                " are inverted";
                             }
                             // reading unavail dates (here the start and stop date, for a single field, is reconstructed, and already present)
                         }
