@@ -36,7 +36,7 @@ bool Course::setId(const string &id) {
     bool errorInId = false;
     if ((id[0] == '0') && (id[1] == '1')) {
         while ((positionIdString < 6) && !errorInId) {
-            if ((id[positionIdString] > 64) && (id[positionIdString] < 91)) {
+            if ((id[positionIdString] > 64) && (id[positionIdString] < 91)) { // A == 65 - Z == 90
                 positionIdString++;
             } else {
                 errorInId = true;
@@ -406,7 +406,7 @@ bool Course::setListGroupedId(const list<string>& groupingId) {
         positionIdString = 2;
         if ((groupingListIt->at(0) == '0') && (groupingListIt->at(1) == '1')) {
             while ((positionIdString < 6) && !errorInId) {
-                if ((groupingListIt->at(positionIdString) > 64) && (groupingListIt->at(positionIdString) < 91)) {
+                if ((groupingListIt->at(positionIdString) > 64) && (groupingListIt->at(positionIdString) < 91)) { // A == 65 - Z == 90
                     positionIdString++;
                 } else {
                     errorInId = true;
@@ -432,7 +432,7 @@ bool Course::appendGroupedId(const string& toAppend) {
     if ((toAppend[0] == '0') && (toAppend[1] == '1')) {
         while ((positionToAppenString < 6) && !errorInId) {
             positionToAppenString = 2;
-            if ((toAppend[positionToAppenString] > 64) && (toAppend[positionToAppenString] < 91)) {
+            if ((toAppend[positionToAppenString] > 64) && (toAppend[positionToAppenString] < 91)) { // A == 65 - Z == 90
                 positionToAppenString++;
             } else {
                 errorInId = true;

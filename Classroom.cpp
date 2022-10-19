@@ -45,9 +45,6 @@ char Classroom::getType() const {
 
 bool Classroom::setType(const char &type) {
     char tmp = type;
-    if ((type > 96) && (type < 123)) {
-        tmp -= 32;
-    }
     if ((tmp == 'A') || (tmp == 'L')) {
         _type = type;
         return true;
