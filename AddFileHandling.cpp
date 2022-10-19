@@ -1282,7 +1282,9 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                         courseList.pop_back();
                     }
                     errorIdentifier = ERR_parallel_course_number;
-                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) + "the given number of parallel courses is different than the one specified as single parameter: " + to_string(courseList.back().getParallelCoursesNumber());
+                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                    "the given number of parallel courses is different than the one specified as single parameter: " +
+                                    to_string(courseList.back().getParallelCoursesNumber());
                 }
             }
         }

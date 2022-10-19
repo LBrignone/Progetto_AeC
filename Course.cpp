@@ -97,13 +97,14 @@ bool Course::setParallelCoursesId(const string& parallelCoursesId) {
     bool correctSequence = true;
     if (parallelCoursesId[0] == 'P') {
         for (int i = 1; i < 4; ++i) {
-            if ((parallelCoursesId[i] < 47) || (parallelCoursesId[i] > 58)) {
+            if ((parallelCoursesId[i] < '0') || (parallelCoursesId[i] > '9')) {
                 correctSequence = false;
             }
         }
     } else {
-        return false;
+        correctSequence = false;
     }
+    return correctSequence;
 }
 
 void Course::clearParallelCourseId() {
@@ -135,8 +136,11 @@ int Course::getParallelCoursesNumber() const {
 }
 
 bool Course::setParallelCoursesNumber(const int& parallelCoursesNumber) {
-    if (parallelCoursesNumber > 0) { //DEVO AGGIUNGERE IL CASO IL NUMERO NON SIA COERENTE CON I CORSI INSERITI
+    if (parallelCoursesNumber > 0) {
         _parallelCoursesNumber = parallelCoursesNumber;
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -473,18 +477,18 @@ void Course::resetConstrain() {
     _constrain = 0;
 }
 
-Course& Course::inheritCourse(const list<Course>::iterator& toInherit) {
-    _id = toInherit->_id;
-    _startYear = toInherit->_startYear;
-    _parallelCoursesNumber = toInherit->_parallelCoursesNumber;
-    _activeCourse = toInherit->_activeCourse;
-    _examType = toInherit->_examType;
-    _examClassroomType = toInherit->_examClassroomType;
-    _entryTime = toInherit->_entryTime;
-    _exitTime = toInherit->_exitTime;
-    _examDuration = toInherit->_examDuration;
-    _partecipants = toInherit->_partecipants;
-    _coursesGroupedId = toInherit->_coursesGroupedId;
+void Course::inheritCourse(const list<Course>::iterator& toInherit) {
+    this->_id = toInherit->_id;
+    this->_startYear = toInherit->_startYear;
+    this->_parallelCoursesNumber = toInherit->_parallelCoursesNumber;
+    this->_activeCourse = toInherit->_activeCourse;
+    this->_examType = toInherit->_examType;
+    this->_examClassroomType = toInherit->_examClassroomType;
+    this->_entryTime = toInherit->_entryTime;
+    this->_exitTime = toInherit->_exitTime;
+    this->_examDuration = toInherit->_examDuration;
+    this->_partecipants = toInherit->_partecipants;
+    this->_coursesGroupedId = toInherit->_coursesGroupedId;
 }
 
 ostream& Course::printCourseOrganization(ostream& os) const {
@@ -530,7 +534,7 @@ ostream& Course::printCourseOrganizationVersionOpening(ostream& os, const bool& 
     return os;
 }
 
-ostream& Course::printCourseOrganizationAcademicYearClosing(ostream& os) const {
+void Course::printCourseOrganizationAcademicYearClosing(ostream& os) const {
     list<string>::const_iterator itListGroupedCourses;
 
     os << "];{" << _examDuration << "," << _entryTime << "," << _exitTime << "," << _examType << "," << _examClassroomType <<
@@ -594,7 +598,7 @@ Course& Course::operator = (const list<Course>::iterator& toCopy) {
     return *this;
 }
 
-ostream& Course::operator << (ostream& os) {
+ostream& Course::operator <<(ostream& os) {
     list<AssociateProfessor>::const_iterator itListAssociateProfessor;
 
     itListAssociateProfessor = _assistant.cbegin();
@@ -607,4 +611,5 @@ ostream& Course::operator << (ostream& os) {
         itListAssociateProfessor++;
     }
     os << "]}";
+    return os;
 }

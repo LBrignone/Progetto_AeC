@@ -154,27 +154,32 @@ bool Professor::operator <(const Professor& toCompare) {
 }
 
 Professor& Professor::operator =(const Professor& toCopy) {
-    this->setId(toCopy.getId());
-    this->setName(toCopy.getName());
-    this->setSurname(toCopy.getSurname());
-    this->setMail(toCopy.getMail());
-    _changeInUnavail = toCopy._changeInUnavail;
-    _unavailability = toCopy._unavailability;
-    _unavailabilityForExam = toCopy._unavailabilityForExam;
-
+    if (this != &toCopy) {
+        this->setId(toCopy.getId());
+        this->setName(toCopy.getName());
+        this->setSurname(toCopy.getSurname());
+        this->setMail(toCopy.getMail());
+        _changeInUnavail = toCopy._changeInUnavail;
+        _unavailability = toCopy._unavailability;
+        _unavailabilityForExam = toCopy._unavailabilityForExam;
+    }
+    return *this;
 }
 
 Professor& Professor::operator =(const list<Professor>::const_iterator & toCopy) {
-    this->setId(toCopy->getId());
-    this->setName(toCopy->getName());
-    this->setSurname(toCopy->getSurname());
-    this->setMail(toCopy->getMail());
-    _changeInUnavail = toCopy->_changeInUnavail;
-    _unavailability = toCopy->_unavailability;
-    _unavailabilityForExam = toCopy->_unavailabilityForExam;
+    if (this != &*toCopy){
+        this->setId(toCopy->getId());
+        this->setName(toCopy->getName());
+        this->setSurname(toCopy->getSurname());
+        this->setMail(toCopy->getMail());
+        _changeInUnavail = toCopy->_changeInUnavail;
+        _unavailability = toCopy->_unavailability;
+        _unavailabilityForExam = toCopy->_unavailabilityForExam;
+    }
+    return *this;
 }
 
-ostream& Professor::operator << (ostream& os) {
+ostream& Professor::operator <<(ostream& os) {
     os << _id << ";" << (this)->getName() << ";" << (this)->getSurname() << ";" << (this)->getMail();
     return os;
 }

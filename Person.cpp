@@ -50,7 +50,7 @@ string &Person::getId() const {
     return (string &) _id;
 }
 
-const bool& Person::operator < (const Person& personToCompare) const{
+const bool Person::operator < (const Person& personToCompare) const{
     int tmpIdRvalue, tmpIdLvalue;
     tmpIdRvalue = stoi(personToCompare.getId().substr(1, personToCompare.getId().size() - 1));
     tmpIdLvalue = stoi(_id.substr(1, _id.size() - 1));

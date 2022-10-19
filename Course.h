@@ -72,11 +72,11 @@ public:
     void increaseConstrain();
     void decreaseConstrain();
     void resetConstrain();
-    Course& inheritCourse(const list<Course>::iterator& toInherit);
+    void inheritCourse(const list<Course>::iterator& toInherit);
     ostream& printCourseOrganization(ostream& os) const;
     ostream& printCourseOrganizationAcademicYearOpening(ostream& os) const;
     ostream& printCourseOrganizationVersionOpening(ostream& os, const bool& first) const; // see implementation to further comment
-    ostream& printCourseOrganizationAcademicYearClosing(ostream& os) const;
+    void printCourseOrganizationAcademicYearClosing(ostream& os) const;
     Course& operator =(const Course& toCopy);
     Course& operator =(const list<Course>::iterator& toCopy);
     ostream& operator <<(ostream& os);

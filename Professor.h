@@ -20,7 +20,7 @@ using namespace std;
 typedef struct AvailForExam {
     Date start;
     Date stop;
-};
+} AvailForExam;
 
 class Professor : public Person {
 public:

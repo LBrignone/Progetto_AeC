@@ -25,8 +25,8 @@ public:
     string& getMail() const;
     bool setMail(const string& mail);
     string& getId() const;
-    virtual bool generateNewId(const string& id) {};
-    const bool& operator < (const Person& personToCompare) const;
+    virtual bool generateNewId(const string& id) { return false; };
+    const bool operator <(const Person& personToCompare) const;
 
 
 private:

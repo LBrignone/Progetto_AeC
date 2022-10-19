@@ -230,6 +230,11 @@ bool sessionDurationConstrainVerification(string& errorHandling, const vector<Da
         }
         sessionIdentifier++;
     }
+    if (errorIdentifier == OK) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 // the start and stop date's control is performed through the list of already inserted/appended unavailable date, in particular it is controlled:
