@@ -59,18 +59,17 @@
 				4,
 				5,
 				6,
+				7,
 				8,
+				9,
 				10,
+				11,
 				12,
+				13,
 				14,
+				15,
 				16,
-				18,
-				20,
-				22,
-				24,
-				26,
-				28,
-				30
+				17
 			]
 		}
 	],
@@ -110,37 +109,17 @@
 				4,
 				5,
 				6,
-				8,
-				10,
-				12,
-				14,
-				16,
-				18,
-				20,
-				22,
-				24,
-				26,
-				28,
-				30
-			]
-		},
-		{
-			"name" : "Header Files",
-			"sourceIndexes" : 
-			[
 				7,
+				8,
 				9,
+				10,
 				11,
+				12,
 				13,
+				14,
 				15,
-				17,
-				19,
-				21,
-				23,
-				25,
-				27,
-				29,
-				31
+				16,
+				17
 			]
 		}
 	],
@@ -190,19 +169,9 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "AssociateProfessor.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "Course.cpp",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "Course.h",
-			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
@@ -212,19 +181,9 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "CourseOfStudy.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "AddFileHandling.cpp",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "AddFileHandling.h",
-			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
@@ -234,19 +193,9 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "findSomethingInList.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "PatternConstrainVerification.cpp",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "PatternConstrainVerification.h",
-			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
@@ -256,19 +205,9 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "UpdateFileHandling.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "InsertFileHandling.cpp",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "InsertFileHandling.h",
-			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
@@ -278,19 +217,9 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "FillDatabaseList.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "OutputOnDatabaseHandling.cpp",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "OutputOnDatabaseHandling.h",
-			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
@@ -300,30 +229,9 @@
 		},
 		{
 			"backtrace" : 1,
-			"path" : "ErrorHandling.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "SchedulingHandling.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "SchedulingHandling.h",
-			"sourceGroupIndex" : 1
-		},
-		{
-			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "schedulingChecks.cpp",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "schedulingChecks.h",
-			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

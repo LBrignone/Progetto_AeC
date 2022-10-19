@@ -442,7 +442,6 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "incorrect professor id: " + professorOrganizationForVersion;
                                                     }
-
                                                     if (errorIdentifier == OK) {
                                                         itProfessorMain = professorList.begin();
                                                         while ((itProfessorMain != professorList.end()) && !professorInsertion) {
@@ -462,7 +461,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                         } else {
                                                             errorIdentifier = ERR_file_format;
                                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                                            "error ceeating the unexisting professor with id: " + professorOrganizationForVersion;
+                                                                            "error creating the unexisting professor with id: " + professorOrganizationForVersion;
                                                         }
                                                     }
                                                 }
@@ -580,7 +579,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 " has " + errorLine;
                             }
                         } else if (itCourseListId != databaseCourseList.end()) {
-                            if (insertCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
+                            if (!insertCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
                                 errorIdentifier = ERR_update_database;
                                 errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYear->getId() +
                                                 " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +
@@ -602,7 +601,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
             } else {
                 if (dummyCourse.getParallelCoursesNumber() <= itCourseListId->getParallelCoursesNumber()) {
                     if (itCourseListYear != databaseCourseList.end()) {
-                        // this part will be performed if both the id and the academic year is present, and is going to updte the database with the correct data
+                        // this part will be performed if both the id and the academic year is present, and is going to update the database with the correct data
                         if (!fillCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
                             errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYear->getId() +

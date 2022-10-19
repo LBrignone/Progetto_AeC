@@ -781,7 +781,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                             if (level == 0) {
                                 patternFieldForEachLevel[2] = 0;
                                 if (errorIdentifier == OK) {
-                                    if (dummyCourse.setListAssistant(tmpAssociateProfessorList, errorHandling) == 255){
+                                    if (dummyCourse.setListAssistant(tmpAssociateProfessorList, errorHandling) == numeric_limits<unsigned int>::max()){
                                         courseList.push_back(dummyCourse);
                                         tmpAssociateProfessorList.clear();
                                     } else {
@@ -1266,7 +1266,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                     if (level == 0) {
                         patternFieldForEachLevel[2] = 0;
                         if (errorIdentifier == OK) {
-                            if (dummyCourse.setListAssistant(tmpAssociateProfessorList, errorHandling) == 255){
+                            if (dummyCourse.setListAssistant(tmpAssociateProfessorList, errorHandling) == numeric_limits<unsigned int>::max()){
                                 courseList.push_back(dummyCourse);
                                 tmpAssociateProfessorList.clear();
                             } else {
@@ -1778,8 +1778,10 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
 
                         if (first) {
                             // here the first field is the professor id
+                            bool professorInsertion = false;
                             stringstream tmp;
                             Professor dummyProfessorFromNotFound;
+                            list<Professor>::iterator itProfessor;
 
                             if ((!readFromLine.empty()) && (readFromLine.size() == 7)) {
                                 if (readFromLine[0] == 'd') {
@@ -1803,13 +1805,25 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
                                             errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
                                                             " incorrect professor id: " + readFromLine;
                                         }
-/// PROBLEM HERE !!!!! ---------------> INSERT NOT PUSH BACK
-                                        professorList.push_back(dummyProfessorFromNotFound);
-                                        itProfessorList = findProfessor(professorList, readFromLine);
-                                        if (itProfessorList == professorList.end()) {
-                                            errorIdentifier = ERR_professor_pointer;
-                                            errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
-                                                            " error creating the nonexisting professor with id: " + readFromLine;
+                                        if (errorIdentifier == OK) {
+                                            itProfessor = professorList.begin();
+                                            while ((itProfessor != professorList.end()) && !professorInsertion) {
+                                                if (dummyProfessorFromNotFound.getId() < itProfessor->getId()) {
+                                                    professorList.insert(itProfessor, dummyProfessorFromNotFound);
+                                                    professorInsertion = true;
+                                                } else {
+                                                    itProfessor++;
+                                                }
+                                            }
+                                            if (!professorInsertion) {
+                                                professorList.push_back(dummyProfessorFromNotFound);
+                                            }
+                                            itProfessorList = findProfessor(professorList, readFromLine);
+                                            if (itProfessorList == professorList.end()) {
+                                                errorIdentifier = ERR_professor_pointer;
+                                                errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
+                                                                " error creating the nonexisting professor with id: " + readFromLine;
+                                            }
                                         }
                                     }
                                 } else {

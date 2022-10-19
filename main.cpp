@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
                 }
                 case 'c':{
                     // it is necessary to recall in first place the professor's database, because it will be used when reading the course's database
-                    // and perform proper controls
+                    // and perform proper controls, BUT if the file exists or not is not a binding condition
                     ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
                     if (fileNameFromCommandLine == courseDatabaseName) {
                         functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, true);
@@ -251,6 +251,11 @@ int main(int argc, char** argv) {
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, listOfCourses);
+                        if (functionReturn == OK) {
+                            functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy);
+                        } else {
+                            errorLine += "\n can't update the " + (string) courseOfStudyDatabaseName + " due to an error updating " + (string) courseDatabaseName;
+                        }
                     }
                     break;
                 }

@@ -135,7 +135,7 @@ bool Professor::setId(const string& id){
     }
 }
 
-const Professor Professor::operator ++ (int) {
+const Professor Professor::operator ++(int) {
     stringstream toRebuild;
     int tmp = stoi(_id.substr(1, _id.size() - 1));
 
@@ -145,7 +145,7 @@ const Professor Professor::operator ++ (int) {
     return *this;
 }
 
-bool Professor::operator < (const Professor& toCompare) {
+bool Professor::operator <(const Professor& toCompare) {
     int lVal, rVal;
 
     lVal = stoi(_id.substr(1, _id.size() - 1));
