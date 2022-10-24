@@ -137,7 +137,7 @@ int CourseOfStudy::findCourse(int startSemester, const string& courseId) {
     return returnKey;
 }
 
-ostream& CourseOfStudy::operator << (ostream& os) {
+ostream& CourseOfStudy::operator << (ostream& os) const {
     list<string>::const_iterator itListOfCourses;
     map<int, list<string>>::const_iterator itMapBySemester;
 
@@ -165,9 +165,9 @@ ostream& CourseOfStudy::operator << (ostream& os) {
     }
     os << "];[";
     // print of ended courses
-    itListOfCourses = _semesterOfCourse[-1].cbegin();
-    while (itListOfCourses != _semesterOfCourse[-1].cend()) {
-        if (itListOfCourses != _semesterOfCourse[-1].cbegin()) {
+    itListOfCourses = _semesterOfCourse.at(-1).cbegin();
+    while (itListOfCourses != _semesterOfCourse.at(-1).cend()) {
+        if (itListOfCourses != _semesterOfCourse.at(-1).cbegin()) {
             os << ",";
         }
         os << itListOfCourses->c_str();

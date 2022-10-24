@@ -33,14 +33,14 @@ public:
     void setOccupation(const int& hourSlot, const bool& status);
     bool operator <(const Classroom& classroomToCompare);
     Classroom& operator =(const Classroom& toAssign);
-    ostream& operator <<(ostream& os);
+    ostream& operator <<(ostream& os) const;
 
 private:
     string _id;
     char _type;
     string _classroomName;
-    int _capacity;
-    int _examCapacity;
+    int _capacity = 0;
+    int _examCapacity = 0;
     vector<bool> _hourSlotOccupation = {false, false, false, false, false, false};
 };
 

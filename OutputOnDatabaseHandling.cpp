@@ -2,6 +2,7 @@
 // Created by Luca Brignone on 04/10/22.
 //
 
+#include "Student.h"
 #include "OutputOnDatabaseHandling.h"
 
 int updateStudentDatabaseFile(string& errorHandling, const string& databaseStudentFileName, const list<Student>& updatedStudentList) {
@@ -18,7 +19,7 @@ int updateStudentDatabaseFile(string& errorHandling, const string& databaseStude
 
             itListStudent = updatedStudentList.cbegin();
             while (itListStudent != updatedStudentList.end()) {
-                fileName << itListStudent.operator->();
+                itListStudent->operator<<(fileName);
                 itListStudent++;
                 if (itListStudent != updatedStudentList.end()) {
                     fileName << endl;
@@ -49,7 +50,7 @@ int updateProfessorDatabaseFile(string& errorHandling, const string& databasePro
 
             itListProfessor = updatedProfessorList.cbegin();
             while (itListProfessor != updatedProfessorList.cend()) {
-                fileName << itListProfessor.operator->();
+                itListProfessor->operator<<(fileName);
                 itListProfessor++;
                 if (itListProfessor != updatedProfessorList.end()) {
                     fileName << endl;
@@ -80,7 +81,7 @@ int updateClassroomDatabaseFile(string& errorHandling, const string& databaseCla
 
             itListClassroom = updatedClassroomList.cbegin();
             while (itListClassroom != updatedClassroomList.cend()) {
-                fileName << itListClassroom.operator->();
+                itListClassroom->operator<<(fileName);
                 itListClassroom++;
                 if (itListClassroom != updatedClassroomList.end()) {
                     fileName << endl;
@@ -111,7 +112,7 @@ int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databas
 
             itListCourseOfStudy = updatedCourseOfStudyList.cbegin();
             while (itListCourseOfStudy != updatedCourseOfStudyList.cend()) {
-                fileName << itListCourseOfStudy.operator->();
+                itListCourseOfStudy->operator<<(fileName);
                 itListCourseOfStudy++;
                 if (itListCourseOfStudy != updatedCourseOfStudyList.end()) {
                     fileName << endl;

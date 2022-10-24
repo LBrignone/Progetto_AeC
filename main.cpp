@@ -28,8 +28,8 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    t_errorCodes errorIdentifier;
-    int functionReturn = OK;
+    t_errorCodes errorIdentifier = OK;
+    int functionReturn = OK, funcReturnDbFile = OK;
     string commandIdentifier, actionIdentifier, fileNameFromCommandLine, academicYearFromCommandLine, academicYearFromCommandLineAndExamPeriod;
     string errorLine;
     list<Student> listOfStudents;
@@ -77,24 +77,24 @@ int main(int argc, char** argv) {
             switch (commandIdentifier[3]) {
                 case 's':{
                     if (fileNameFromCommandLine == studentDatabaseName) {
-                        functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, true);
+                        funcReturnDbFile = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, true);
                     } else {
-                        functionReturn = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
-                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                        funcReturnDbFile = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
+                        if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
                             functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, false);
                         }
                     }
-                    if (functionReturn == OK) {
+                    if (functionReturn == OK || functionReturn == ERR_not_found) {
                         functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
                     }
                     break;
                 }
                 case 'd':{
                     if (fileNameFromCommandLine == professorDatabaseName) {
-                        functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, true);
+                        funcReturnDbFile = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, true);
                     } else {
-                        functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                        funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                        if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
                             functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, false);
                         }
                     }
@@ -105,10 +105,10 @@ int main(int argc, char** argv) {
                 }
                 case 'a':{
                     if (fileNameFromCommandLine == classroomDatabaseName) {
-                        functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, true);
+                        funcReturnDbFile = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, true);
                     } else {
-                        functionReturn = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
-                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                        funcReturnDbFile = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
+                        if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
                             functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, false);
                         }
                     }
@@ -122,10 +122,10 @@ int main(int argc, char** argv) {
                     // and perform proper controls, BUT if the file exists or not is not a binding condition
                     ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
                     if (fileNameFromCommandLine == courseDatabaseName) {
-                        functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, true);
+                        funcReturnDbFile = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, true);
                     } else {
-                        functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors,  true);
-                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                        funcReturnDbFile = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors,  true);
+                        if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
                             functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, false);
                         }
                     }
@@ -136,10 +136,10 @@ int main(int argc, char** argv) {
                 }
                 case 'f':{
                     if (fileNameFromCommandLine == courseOfStudyDatabaseName) {
-                        functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, true);
+                        funcReturnDbFile = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, true);
                     } else {
-                        functionReturn = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
-                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                        funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
+                        if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
                             functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, false);
                         }
                     }
@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
                     functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
                     if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
                         // also the presence of course of study's database isn't a constraint to the correct functioning of
-                        // courses insertion, but if if it is present it is necessary to perform some actions on itself too
+                        // courses insertion, but if it is present it is necessary to perform some actions on itself too
                         // if a course is set as "non_attivo" if the same course is used in some course of study then:
                         // - if all other academic years, for that same course is "attivo" then in course of study that course is
                         //   COPIED in non-active list
@@ -307,7 +307,7 @@ int main(int argc, char** argv) {
             break;
         }
     }
-    if ((functionReturn != OK) || errorIdentifier) {
+    if ((functionReturn != OK) || errorIdentifier != OK) {
         cerr << errorLine;
     } else {
         cout << "program ended successfully";

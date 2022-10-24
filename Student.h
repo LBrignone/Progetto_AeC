@@ -14,9 +14,10 @@
 class Student : public Person {
 public:
     Student() {};
+    ~Student() {};
     bool setId(const string& id);
     bool generateNewId(const string& id);
-    ostream& operator << (ostream& os);
+    ostream& operator <<(ostream& os) const;
 };
 
 

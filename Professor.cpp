@@ -4,6 +4,50 @@
 
 #include "Professor.h"
 
+bool Professor::setId(const string& id){
+    stringstream tmp;
+    if ((id != "") && (id.size()==7)) {
+        if (id[0] == 'd') {
+            try {
+                stoi(id.substr(1, id.size() - 1));
+            }
+            catch (const invalid_argument& excepFromStoi) {
+                return false;
+            }
+            _id = id;
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
+bool Professor::generateNewId(const string &id) {
+    int prevId;
+    stringstream tmp;
+    if (id != "") {
+        if (id[0] == 'd') {
+            try {
+                prevId = stoi(id.substr(1, 6), nullptr, 10);
+            }
+            catch (const invalid_argument& excepFromStoi) {
+                return false;
+            }
+            prevId++;
+            tmp << 'd' << setfill('0') << setw(6) << prevId;
+            _id = tmp.str();
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        _id = "d000001";
+        return true;
+    }
+}
+
 bool Professor::getChangeInUnavail() {
     return _changeInUnavail;
 }
@@ -115,26 +159,6 @@ void Professor::clearMapAcademicYearUnavailability(const Date& academicYear) {
     _unavailability.erase(academicYear);
 }
 
-bool Professor::setId(const string& id){
-    stringstream tmp;
-    if ((id != "") && (id.size()==7)) {
-        if (id[0] == 'd') {
-            try {
-                stoi(id.substr(1, id.size() - 1));
-            }
-            catch (const invalid_argument& excepFromStoi) {
-                return false;
-            }
-            _id = id;
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        return false;
-    }
-}
-
 const Professor Professor::operator ++(int) {
     stringstream toRebuild;
     int tmp = stoi(_id.substr(1, _id.size() - 1));
@@ -179,7 +203,7 @@ Professor& Professor::operator =(const list<Professor>::const_iterator & toCopy)
     return *this;
 }
 
-ostream& Professor::operator <<(ostream& os) {
+ostream& Professor::operator <<(ostream& os) const {
     os << _id << ";" << (this)->getName() << ";" << (this)->getSurname() << ";" << (this)->getMail();
     return os;
 }

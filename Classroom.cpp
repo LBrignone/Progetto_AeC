@@ -18,7 +18,19 @@ const string& Classroom::getId() const {
 }
 
 bool Classroom::setId(const string& id) {
-    _id = id;
+    if (id[0] == 'A' && id.size() == 4) {
+        try {
+            stoi(id.substr(1, 3), nullptr, 10);
+        }
+        catch (const invalid_argument& excepFromStoi) {
+            return false;
+        }
+        _id = id;
+        return true;
+    } else {
+        return false;
+    }
+
 }
 
 bool Classroom::generateNewId(const string &id) {
@@ -26,7 +38,12 @@ bool Classroom::generateNewId(const string &id) {
     stringstream tmp;
     if (id != "") {
         if (id[0] == 'A') {
-            prevId = stoi(id.substr(1, 3), nullptr, 10);
+            try {
+                prevId = stoi(id.substr(1, 3), nullptr, 10);
+            }
+            catch (const invalid_argument& excepFromStoi) {
+                return false;
+            }
             prevId++;
             tmp << 'A' << setfill('0') << setw(3) << prevId;
             _id = tmp.str();
@@ -36,6 +53,7 @@ bool Classroom::generateNewId(const string &id) {
         }
     } else {
         _id = "A001";
+        return true;
     }
 }
 
@@ -112,7 +130,7 @@ Classroom& Classroom::operator =(const Classroom& toAssign) {
     return *this;
 }
 
-ostream& Classroom::operator << (ostream& os) {
+ostream& Classroom::operator << (ostream& os) const {
     os << _id << ";" << _type << ";" << _classroomName << ";" << _capacity << ";" << _examCapacity;
     return os;
 }

@@ -30,7 +30,7 @@ public:
                                            const bool& allInactive);
     bool activateCourseFormEndedCourse(string& errorHandling, const string& courseId, const bool& allActive);
     int findCourse(int startSemester, const string& courseId);
-    ostream& operator << (ostream& os);
+    ostream& operator << (ostream& os) const;
 
 private:
     string _courseOfStudyId;
