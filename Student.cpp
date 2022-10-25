@@ -28,8 +28,8 @@ bool Student::setId(const string& id){
 bool Student::generateNewId(const string &id) {
     int prevId;
     stringstream tmp;
-    if (id != "") {
-        if (id[0] == 's') {
+    if (!id.empty()) {
+        if (id[0] == 's' && id.size() == 7) {
             try {
                 prevId = stoi(id.substr(1, 6), nullptr, 10);
             }

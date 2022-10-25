@@ -1328,25 +1328,23 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
     } else {
         CourseOfStudy dummyStudyCourse;
 
-        if (isDb) {
-            patternField = 0;
-        } else {
-            patternField = 1;
-        }
         while (getline(fileName, readFromFile) && (errorIdentifier == OK)) {
-            stringstream courseOfStudyRow;
+            stringstream courseOfStudyRow(readFromFile);
 
+            if (isDb) {
+                patternField = 0;
+            } else {
+                patternField = 1;
+            }
             if (readFromFile.empty()) {
                 errorIdentifier = ERR_empty_file;
             }
-            courseOfStudyRow.str() = readFromFile;
             while (getline(courseOfStudyRow, readFromLine, ';') && (errorIdentifier == OK)) {
                 switch (patternField) {
                     case 0: {
-                        if (dummyStudyCourse.setCourseOfStudyId(readFromLine)) {
+                        if (!dummyStudyCourse.setCourseOfStudyId(readFromLine)) {
                             errorIdentifier = ERR_id_field;
-                            errorHandling = "Error: file: " + courseOfStudyFileName +
-                                            "the given study course's id does not match the pattern fiel (C000): " +
+                            errorHandling = "Error: file: " + courseOfStudyFileName + "the given study course's id does not match the pattern fiel (C000): " +
                                             readFromLine;
                         }
                         patternField++;
@@ -1360,7 +1358,7 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                                 dummyStudyCourse.generateCourseOfStudyId(studyCoursesList.back().getCourseOfStudyId());
                             }
                         }
-                        if (dummyStudyCourse.setGaraduationType(readFromLine)) {
+                        if (!dummyStudyCourse.setGaraduationType(readFromLine)) {
                             errorIdentifier = ERR_graduation_type;
                             errorHandling = "Error: file: " + courseOfStudyFileName +
                                             "the given graduation time does not match the proper pattern (BS/MS): " +
@@ -1370,12 +1368,11 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                         break;
                     }
                     case 2: {
-                        stringstream coursesBySemester;
+                        stringstream coursesBySemester(readFromLine.substr(1, readFromLine.size() - 2));
                         string semesterCourse, tmpError;
                         int level = 0, semester = 0;
                         bool semesterRecon = false;
 
-                        coursesBySemester.str() = readFromLine.substr(1, readFromLine.size() - 2);
                         while (getline(coursesBySemester, semesterCourse, ',') && (errorIdentifier == OK)) {
                             semesterRecon = false;
                             while (!semesterRecon && (errorIdentifier == OK)) {
@@ -1400,13 +1397,16 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                                     }
                                 }
                             }
-                            if (!dummyStudyCourse.setListOfCoursesBySemester(tmpError, semester, semesterCourse)) {
-                                errorIdentifier = ERR_course_list;
-                                errorHandling = "Error: file: " + courseOfStudyFileName + "semester: " + to_string(semester) +
-                                                tmpError + semesterCourse;
+                            if (errorIdentifier == OK) {
+                                if (!dummyStudyCourse.setListOfCoursesBySemester(tmpError, semester - 1, semesterCourse)) {
+                                    errorIdentifier = ERR_course_list;
+                                    errorHandling = "Error: file: " + courseOfStudyFileName + "semester: " + to_string(semester) +
+                                                    tmpError + semesterCourse;
+                                }
                             }
                         }
                         patternField++;
+                        break;
                     }
                     case 3: {
                         stringstream idEndedCourses;
@@ -1424,24 +1424,24 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                         } else {
                             errorIdentifier = ERR_missing_field;
                             errorHandling = "Error: file: " + courseOfStudyFileName + " row: " + to_string(lineOfFile + 1) +
-                                            " expecting \"[]\" as terminal field";
+                                            " expecting \"[]\" as field identifiers";
                         }
                         patternField++;
+                        break;
                     }
                     default: {
                         errorIdentifier = ERR_course_of_study_format;
                         errorHandling = "Error: file: " + courseOfStudyFileName + " row: " + to_string(lineOfFile + 1) +
-                                        " unexpected element number for the course of study pattern greater than " +
-                                        to_string(3);
+                                        " unexpected element number for the course of study pattern greater than 3";
                         break;
                     }
                 }
             }
             lineOfFile++;
-            if(patternField < 4) {
+            if(patternField < 3) {
                 errorIdentifier = ERR_course_of_study_format;
                 errorHandling = "Error: file: " + courseOfStudyFileName + " row: " + to_string(lineOfFile) +
-                                "unexpected element number for the course of study pattern lower than " + to_string(3);
+                                " unexpected element number for the course of study pattern lower than " + to_string(3);
             }
 
             if (errorIdentifier == OK) {

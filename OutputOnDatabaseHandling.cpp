@@ -100,6 +100,7 @@ int updateClassroomDatabaseFile(string& errorHandling, const string& databaseCla
 
 int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databaseCourseOfStudyFileName, const list<CourseOfStudy>& updatedCourseOfStudyList) {
     t_errorCodes errorIdentifier = OK;
+    bool wroteSomething = false;
     ofstream fileName;
 
     if (!databaseCourseOfStudyFileName.empty()) {
@@ -112,11 +113,16 @@ int updateCourseOfStudyDatabaseFile(string& errorHandling, const string& databas
 
             itListCourseOfStudy = updatedCourseOfStudyList.cbegin();
             while (itListCourseOfStudy != updatedCourseOfStudyList.cend()) {
+                wroteSomething = true;
                 itListCourseOfStudy->operator<<(fileName);
                 itListCourseOfStudy++;
                 if (itListCourseOfStudy != updatedCourseOfStudyList.end()) {
                     fileName << endl;
                 }
+            }
+            if (!wroteSomething) {
+                errorIdentifier = ERR_write;
+                errorHandling = "Error: courses of study's list is empty";
             }
             if (fileName.is_open()) {
                 fileName.close();

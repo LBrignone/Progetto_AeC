@@ -5,10 +5,10 @@
 #ifndef PROGETTO_COURSEOFSTUDY_H
 #define PROGETTO_COURSEOFSTUDY_H
 
-#include <string>
-#include <vector>
 #include <map>
 #include <list>
+#include <string>
+#include <vector>
 #include <sstream>
 #include <iomanip>
 
@@ -19,6 +19,7 @@ typedef enum {BS, MS, NO_TYPE} t_graduationType;
 class CourseOfStudy {
 public:
     CourseOfStudy() {};
+    ~CourseOfStudy() {};
     string getCourseOfStudyId() const;
     bool generateCourseOfStudyId(const string& lastCourseOfStudy);
     bool setCourseOfStudyId(const string& toSetcourseOfStudyId);
@@ -26,11 +27,10 @@ public:
     bool setGaraduationType(const string& graduationType);
     const list<string>& getListOfCoursesBySemester(const int& key) const;
     bool setListOfCoursesBySemester(string& errorHandlingFormPattern, const int& semesterKey, const string& courseId);
-    bool deleteEndedCourseFormActiveCourse(string& errorHandling, const string& courseId,
-                                           const bool& allInactive);
+    bool deleteEndedCourseFormActiveCourse(string& errorHandling, const string& courseId,const bool& allInactive);
     bool activateCourseFormEndedCourse(string& errorHandling, const string& courseId, const bool& allActive);
     int findCourse(int startSemester, const string& courseId);
-    ostream& operator << (ostream& os) const;
+    ostream& operator <<(ostream& os) const;
 
 private:
     string _courseOfStudyId;

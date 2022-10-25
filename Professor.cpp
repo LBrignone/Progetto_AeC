@@ -27,8 +27,8 @@ bool Professor::setId(const string& id){
 bool Professor::generateNewId(const string &id) {
     int prevId;
     stringstream tmp;
-    if (id != "") {
-        if (id[0] == 'd') {
+    if (!id.empty()) {
+        if (id[0] == 'd' && id.size() == 7) {
             try {
                 prevId = stoi(id.substr(1, 6), nullptr, 10);
             }
