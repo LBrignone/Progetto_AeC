@@ -13,7 +13,7 @@
 #include "Classroom.h"
 #include "Professor.h"
 
-list<Student>::iterator findStudent(const list<Student>& studentList, const string& idToFind);
+list<Student>::const_iterator findStudent(const list<Student>& studentList, const string& idToFind);
 
 list<Professor>::const_iterator findProfessor(const list<Professor>& professorList, const string& idToFind);
 

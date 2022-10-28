@@ -1238,7 +1238,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                                 tmpProfessorList.push_back(dummyProfessorFromNotFound);
                                                 itReturnToFindConst = findProfessor(tmpProfessorList, associateProfessorFromFile);
                                                 itReturnToFind = constItToNonConstIt(tmpProfessorList, itReturnToFindConst);
-                                                if (itReturnToFindConst != tmpProfessorList.end()) {
+                                                if (itReturnToFindConst != tmpProfessorList.cend()) {
                                                     dummyAssociateProfessor.setProfessorPointer(itReturnToFind);
                                                 } else {
                                                     errorIdentifier = ERR_professor_pointer;
@@ -1267,7 +1267,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                             tmpProfessorList.push_back(dummyProfessorFromNotFound);
                                             itReturnToFindConst = findProfessor(tmpProfessorList, associateProfessorFromFile);
                                             itReturnToFind = constItToNonConstIt(tmpProfessorList, itReturnToFindConst);
-                                            if (itReturnToFindConst != tmpProfessorList.end()) {
+                                            if (itReturnToFindConst != tmpProfessorList.cend()) {
                                                 dummyAssociateProfessor.setProfessorPointer(itReturnToFind);
                                             } else {
                                                 errorIdentifier = ERR_professor_pointer;

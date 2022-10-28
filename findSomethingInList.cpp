@@ -7,13 +7,12 @@
 // STUDENT
 // given the id of a student a search in the student list is performed by mean of the given id
 // returns an iterator that identify the presence of the given id
-list<Student>::iterator findStudent(const list<Student>& studentList, const string& idToFind) {
-    list<Student> copyOfStudentList = studentList;
-    list<Student>::iterator itStudentList;
+list<Student>::const_iterator findStudent(const list<Student>& studentList, const string& idToFind) {
+    list<Student>::const_iterator itStudentList;
     bool found = false;
 
-    itStudentList = copyOfStudentList.begin();
-    while ((itStudentList != copyOfStudentList.end()) && !found) {
+    itStudentList = studentList.cbegin();
+    while ((itStudentList != studentList.cend()) && !found) {
         if (itStudentList->getId() == idToFind) {
             found = true;
         } else {

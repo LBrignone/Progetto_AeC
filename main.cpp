@@ -160,11 +160,11 @@ int main(int argc, char** argv) {
             switch (commandIdentifier[3]) {
                 case 's':{
                     if (fileNameFromCommandLine != studentDatabaseName) {
-                        functionReturn = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
-                        if (functionReturn == OK) {
+                        funcReturnDbFile = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
+                        if (funcReturnDbFile == OK) {
                             functionReturn = StudentToUpdateFile(errorLine, fileNameFromCommandLine, listOfStudents);
                         } else {
-                            errorLine += "\nImpossible to update  \"db_studenti.txt\"  without database to start from";
+                            errorLine += "\nImpossible to update  \"" + (string) studentDatabaseName + "\"  without database to start from";
                         }
                     } else {
                         errorIdentifier = ERR_update_database;
