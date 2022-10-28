@@ -177,8 +177,8 @@ int main(int argc, char** argv) {
                 }
                 case 'd':{
                     if (fileNameFromCommandLine != professorDatabaseName) {
-                        functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                        if (functionReturn == OK) {
+                        funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                        if (funcReturnDbFile == OK) {
                             functionReturn = ProfessorToUpdateFile(errorLine, fileNameFromCommandLine, listOfProfessors);
                         } else {
                             errorLine += "\nImpossible to update \"" + (string) professorDatabaseName + "\" without database to start from";

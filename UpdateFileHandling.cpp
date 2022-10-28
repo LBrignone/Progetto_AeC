@@ -16,8 +16,8 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
     if (!studentList.empty()) {
         fileName.open(studentsFileName, ifstream::in);
         if (!fileName.is_open()) {
-            errorHandling = "Error: file: " + studentsFileName + " not found";
             errorIdentifier = ERR_open_file;
+            errorHandling = "Error: file: " + studentsFileName + " not found";
         } else {
             while (getline(fileName, readFromFile) && errorIdentifier == OK) {
                 int patternfield = 0;
@@ -37,19 +37,19 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                                         itReturnFromFind = constItToNonConstIt(studentList, itReturnFromFindConst);
                                         if (itReturnFromFindConst == studentList.cend()) {
                                             errorIdentifier = ERR_update_database;
-                                            errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                                            errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                                             " can't find the given student id in the list of students: " + readFromFile;
                                         }
                                         patternfield++;
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
                                         errorIdentifier = ERR_stoi_conversion;
-                                        errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                                        errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                                         " can't convert student id number to int";
                                     }
                                 } else {
                                     errorIdentifier = ERR_id_field;
-                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                                     " the given student id desn't match the pattern (s000000): " + readFromFile;
                                 }
                                 break;
@@ -67,7 +67,7 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                             case 3: {
                                 if (!itReturnFromFind->setMail(readFromLine)) {
                                     errorIdentifier = ERR_mail_format;
-                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                                     " the given mail doesn't match the pattern axcepted as a mail (<string>@<string>.<string>): " +
                                                     readFromFile;
                                 }
@@ -84,7 +84,7 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                     } else {
                         if (patternfield == 0) {
                             errorIdentifier = ERR_missing_field;
-                            errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                            errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                             " the first field of the line MUST specify the student id";
                         } else {
                             patternfield++;
@@ -94,9 +94,10 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                 patternfield++;
                 if (patternfield < 4) {
                     errorIdentifier = ERR_student_format;
-                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile) +
+                    errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                     " the number of fields in pattern is less than expected: " + to_string(4);
                 }
+                lineOfFile++;
             }
         }
     } else {
@@ -112,82 +113,75 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
 // PROFESSORS
 // this function takes and manage a file that for lines has an updated version of existing professors
 int ProfessorToUpdateFile (string& errorHandling, const string& professorFileName, list<Professor>& professorList) {
+    t_errorCodes errorIdentifier = OK;
     int lineOfFile = 0;
     ifstream fileName;
     string readFromFile;
-    Professor professorRecovery;
-    bool noDb = false, errorInFormat = false;
 
     if (!professorList.empty()) {
-        fileName.open(professorFileName, 'r');
+        fileName.open(professorFileName, ifstream::in);
         if (!fileName.is_open()) {
+            errorIdentifier =  ERR_open_file;
             errorHandling = "Error: file: " + professorFileName + " not found";
-            return (int) ERR_open_file;
         } else {
-            while (getline(fileName, readFromFile) && !errorInFormat) {
-                stringstream updateProfessorLine;
-                string readFromLine;
+            while (getline(fileName, readFromFile) && (errorIdentifier == OK)) {
                 int patternfield = 0;
-                list<Professor>::iterator professorFound;
+                string readFromLine;
+                stringstream updateProfessorLine(readFromFile);
+                list<Professor>::const_iterator itReturnFromFindConst;
+                list<Professor>::iterator itReturnFromFind;
 
-                updateProfessorLine.str() = readFromFile;
-                while (getline(updateProfessorLine, readFromLine, ';') && !errorInFormat) {
+                while (getline(updateProfessorLine, readFromLine, ';') && (errorIdentifier == OK)) {
                     if (!readFromLine.empty()) {
                         switch (patternfield) {
                             case 0: {
                                 if (readFromLine[0] == 'd') {
                                     try {
                                         stoi(readFromLine.substr(1, readFromLine.size() - 1));
-//                                        professorFound = findProfessor(professorList, readFromLine);
-                                        if (professorFound == professorList.end()) {
-                                            errorInFormat = true;
-                                            errorHandling = "Error: file: " + professorFileName + " row: " +
-                                                            to_string(lineOfFile) +
+                                        itReturnFromFindConst = findProfessor(professorList, readFromLine);
+                                        itReturnFromFind = constItToNonConstIt(professorList, itReturnFromFindConst);
+                                        if (itReturnFromFindConst == professorList.cend()) {
+                                            errorIdentifier = ERR_update_database;
+                                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
                                                             " can't find the given student id in the list of students: " +
                                                             readFromFile;
                                         }
                                         patternfield++;
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
-                                        errorHandling =
-                                                "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
-                                                " can't convert student id number to int";
+                                        errorIdentifier = ERR_stoi_conversion;
+                                        errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                                        " can't convert student id number to int";
                                     }
                                 } else {
-                                    errorInFormat = true;
-                                    errorHandling =
-                                            "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
-                                            " the given student id desn't match the pattern (s000000): " + readFromFile;
+                                    errorIdentifier = ERR_id_field;
+                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                                    " the given student id desn't match the pattern (s000000): " + readFromFile;
                                 }
                                 break;
                             }
                             case 1: {
-                                professorRecovery.setName(professorFound->getName());
-                                professorFound->setName(readFromLine);
+                                itReturnFromFind->setName(readFromLine);
                                 patternfield++;
                                 break;
                             }
                             case 2: {
-                                professorRecovery.setSurname(professorFound->getSurname());
-                                professorFound->setSurname(readFromLine);
+                                itReturnFromFind->setSurname(readFromLine);
                                 patternfield++;
                                 break;
                             }
                             case 3: {
-                                professorRecovery.setMail(professorFound->getMail());
-                                if (!professorFound->setMail(readFromLine)) {
-                                    errorInFormat = true;
-                                    errorHandling =
-                                            "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
-                                            " the given mail doesn't match the pattern axcepted as a mail (<string>@<string>.<string>): " +
-                                            readFromFile;
+                                if (!itReturnFromFind->setMail(readFromLine)) {
+                                    errorIdentifier = ERR_mail_format;
+                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                                    " the given mail doesn't match the pattern axcepted as a mail (<string>@<string>.<string>): " +
+                                                    readFromFile;
                                 }
                                 patternfield++;
                                 break;
                             }
                             default: {
-                                errorInFormat = true;
+                                errorIdentifier = ERR_professor_format;
                                 errorHandling = "Error: file: " + professorFileName +
                                                 "number of element for the pattern of the line greater than " +
                                                 to_string(4);
@@ -196,37 +190,31 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                         }
                     } else {
                         if (patternfield == 0) {
-                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) + " the first field of the line MUST specify the professor id";
-                            errorInFormat = true;
+                            errorIdentifier = ERR_missing_field;
+                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                            " the first field of the line MUST specify the professor id";
                         } else {
                             patternfield++;
                         }
                     }
                 }
+                patternfield++;
                 if (patternfield < 4) {
-                    professorFound->setName(professorRecovery.getName());
-                    professorFound->setSurname(professorRecovery.getSurname());
-                    professorFound->setMail(professorRecovery.getMail());
-                    errorInFormat = true;
-                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) + " the number of fields in pattern is less than expected: " +
-                                    to_string(4);
-                } else {
-                    lineOfFile++;
+                    errorIdentifier = ERR_professor_format;
+                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                    " the number of fields in pattern is less than expected: " + to_string(4);
                 }
+                lineOfFile++;
             }
         }
     } else {
+        errorIdentifier = ERR_missing_file;
         errorHandling = "no db_professori.txt file on which performe an update";
-        noDb = true;
     }
     if (fileName.is_open()) {
         fileName.close();
     }
-    if (!errorInFormat && !noDb) {
-        return true;
-    } else {
-        return false;
-    }
+    return (int) errorIdentifier;
 }
 
 // CLASSROOM
