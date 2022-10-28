@@ -26,13 +26,12 @@ list<Student>::iterator findStudent(const list<Student>& studentList, const stri
 // PROFESSOR
 // given the id of a professor a search in the professor list is performed by mean of the given id
 // return an iterator that identify the presence of the given id
-list<Professor>::iterator findProfessor(const list<Professor>& professorList, const string& idToFind) {
-    list<Professor> copyOfProfessorList = professorList;
-    list<Professor>::iterator itProfessorList;
+list<Professor>::const_iterator findProfessor(const list<Professor>& professorList, const string& idToFind) {
+    list<Professor>::const_iterator itProfessorList;
     bool found = false;
 
-    itProfessorList = copyOfProfessorList.begin();
-    while ((itProfessorList != copyOfProfessorList.end()) && !found) {
+    itProfessorList = professorList.cbegin();
+    while ((itProfessorList != professorList.cend()) && !found) {
         if (itProfessorList->getId() == idToFind) {
             found = true;
         } else {

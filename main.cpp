@@ -307,7 +307,7 @@ int main(int argc, char** argv) {
             break;
         }
     }
-    if ((functionReturn != OK) || errorIdentifier != OK) {
+    if (((funcReturnDbFile != OK) && (funcReturnDbFile != ERR_open_file)) || (functionReturn != OK) || (errorIdentifier != OK)) {
         cerr << errorLine;
     } else {
         cout << "program ended successfully";

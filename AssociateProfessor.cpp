@@ -4,6 +4,15 @@
 
 #include "AssociateProfessor.h"
 
+AssociateProfessor::AssociateProfessor(const AssociateProfessor& toCopy) {
+    this->_itToProfessor = toCopy._itToProfessor;
+    this->_isMain = toCopy._isMain;
+    this->_lessonH = toCopy._lessonH;
+    this->_exerciseH = toCopy._exerciseH;
+    this->_labH = toCopy._labH;
+    this->_toCek = toCopy._toCek;
+}
+
 list<Professor>::iterator AssociateProfessor::getProfessorPointer() const {
     return _itToProfessor;
 }
@@ -62,13 +71,24 @@ void AssociateProfessor::setIsMain(const bool &isMain) {
 bool AssociateProfessor::getToCheck() const {
     return _toCek;
 }
+
 void AssociateProfessor::setToCek(const bool& modify) {
     _toCek = modify;
 }
+
 void AssociateProfessor::clear(const list<Professor>::iterator initToProfessorListEnd){
     _itToProfessor = initToProfessorListEnd;
     _lessonH = -1;
     _exerciseH = -1;
     _labH = -1;
     _isMain = false;
+}
+
+AssociateProfessor& AssociateProfessor::operator =(const AssociateProfessor& toCopy) {
+    _itToProfessor = toCopy._itToProfessor;
+    _lessonH = toCopy._lessonH;
+    _exerciseH = toCopy._exerciseH;
+    _labH = toCopy._labH;
+    _isMain = toCopy._isMain;
+    return *this;
 }

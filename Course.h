@@ -47,7 +47,7 @@ public:
     int getCourseLabH() const;
     bool setCourseLabH(const int& courseLabH);
     list<AssociateProfessor>& getListAssistant();
-    int setListAssistant(const list<AssociateProfessor> &assistant, string& errorInAssistant);
+    int setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant);
     int appendAssistant(const AssociateProfessor &toAppend, string &errorInAppend);
     string getMainProfessor();
     string getExamType() const;
@@ -79,7 +79,7 @@ public:
     void printCourseOrganizationAcademicYearClosing(ostream& os) const;
     Course& operator =(const Course& toCopy);
     Course& operator =(const list<Course>::iterator& toCopy);
-    ostream& operator <<(ostream& os);
+    ostream& operator <<(ostream& os) const;
 
 private:
     typedef enum {S, O, SO, P, NO_TYPE} t_examType;

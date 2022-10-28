@@ -153,7 +153,7 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                                 if (readFromLine[0] == 'd') {
                                     try {
                                         stoi(readFromLine.substr(1, readFromLine.size() - 1));
-                                        professorFound = findProfessor(professorList, readFromLine);
+//                                        professorFound = findProfessor(professorList, readFromLine);
                                         if (professorFound == professorList.end()) {
                                             errorInFormat = true;
                                             errorHandling = "Error: file: " + professorFileName + " row: " +

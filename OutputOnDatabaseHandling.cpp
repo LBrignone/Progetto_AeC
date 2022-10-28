@@ -171,7 +171,7 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
                 }
                 itListCourse->printCourseOrganizationVersionOpening(fileName, firstVersion);
                 firstVersion = false;
-                fileName << itListCourse.operator->();
+                itListCourse->operator<<(fileName);
                 itListCourse++;
             }
             itListCourse--;

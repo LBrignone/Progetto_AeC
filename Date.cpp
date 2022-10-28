@@ -239,7 +239,7 @@ bool Date::operator !=(const Date& date) const {
 
 // the "-" operator overload will return a difference in days between the given dates
 int Date::operator - (const Date& rValDate) const {
-    int tmp, tmpMonth, tmpYear;
+    int tmp, tmpMonth;
 
     if (_month == 2) {
         tmp = _day;
@@ -291,10 +291,10 @@ int Date::operator - (const Date& rValDate) const {
             tmpMonth--;
         }
     }
-    tmpYear = _year;
     while ((_year - rValDate._year) > 1) {
         tmp += 365;
     }
+    return tmp;
 }
 
 Date Date::operator ++ (int) {

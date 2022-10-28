@@ -121,6 +121,13 @@
 				16,
 				17
 			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				18
+			]
 		}
 	],
 	"sources" : 
@@ -232,6 +239,11 @@
 			"compileGroupIndex" : 0,
 			"path" : "schedulingChecks.cpp",
 			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "ConstConversion.hpp",
+			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

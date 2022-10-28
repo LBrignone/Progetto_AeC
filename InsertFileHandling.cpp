@@ -431,7 +431,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 }
                                             }
                                             if ((!professorOrganizationForVersion.empty()) && (errorIdentifier == OK)) {
-                                                itProfessorFromFind = findProfessor(professorList, professorOrganizationForVersion);
+//                                                itProfessorFromFind = findProfessor(professorList, professorOrganizationForVersion);
                                                 if (itProfessorFromFind != professorList.end()) {
                                                     dummyAssociateProfessor.setProfessorPointer(itProfessorFromFind);
                                                 } else {
@@ -455,7 +455,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                         if (!professorInsertion) {
                                                             professorList.push_back(dummyProfessor);
                                                         }
-                                                        itProfessorFromFind = findProfessor(professorList, professorOrganizationForVersion);
+//                                                        itProfessorFromFind = findProfessor(professorList, professorOrganizationForVersion);
                                                         if (itProfessorFromFind != professorList.end()) {
                                                             dummyAssociateProfessor.setProfessorPointer(itProfessorFromFind);
                                                         } else {

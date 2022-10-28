@@ -13,6 +13,8 @@ using namespace std;
 
 class AssociateProfessor {
 public:
+    AssociateProfessor() {};
+    AssociateProfessor(const AssociateProfessor& toCopy);
     list<Professor>::iterator getProfessorPointer() const;
     void setProfessorPointer(list<Professor>::iterator addressOfProfessor);
     int getLessonH() const;
@@ -28,6 +30,7 @@ public:
     // the following clear method initialize the private data that comprehend the pointer to the professor which is initialized
     // by pointing the end of professor's list
     void clear(const list<Professor>::iterator initToProfessorListEnd);
+    AssociateProfessor& operator =(const AssociateProfessor& toCopy);
 
 private:
     list<Professor>::iterator _itToProfessor;

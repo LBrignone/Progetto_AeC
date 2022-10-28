@@ -55,19 +55,22 @@ bool Course::setId(const string &id) {
 
 bool Course::generateNewId(const string &lastId) {
     bool isIncremented = false;
-    int i = _id.size();
+    int i = lastId.size() - 1;
+
     if (lastId != "") {
-        transform(lastId.begin(), lastId.end(), _id.begin(), ::toupper);
-        while ((isIncremented == false) && (i > 1)) {
-            if (_id[i] == 'Z') {
-                _id[i] = 'A';
+        string localCopy = lastId;
+        while ((i > 1) && !isIncremented) {
+            if (localCopy[i] == 'Z') {
+                localCopy[i] = 'A';
                 i--;
             } else {
-                _id[i]++;
+                localCopy[i]++;
+                i = localCopy.size() - 1;
                 isIncremented = true;
             }
         }
-        if (isIncremented == true) {
+        if (isIncremented) {
+            _id = localCopy;
             return true;
         } else {
             return false;
@@ -93,13 +96,17 @@ bool Course::setStartYear(const int& startYear) {
 string Course::getParallelCoursesId() const {
     return _parallelCoursesId;
 }
+
 bool Course::setParallelCoursesId(const string& parallelCoursesId) {
     bool correctSequence = true;
     if (parallelCoursesId[0] == 'P') {
-        for (int i = 1; i < 4; ++i) {
+        for (int i = 1; i < 4; i++) {
             if ((parallelCoursesId[i] < '0') || (parallelCoursesId[i] > '9')) {
                 correctSequence = false;
             }
+        }
+        if (correctSequence) {
+            _parallelCoursesId = parallelCoursesId;
         }
     } else {
         correctSequence = false;
@@ -204,38 +211,40 @@ list<AssociateProfessor>& Course::getListAssistant() {
     return _assistant;
 }
 
-int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant) {
+int
+Course::setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant) {
     t_errorCodes errorIdentifier = OK;
     int tmpLessonH = 0, tmpExerciseH = 0, tmpLabH = 0;
     list<AssociateProfessor>::const_iterator itAssociateProfessor;
 
-    itAssociateProfessor = assistant.begin();
+    itAssociateProfessor = assistant.cbegin();
     if ((_courseLessonH != -1) && (_courseExerciseH != -1) && (_courseLabH != -1)){
-        while (itAssociateProfessor != assistant.end()) {
+        while (itAssociateProfessor != assistant.cend()) {
             tmpLabH += itAssociateProfessor->getLabH();
             tmpExerciseH += itAssociateProfessor->getExerciseH();
             tmpLessonH += itAssociateProfessor->getLessonH();
+            itAssociateProfessor++;
         }
         if (tmpLessonH != _courseLessonH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "Error: the sum of lesson hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
-        } else if (tmpExerciseH != _courseLabH) {
+            errorInAssistant = "the sum of lesson hour for professors in list is greater than the course's lesson hour " + to_string(_courseLessonH);
+        } else if (tmpExerciseH != _courseExerciseH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "Error: the sum of exercise hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
+            errorInAssistant = "the sum of exercise hour for professors in list is greater than the course's lesson hour " + to_string(_courseLessonH);
         } else if (tmpLabH != _courseLabH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "Error: the sum of laboratory hour for professors in list is greater than the course's lesson hour" + to_string(_courseLessonH);
+            errorInAssistant = "the sum of laboratory hour for professors in list is greater than the course's lesson hour " + to_string(_courseLessonH);
         }
     } else {
         if (_courseLessonH != -1) {
             errorIdentifier = ERR_hours_not_set;
-            errorInAssistant = "Error: course has no lesson hour setted";
+            errorInAssistant = "course has no lesson hour setted";
         } else if (_courseExerciseH != -1) {
             errorIdentifier = ERR_hours_not_set;
-            errorInAssistant = "Error: course has no exercise hour setted";
+            errorInAssistant = "course has no exercise hour setted";
         } else if (_courseLabH != -1) {
             errorIdentifier = ERR_hours_not_set;
-            errorInAssistant = "Error: course has no laboratory hour setted";
+            errorInAssistant = "course has no laboratory hour setted";
         }
     }
     if (errorIdentifier == OK) {
@@ -383,7 +392,7 @@ int Course::getPartecipants() const {
 }
 
 bool Course::setPartecipants(int partecipants) {
-    if (partecipants > 0) {
+    if (partecipants >= 0) {
         _partecipants = partecipants;
         return true;
     } else {
@@ -427,13 +436,12 @@ bool Course::setListGroupedId(const list<string>& groupingId) {
 }
 
 bool Course::appendGroupedId(const string& toAppend) {
-    int positionToAppenString;
+    int positionToCheck = 2;
     bool errorInId = false;
     if ((toAppend[0] == '0') && (toAppend[1] == '1')) {
-        while ((positionToAppenString < 6) && !errorInId) {
-            positionToAppenString = 2;
-            if ((toAppend[positionToAppenString] > 64) && (toAppend[positionToAppenString] < 91)) { // A == 65 - Z == 90
-                positionToAppenString++;
+        while ((positionToCheck < 7) && !errorInId) {
+            if ((toAppend[positionToCheck] > 64) && (toAppend[positionToCheck] < 91)) { // A == 65 - Z == 90
+                positionToCheck++;
             } else {
                 errorInId = true;
             }
@@ -497,7 +505,7 @@ ostream& Course::printCourseOrganization(ostream& os) const {
 }
 
 ostream& Course::printCourseOrganizationAcademicYearOpening(ostream& os) const {
-    os << "a;" << _startYear.getYear() << "-" << (_startYear.getYear() + 1) << (_startYear.getYear() + 1);
+    os << "a;" << _startYear.getYear() << "-" << (_startYear.getYear() + 1) << ";";
     if (_activeCourse) {
         os << "attivo;";
     } else {
@@ -520,7 +528,6 @@ ostream& Course::printCourseOrganizationVersionOpening(ostream& os, const bool& 
         } else {
             throw isNotMain();
         }
-        os << _parallelCoursesId << ",[";
     } else {
         os << ",{";
         itListAssociateProfessor = _assistant.cbegin();
@@ -529,15 +536,15 @@ ostream& Course::printCourseOrganizationVersionOpening(ostream& os, const bool& 
         } else {
             throw isNotMain();
         }
-        os << _parallelCoursesId << ",[";
     }
+    os << _parallelCoursesId << ",[";
     return os;
 }
 
 void Course::printCourseOrganizationAcademicYearClosing(ostream& os) const {
     list<string>::const_iterator itListGroupedCourses;
 
-    os << "];{" << _examDuration << "," << _entryTime << "," << _exitTime << "," << _examType << "," << _examClassroomType <<
+    os << "];{" << _examDuration << "," << _entryTime << "," << _exitTime << "," << examTypeVect[_examType] << "," << _examClassroomType <<
             "," << _partecipants << "};{";
     itListGroupedCourses = _coursesGroupedId.cbegin();
     while (itListGroupedCourses != _coursesGroupedId.cend()) {
@@ -547,7 +554,7 @@ void Course::printCourseOrganizationAcademicYearClosing(ostream& os) const {
         os << itListGroupedCourses->c_str();
         itListGroupedCourses++;
     }
-    os << "}" << endl;
+    os << "}";
 }
 
 Course& Course::operator=(const Course &toCopy) {
@@ -598,7 +605,7 @@ Course& Course::operator = (const list<Course>::iterator& toCopy) {
     return *this;
 }
 
-ostream& Course::operator <<(ostream& os) {
+ostream& Course::operator <<(ostream& os) const {
     list<AssociateProfessor>::const_iterator itListAssociateProfessor;
 
     itListAssociateProfessor = _assistant.cbegin();
@@ -606,8 +613,8 @@ ostream& Course::operator <<(ostream& os) {
         if(itListAssociateProfessor != _assistant.cbegin()) {
             os<<",";
         }
-        os << "{" << itListAssociateProfessor->getProfessorPointer()->getId() << itListAssociateProfessor->getLessonH() <<
-        itListAssociateProfessor->getExerciseH() << itListAssociateProfessor->getLabH() << "}";
+        os << "{" << itListAssociateProfessor->getProfessorPointer()->getId() << "," << itListAssociateProfessor->getLessonH()
+           << "," << itListAssociateProfessor->getExerciseH() << "," <<  itListAssociateProfessor->getLabH() << "}";
         itListAssociateProfessor++;
     }
     os << "]}";
