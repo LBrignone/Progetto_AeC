@@ -194,8 +194,8 @@ int main(int argc, char** argv) {
                 }
                 case 'a':{
                     if (fileNameFromCommandLine != classroomDatabaseName) {
-                        functionReturn = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
-                        if (functionReturn == OK) {
+                        funcReturnDbFile = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
+                        if (funcReturnDbFile == OK) {
                             functionReturn = ClassroomToUpdateFile(errorLine, fileNameFromCommandLine, listOfClassrooms);
                         } else {
                             errorLine += "\nImpossible to update \"" + (string)classroomDatabaseName + "\" without database to start from";

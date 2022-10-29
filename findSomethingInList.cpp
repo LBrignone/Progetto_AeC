@@ -43,13 +43,12 @@ list<Professor>::const_iterator findProfessor(const list<Professor>& professorLi
 // CLASSROOM
 // given the id of a classroom a search in the classroom list is performed by mean of the given id
 // return an iterator that identify the presence of the given id
-list<Classroom>::iterator findClassroom(const list<Classroom>& classroomList, const string& idToFind) {
-    list<Classroom> copyOfClassroomList = classroomList;
-    list<Classroom>::iterator itClassroomList;
+list<Classroom>::const_iterator findClassroom(const list<Classroom>& classroomList, const string& idToFind) {
+    list<Classroom>::const_iterator itClassroomList;
     bool found = false;
 
-    itClassroomList = copyOfClassroomList.begin();
-    while ((itClassroomList != copyOfClassroomList.end()) && !found) {
+    itClassroomList = classroomList.cbegin();
+    while ((itClassroomList != classroomList.cend()) && !found) {
         if (itClassroomList->getId() == idToFind) {
             found = true;
         } else {

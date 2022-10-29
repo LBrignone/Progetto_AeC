@@ -17,7 +17,7 @@ list<Student>::const_iterator findStudent(const list<Student>& studentList, cons
 
 list<Professor>::const_iterator findProfessor(const list<Professor>& professorList, const string& idToFind);
 
-list<Classroom>::iterator findClassroom(const list<Classroom>& classroomList, const string& idToFind);
+list<Classroom>::const_iterator findClassroom(const list<Classroom>& classroomList, const string& idToFind);
 
 list<Course>::iterator findCourse(list<Course>& courseList, const string& idToFind);
 

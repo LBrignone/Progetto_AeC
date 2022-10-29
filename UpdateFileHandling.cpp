@@ -50,7 +50,7 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                                 } else {
                                     errorIdentifier = ERR_id_field;
                                     errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
-                                                    " the given student id desn't match the pattern (s000000): " + readFromFile;
+                                                    " the given student id doesn't match the pattern (s000000): " + readFromFile;
                                 }
                                 break;
                             }
@@ -68,7 +68,7 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                                 if (!itReturnFromFind->setMail(readFromLine)) {
                                     errorIdentifier = ERR_mail_format;
                                     errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
-                                                    " the given mail doesn't match the pattern axcepted as a mail (<string>@<string>.<string>): " +
+                                                    " the given mail doesn't match the pattern accepted as a mail (<string>@<string>.<string>): " +
                                                     readFromFile;
                                 }
                                 patternfield++;
@@ -92,7 +92,7 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                     }
                 }
                 patternfield++;
-                if (patternfield < 4) {
+                if ((patternfield < 4) && (errorIdentifier == OK)) {
                     errorIdentifier = ERR_student_format;
                     errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                     " the number of fields in pattern is less than expected: " + to_string(4);
@@ -156,7 +156,7 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                                 } else {
                                     errorIdentifier = ERR_id_field;
                                     errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
-                                                    " the given student id desn't match the pattern (s000000): " + readFromFile;
+                                                    " the given student id doesn't match the pattern (s000000): " + readFromFile;
                                 }
                                 break;
                             }
@@ -174,7 +174,7 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                                 if (!itReturnFromFind->setMail(readFromLine)) {
                                     errorIdentifier = ERR_mail_format;
                                     errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
-                                                    " the given mail doesn't match the pattern axcepted as a mail (<string>@<string>.<string>): " +
+                                                    " the given mail doesn't match the pattern accepted as a mail (<string>@<string>.<string>): " +
                                                     readFromFile;
                                 }
                                 patternfield++;
@@ -199,7 +199,7 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                     }
                 }
                 patternfield++;
-                if (patternfield < 4) {
+                if ((patternfield < 4) && (errorIdentifier == OK)) {
                     errorIdentifier = ERR_professor_format;
                     errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
                                     " the number of fields in pattern is less than expected: " + to_string(4);
@@ -209,7 +209,7 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
         }
     } else {
         errorIdentifier = ERR_missing_file;
-        errorHandling = "no db_professori.txt file on which performe an update";
+        errorHandling = "no db_professori.txt file on which perform an update";
     }
     if (fileName.is_open()) {
         fileName.close();
@@ -220,100 +220,104 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
 // CLASSROOM
 // this function takes and manage a file that for lines has an updated version of existing classrooms
 int ClassroomToUpdateFile (string& errorHandling, const string& classroomFileName, list<Classroom>& classroomList) {
+    t_errorCodes errorIdentifier = OK;
     int lineOfFile = 0;
     ifstream fileName;
     string readFromFile;
     Classroom classroomRecovery;
-    bool noDb = false, errorInFormat = false;
 
     if (!classroomList.empty()) {
-        fileName.open(classroomFileName, 'r');
+        fileName.open(classroomFileName, ifstream::in);
         if (!fileName.is_open()) {
+            errorIdentifier = ERR_open_file;
             errorHandling = "Error: file: " + classroomFileName + " not found";
-            return (int) ERR_open_file;
         } else {
-            while (getline(fileName, readFromFile) && !errorInFormat) {
-                stringstream updateClassroomLine;
-                string readFromLine;
+            while (getline(fileName, readFromFile) && (errorIdentifier == OK)) {
                 int patternfield = 0;
-                list<Classroom>::iterator classroomFound;
+                string readFromLine;
+                stringstream updateClassroomLine(readFromFile);
+                list<Classroom>::const_iterator itReturnFromFindConst;
+                list<Classroom>::iterator itReturnFromFind;
 
-                updateClassroomLine.str() = readFromFile;
-                while (getline(updateClassroomLine, readFromLine, ';') && !errorInFormat) {
+                while (getline(updateClassroomLine, readFromLine, ';') && (errorIdentifier == OK)) {
                     if (!readFromLine.empty()) {
                         switch (patternfield) {
                             case 0: {
                                 if (readFromLine[0] == 'A') {
                                     try {
                                         stoi(readFromLine.substr(1, readFromLine.size() - 1));
-                                        classroomFound = findClassroom(classroomList, readFromLine);
-                                        if (classroomFound == classroomList.end()) {
-                                            errorInFormat = true;
-                                            errorHandling = "Error: file: " + classroomFileName + " row: " +
-                                                            to_string(lineOfFile + 1) +
+                                        itReturnFromFindConst = findClassroom(classroomList, readFromLine);
+                                        itReturnFromFind = constItToNonConstIt(classroomList, itReturnFromFindConst);
+                                        if (itReturnFromFindConst == classroomList.cend()) {
+                                            errorIdentifier = ERR_update_database;
+                                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
                                                             " can't find the given student id in the list of students: " +
-                                                            readFromFile;
+                                                            readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
-                                        errorInFormat = true;
-                                        errorHandling =
-                                                "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile) +
-                                                " can't convert student id number to int";
+                                        errorIdentifier = ERR_stoi_conversion;
+                                        errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        " can't convert student id number to int";
                                     }
                                 } else {
-                                    errorInFormat = true;
-                                    errorHandling =
-                                            "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
-                                            " the given student id desn't match the pattern (s000000): " + readFromFile;
+                                    errorIdentifier = ERR_id_field;
+                                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    " the given student id doesn't match the pattern (s000000): " + readFromFile;
                                 }
                                 break;
                             }
                             case 1: {
-                                classroomRecovery.setType(classroomFound->getType());
-                                if (!classroomFound->setType(readFromLine[0])) {
-                                    errorInFormat = true;
-                                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + "the given classroom type desn't match the expected character (A/L): " + readFromLine;
+                                if (!itReturnFromFind->setType(readFromLine[0])) {
+                                    errorIdentifier = ERR_classroom_format;
+                                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                    " the given classroom type doesn't match the expected character (A/L): " + readFromLine;
                                 }
                                 break;
                             }
                             case 2: {
-                                classroomRecovery.setClassroomName(classroomFound->getClassroomName());
-                                classroomFound->setClassroomName(readFromLine);
+                                itReturnFromFind->setClassroomName(readFromLine);
                                 break;
                             }
                             case 3: {
-                                classroomRecovery.setCapacity(classroomFound->getCapacity());
                                 try {
-                                    if (!classroomFound->setCapacity(stoi(readFromLine))) {
-                                        errorInFormat = true;
-                                        errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + "the given classroom capacity is lower than 0 (zero): " + readFromLine;
+                                    if (!itReturnFromFind->setCapacity(stoi(readFromLine))) {
+                                        errorIdentifier = ERR_classroom_capacity;
+                                        errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                        " the given classroom capacity is lower than 0 (zero): " + readFromLine;
                                     }
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
-                                    errorInFormat = true;
-                                    errorHandling = "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) + " incorrect element impossible to convert classroom capacity field to int: " + readFromLine;
+                                    errorIdentifier = ERR_stoi_conversion;
+                                    errorHandling = "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) +
+                                                    " incorrect element impossible to convert classroom capacity field to int: " + readFromLine;
                                 }
                                 break;
                             }
                             case 4:{
-                                classroomRecovery.setExamCapacity(classroomFound->getExamCapacity());
                                 try {
-                                    if (!classroomFound->setExamCapacity(stoi(readFromLine))) {
-                                        errorInFormat = true;
-                                        errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + "the given classroom's exam capacity is lower than 0 (zero): " + readFromLine;
+                                    if (!itReturnFromFind->setExamCapacity(stoi(readFromLine))) {
+                                        errorIdentifier = ERR_classroom_capacity;
+                                        if (readFromLine < "0") {
+                                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                            "the given classroom's exam capacity is lower than 0 (zero): " + readFromLine;
+                                        } else {
+                                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                                            " the given classroom's exam capacity (" + readFromLine + ") higher than ordinary capacity (" +
+                                                            to_string(itReturnFromFind->getCapacity()) + ")";
+                                        }
                                     }
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
-                                    errorInFormat = true;
-                                    errorHandling = "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) + " incorrect element impossible to convert classroom's exam capacity field to int: " + readFromLine;
+                                    errorIdentifier = ERR_stoi_conversion;
+                                    errorHandling = "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) +
+                                                    " incorrect element impossible to convert classroom's exam capacity field to int: " + readFromLine;
                                 }
                                 break;
                             }
                             default: {
-                                errorInFormat = true;
-                                errorHandling = "Error: file: " + classroomFileName +
-                                                "number of element for the pattern of the line greater than " +
+                                errorIdentifier = ERR_classroom_format;
+                                errorHandling = "Error: file: " + classroomFileName + " number of element for the pattern of the line greater than " +
                                                 to_string(5);
                                 break;
                             }
@@ -321,36 +325,35 @@ int ClassroomToUpdateFile (string& errorHandling, const string& classroomFileNam
                         patternfield++;
                     } else {
                         if (patternfield == 0) {
-                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) + " the first field of the line MUST specify the professor id";
-                            errorInFormat = true;
+                            errorIdentifier = ERR_missing_field;
+                            errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                            " the first field of the line MUST specify the professor id";
                         } else {
                             patternfield++;
                         }
                     }
                 }
-                if (patternfield < 5) {
-                    classroomFound->setType(classroomRecovery.getType());
-                    classroomFound->setClassroomName(classroomRecovery.getClassroomName());
-                    classroomFound->setCapacity(classroomRecovery.getCapacity());
-                    classroomFound->setExamCapacity(classroomRecovery.getExamCapacity());
-                    errorInFormat = true;
-                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile) + " the number of fields in pattern is less than expected: " +
-                                    to_string(5);
-                } else {
-                    lineOfFile++;
+                patternfield++;
+                if (itReturnFromFind->getExamCapacity() > itReturnFromFind->getCapacity()) {
+                    errorIdentifier = ERR_classroom_capacity;
+                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                    " the given classroom's exam capacity (" + to_string(itReturnFromFind->getExamCapacity()) +
+                                    ") is higher than ordinary capacity (" + to_string(itReturnFromFind->getCapacity()) + ")";
                 }
+                if ((patternfield < 5) && (errorIdentifier == OK)) {
+                    errorIdentifier = ERR_classroom_format;
+                    errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile) +
+                                    " the number of fields in pattern is less than expected: " + to_string(5);
+                }
+                lineOfFile++;
             }
         }
     } else {
-        errorHandling = "no db_aule.txt file on which performe an update";
-        noDb = true;
+        errorIdentifier = ERR_missing_field;
+        errorHandling = "no \"db_aule.txt\" file on which perform an update";
     }
     if (fileName.is_open()) {
         fileName.close();
     }
-    if (!errorInFormat && !noDb) {
-        return true;
-    } else {
-        return false;
-    }
+    return (int) errorIdentifier;
 }
