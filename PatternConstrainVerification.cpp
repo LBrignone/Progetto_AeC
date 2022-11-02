@@ -2,6 +2,7 @@
 // Created by Luca Brignone on 04/09/22.
 //
 
+#include "ConstConversion.hpp"
 #include "PatternConstrainVerification.h"
 
 bool parallelVersionProgression (string& errorHandling, int prevVersionid, const string& versionToVerify) {
@@ -38,6 +39,10 @@ bool versionCoherencyTest (string& errorHandling,int versionProgression, const s
     }
     catch ( const invalid_argument& excepFromStoi) {
         errorHandling = "Error: incorrect element impossible to convert the given version id to int: " + versionToVerify;
+        return false;
+    }
+    catch (const out_of_range& excepFromStoi) {
+        errorHandling = "Error: incorrect element impossible to convert the given version id to int: \"" + versionToVerify + "\"";
         return false;
     }
 
@@ -270,15 +275,17 @@ bool unavailabilityDatesVerification (const AvailForExam& dateToVerify, const li
 bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompare, list<Course>& courseList, list<CourseOfStudy>& courseToHandle) {
     bool allEnded = false;
     vector<bool> courseStatus;
+    list<Course>::const_iterator itFirstForIdConst, itLastForIdConst;
     list<Course>::iterator itFirstForId, itLastForId;
     list<CourseOfStudy>::iterator itListCourseOfStudy;
 
-    itFirstForId = findCourse(courseList, courseToCompare.getId());
-    if (itFirstForId != courseList.end()) {
-        itLastForId = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
-        if (itLastForId != courseList.end()) {
-            while (itFirstForId != itLastForId) {
-                if (courseToCompare.getStartYear() != itFirstForId->getStartYear()){
+    itFirstForIdConst = findCourse(courseList, courseToCompare.getId());
+    itFirstForId = constItToNonConstIt(courseList, itFirstForIdConst);
+    if (itFirstForIdConst != courseList.cend()) {
+        itLastForIdConst = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
+        if (itLastForIdConst != courseList.cend()) {
+            while (itFirstForId != itLastForIdConst) {
+                if (courseToCompare.getStartYear() != itFirstForIdConst->getStartYear()){
                     courseStatus.push_back(itFirstForId->isActiveCourse());
                 }
                 itFirstForId++;
@@ -293,6 +300,7 @@ bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompar
             // allEnded = true  -> at least one course is "attivo", so is not necessary to perform the remove/copy in ended courses
             while ((itListCourseOfStudy != courseToHandle.end()) && errorHandling.empty()) {
                 itListCourseOfStudy->deleteEndedCourseFormActiveCourse(errorHandling, courseToCompare.getId(), allEnded);
+                itListCourseOfStudy++;
             }
         } else {
             errorHandling = "course " + courseToCompare.getId() + "  ending not found";
@@ -306,17 +314,19 @@ bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompar
 bool removeCourseFromEndedCourses(string& errorHandling, const Course& courseToCompare, list<Course>& courseList, list<CourseOfStudy>& courseToHandle) {
     bool allActive = true;
     vector<bool> courseStatus;
+    list<Course>::const_iterator itFirstForIdConst, itLastForIdConst;
     list<Course>::iterator itFirstForId, itLastForId;
     list<CourseOfStudy>::iterator itListCourseOfStudy;
 
     // the following find are used to select the starting and ending position regarding the given course, this is used
     // to verify all the academic years with same course's id if they are active or not, so the course to reactivate is
     // maintained in accordance with the course's database
-    itFirstForId = findCourse(courseList, courseToCompare.getId());
-    if (itFirstForId != courseList.end()) {
-        itLastForId = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
-        if (itLastForId != courseList.end()) {
-            while (itFirstForId != itLastForId) {
+    itFirstForIdConst = findCourse(courseList, courseToCompare.getId());
+    itFirstForId = constItToNonConstIt(courseList, itFirstForIdConst);
+    if (itFirstForIdConst != courseList.cend()) {
+        itLastForIdConst = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
+        if (itLastForIdConst != courseList.cend()) {
+            while (itFirstForId != itLastForIdConst) {
                 if (courseToCompare.getStartYear() != itFirstForId->getStartYear()){
                     courseStatus.push_back(itFirstForId->isActiveCourse());
                 }

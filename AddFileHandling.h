@@ -33,7 +33,7 @@ int ProfessorInputFile(string& errorHandling, const string& professorFileName, l
 
 int ClassroomInputFile(string& errorHandling, const string& classroomFileName, list<Classroom>& classroomList, const bool& isDb);
 
-int CourseInputFile(string& errorHandling, const string& courseFileName, list<Course>& courseList, list<Professor> tmpProfessorList, const bool& isDb);
+int CourseInputFile(string& errorHandling, const string& courseFileName, list<Course>& courseList, list<Professor>& tmpProfessorList, const bool& isDb);
 
 int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFileName, list<CourseOfStudy>& studyCoursesList, const bool& isDb);
 

@@ -48,6 +48,7 @@ public:
     bool setCourseLabH(const int& courseLabH);
     list<AssociateProfessor>& getListAssistant();
     int setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant);
+    void setListAssistantNoChecks(const list<AssociateProfessor>& assistant);
     int appendAssistant(const AssociateProfessor &toAppend, string &errorInAppend);
     string getMainProfessor();
     string getExamType() const;
@@ -72,7 +73,9 @@ public:
     void increaseConstrain();
     void decreaseConstrain();
     void resetConstrain();
-    void inheritCourse(const list<Course>::iterator& toInherit);
+    void inheritCourse(const list<Course>::const_iterator& toInherit);
+    void clearCFields();
+    void clearAFields();
     ostream& printCourseOrganization(ostream& os) const;
     ostream& printCourseOrganizationAcademicYearOpening(ostream& os) const;
     ostream& printCourseOrganizationVersionOpening(ostream& os, const bool& first) const; // see implementation to further comment

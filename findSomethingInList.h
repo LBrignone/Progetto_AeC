@@ -19,15 +19,15 @@ list<Professor>::const_iterator findProfessor(const list<Professor>& professorLi
 
 list<Classroom>::const_iterator findClassroom(const list<Classroom>& classroomList, const string& idToFind);
 
-list<Course>::iterator findCourse(list<Course>& courseList, const string& idToFind);
+list<Course>::const_iterator findCourse(const list<Course>& courseList, const string& idToFind);
 
-list<Course>::iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear);
+list<Course>::const_iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear);
 
-list<Course>::iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear, const string& parallelVersion);
+list<Course>::const_iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear, const string& parallelVersion);
 
 list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const int& startPos);
 
-list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const list<Course>::iterator& startPos);
+list<Course>::const_iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const list<Course>::const_iterator& startPos);
 
 Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
 

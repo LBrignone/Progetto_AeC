@@ -61,13 +61,12 @@ list<Classroom>::const_iterator findClassroom(const list<Classroom>& classroomLi
 // COURSE 1
 // given the id of a course a search in the course list is performed by mean of the given id
 // return an iterator that identify the presence of last element represented by the id
-list<Course>::iterator findCourse(list<Course>& courseList, const string& idToFind) {
-    list<Course>::iterator itCourseList;
-    list<Course>::iterator lastInsertion;
+list<Course>::const_iterator findCourse(const list<Course>& courseList, const string& idToFind) {
+    list<Course>::const_iterator itCourseList;
     bool found = false;
 
-    itCourseList = courseList.begin();
-    while ((itCourseList != courseList.end()) && !found) {
+    itCourseList = courseList.cbegin();
+    while ((itCourseList != courseList.cend()) && !found) {
         if (itCourseList->getId() == idToFind) {
             found = true;
         } else {
@@ -80,13 +79,12 @@ list<Course>::iterator findCourse(list<Course>& courseList, const string& idToFi
 // COURSE 2
 // given the id and academic year of a course a search in the course list is performed by mean of the given id AND academic year
 // return an iterator that identify the presence of the given id and academic year
-list<Course>::iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear) {
-    list<Course> copyOfCourseList = courseList;
-    list<Course>::iterator itCourseList;
-    list<Course>::iterator lastInsertion;
+list<Course>::const_iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear) {
+    list<Course>::const_iterator itCourseList;
     bool found = false;
 
-    while (itCourseList != copyOfCourseList.end()) {
+    itCourseList = courseList.cbegin();
+    while ((itCourseList != courseList.cend()) && !found) {
         if ((itCourseList->getId() == idToFind) && (itCourseList->getStartYear() == academicYear)) {
             found = true;
         } else {
@@ -99,13 +97,12 @@ list<Course>::iterator findCourse(const list<Course>& courseList, const string& 
 // COURSE 3
 // given the id and academic year of a course a search in the course list is performed by mean of the given id AND academic year
 // return an iterator that identify the presence of the given id and academic year
-list<Course>::iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear , const string& parallelVersion) {
-    list<Course> copyOfCourseList = courseList;
-    list<Course>::iterator itCourseList;
-    list<Course>::iterator lastInsertion;
+list<Course>::const_iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear , const string& parallelVersion) {
+    list<Course>::const_iterator itCourseList;
     bool found = false;
 
-    while (itCourseList != copyOfCourseList.end()) {
+    itCourseList = courseList.cbegin();
+    while (itCourseList != courseList.cend() && !found) {
         if ((itCourseList->getId() == idToFind) && (itCourseList->getStartYear() == academicYear) && (itCourseList->getParallelCoursesId() == parallelVersion)) {
             found = true;
         } else {
@@ -143,20 +140,19 @@ list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const
 // COURSE 5
 // given the id of a course a search in the course list is performed by mean of the given id
 // return an iterator that identify the presence of last element represented by the id
-list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const list<Course>::iterator & startPos) {
-    list<Course> copyOfCourseList = courseList;
-    list<Course>::iterator itCourseList;
-    list<Course>::iterator lastInsertion;
+list<Course>::const_iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const list<Course>::const_iterator& startPos) {
+    list<Course>::const_iterator itCourseList;
     bool found = false;
 
     itCourseList = startPos;
-    while ((itCourseList != copyOfCourseList.end()) && !found) {
+    while ((itCourseList != courseList.end()) && !found) {
         if (itCourseList->getId() != idToFind) {
-            itCourseList++;
-        } else {
             found = true;
+        } else {
+            itCourseList++;
         }
     }
+    itCourseList--;
     return itCourseList;
 }
 

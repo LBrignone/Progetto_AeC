@@ -99,18 +99,11 @@ bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandlingFormPattern,
     }
     if ((!flagStringFormatError) && (((_graduationType == BS) && ((semesterKey > -2) && (semesterKey < 7))) ||
             ((_graduationType == MS) && ((semesterKey > -2) && (semesterKey < 5))))) {
-        //tmpListOfCourses.push_back(courseId);
         // the following if try to make an emplace and uses the second term of the returned iterator as test
-        //if (_semesterOfCourse.emplace(semesterKey, tmpListOfCourses).second) {
-        //    return true;
-        //} else {
-        //    _semesterOfCourse[semesterKey].push_back(courseId);
-        //    return true;
-        //}
         this->_semesterOfCourse[semesterKey].push_back(courseId);
         return true;
     } else {
-        errorHandlingFormPattern = "semester not congruent with the specified graduation type";
+        errorHandlingFormPattern = " semester not congruent with the specified graduation type ";
         return false;
     }
 }

@@ -222,8 +222,8 @@ int main(int argc, char** argv) {
                 case 'c':{
                     // the existence of professor's database is not a constraint for the insertion or modification of courses,
                     // so the return is checked only for file correctness
-                    functionReturn = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
-                    if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
+                    funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                    if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
                         // also the presence of course of study's database isn't a constraint to the correct functioning of
                         // courses insertion, but if it is present it is necessary to perform some actions on itself too
                         // if a course is set as "non_attivo" if the same course is used in some course of study then:
@@ -231,11 +231,10 @@ int main(int argc, char** argv) {
                         //   COPIED in non-active list
                         // - if all years for which is defined are "non_attivo" then it is REMOVED from its semester and inserted
                         //   in non-active list
-                        functionReturn = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
-                        if ((functionReturn == OK) || (functionReturn == ERR_open_file) || (functionReturn == ERR_empty_file)) {
-                            functionReturn = CourseInputFile(errorLine, courseDatabaseName, listOfCourses,
-                                                             listOfProfessors, true);
-                            if (functionReturn == OK) {
+                        funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
+                        if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
+                            funcReturnDbFile = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors, true);
+                            if (funcReturnDbFile == OK) {
                                 functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, listOfCoursesOfStudy);
                             } else {
                                 errorLine += "\nCan't perform an insertion or modification without the course's database file \"" +

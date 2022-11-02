@@ -2,6 +2,7 @@
 // Created by Luca Brignone on 06/09/22.
 //
 
+#include "ConstConversion.hpp"
 #include "InsertFileHandling.h"
 
 // here is handled the update or changes for existing courses
@@ -10,7 +11,6 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
     ifstream fileName;
     string readFromFile, readFromLine, errorLine;
     int row = 0, patternFiled = 0;
-    // bool errorFile = false, errorInFormat = false, errorAbsence = false, yearIsPresent = false, errorInData = false, errorIncoherentHour = false, errorInParallelCourseNumber = false;
     Course dummyCourse;
     list<Course> dummyCoursesList;
 
@@ -23,11 +23,14 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
             patternFiled = 0;
             int startYear;
             string courseId, courseProfessorOrganization;
-            stringstream lineToInsertFromFile;
+            stringstream lineToInsertFromFile(readFromFile);
+            list<Course>::const_iterator itCourseListIdConst, itCourseListYearConst;
             list<Course>::iterator itCourseListId, itCourseListYear;
 
-            lineToInsertFromFile.str() = readFromFile;
-
+            if (readFromFile.empty()) {
+                errorIdentifier = ERR_empty_file;
+                errorHandling = "Error: file " + courseFileName + "is empty";
+            }
             while (getline(lineToInsertFromFile, readFromLine, ';') && (errorIdentifier == OK)) {
                 Date beginYear, endYear;
 
@@ -58,14 +61,14 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                     "incorrect element impossible to convert the academic start year field to int: " + readFromLine.substr(0, 4);
                                 }
                                 try {
-                                    endYear.setYear(stoi(readFromLine.substr(6, 4)));
+                                    endYear.setYear(stoi(readFromLine.substr(5, 4)));
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
                                     errorIdentifier = ERR_academic_year;
                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     "incorrect element impossible to convert the academic ending year field to int: " + readFromLine.substr(6, 4);
                                 }
-                                if ((endYear < beginYear) || ((endYear - beginYear) > 0)) {
+                                if ((endYear < beginYear) || ((endYear - beginYear) != 0)) {
                                     errorIdentifier = ERR_academic_year;
                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     " the starting year is after the ending academic year";
@@ -80,14 +83,14 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " the given academic year is below 0 (zero): " + readFromLine;
                             }
-                            itCourseListYear = findCourse(databaseCourseList, dummyCourse.getId(), dummyCourse.getStartYear());
-                            if (itCourseListYear != databaseCourseList.end()) {
-                                dummyCourse.inheritCourse(itCourseListYear) ;
+                            itCourseListYearConst = findCourse(databaseCourseList, dummyCourse.getId(), dummyCourse.getStartYear());
+                            if (itCourseListYearConst != databaseCourseList.cend()) {
+                                dummyCourse.inheritCourse(itCourseListYearConst) ;
                             } else {
-                                itCourseListId = findCourse(databaseCourseList, dummyCourse.getId());
-                                if (itCourseListId != databaseCourseList.end()) {
-                                    itCourseListId = findCourseLastForId(databaseCourseList, dummyCourse.getId(), itCourseListId);
-                                    dummyCourse.inheritCourse(itCourseListId);
+                                itCourseListIdConst = findCourse(databaseCourseList, dummyCourse.getId());
+                                if (itCourseListIdConst != databaseCourseList.cend()) {
+                                    itCourseListIdConst = findCourseLastForId(databaseCourseList, dummyCourse.getId(), itCourseListIdConst);
+                                    dummyCourse.inheritCourse(itCourseListIdConst);
                                 } else {
                                     errorIdentifier = ERR_missing_field;
                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
@@ -116,15 +119,12 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             }
                             // if there's no change in course's status ("attivo/non_attivo") remains valid the status inherited from database
                         }
-//                        else {
-//                            dummyCourse.setActiveCourseFieldEmpty(true);
-//                        }
                         break;
                     }
                     case 3:{
                         if (!readFromLine.empty()) {
                             try {
-                                if (!dummyCourse.setParallelCoursesNumber(stoi(readFromFile))) {
+                                if (!dummyCourse.setParallelCoursesNumber(stoi(readFromLine))) {
                                     errorIdentifier = ERR_file_format;
                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     " the given number of parallel course is below 0 (zero): " + readFromLine;
@@ -148,7 +148,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                     case 5:{
                         int patternOfExamOrganization = 0;
                         string examField;
-                        stringstream examOrganization;
+                        stringstream examOrganization(readFromLine.substr(1, readFromLine.size() - 2));
 
                         if (!readFromLine.empty()) {
                             if (readFromLine == "{}") {
@@ -156,7 +156,8 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                                 " the exam organization has the field identifiers (\"{}\") but without contents";
                             }
-                            examOrganization.str() = readFromLine.substr(1, readFromLine.size() - 2);
+
+
                             while (getline(examOrganization, examField, ',') && (errorIdentifier == OK)) {
                                 switch (patternOfExamOrganization) {
                                     case 0: {
@@ -282,7 +283,6 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                     case 6: {
                         // the dummy course is coming from a find, so the grouped courses are always inherited
                         // below the code control if the inherited list of grouped courses has to be maintained or performs corrective actions
-                        stringstream groupedCourses;
                         string courseToAppend;
 
                         if (!readFromLine.empty()) { // in case the field read (containing the list of grouped courses) is empty no changes must be performed at the already existing list
@@ -293,8 +293,8 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 dummyCourse.deleteGroupedId();
                             } else {
                                 // here a new grouped courses list is present so it'll be updated
+                                stringstream groupedCourses(readFromLine.substr(1, readFromLine.size() - 2));
                                 dummyCourse.deleteGroupedId();
-                                groupedCourses.str() = readFromLine.substr(1, readFromLine.size() - 2);
                                 while (getline(groupedCourses, courseToAppend, ',') && (errorIdentifier == OK)) {
                                     if (!dummyCourse.appendGroupedId(courseToAppend)) {
                                         errorIdentifier = ERR_file_format;
@@ -318,9 +318,8 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
 // -------> here the professor organization for each version is reconstructed and memorized
             if (!courseProfessorOrganization.empty()) {
                 if ((courseProfessorOrganization.front() == '[') && (courseProfessorOrganization.back() == ']')) {
-                    stringstream versionOrganization;
+                    stringstream versionOrganization(courseProfessorOrganization.substr(1, courseProfessorOrganization.size() - 2));
 
-                    versionOrganization.str() = courseProfessorOrganization.substr(1, courseProfessorOrganization.size() - 2);
                     if (!courseProfessorOrganization.empty()) {
                         int  level = 0, levelIncrement = 0, levelDecrement = 0, versionCounter = 0;
                         bool isLevelCorrect = false;
@@ -329,7 +328,8 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                         Professor dummyProfessor;
                         AssociateProfessor dummyAssociateProfessor;
                         list<AssociateProfessor> dummyAssociateProfessorsList;
-                        list<Course>::iterator itCourseFromFind;
+                        list<Course>::const_iterator itCourseFromFindConst;
+                        list<Professor>::const_iterator itProfessorFromFindConst;
                         list<Professor>::iterator itProfessorFromFind, itProfessorMain, itProfessorDummy;
 
                         while (getline(versionOrganization, professorOrganizationForVersion, ',') && (errorIdentifier == OK)) {
@@ -339,16 +339,16 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
 
                             while (!isLevelCorrect) {
                                 if (professorOrganizationForVersion[0] == '[') {
-                                    professorOrganizationForVersion.substr(1, professorOrganizationForVersion.size() - 1);
+                                    professorOrganizationForVersion = professorOrganizationForVersion.substr(1, professorOrganizationForVersion.size() - 1);
                                     levelIncrement++;
                                 } else if (professorOrganizationForVersion[0] == '{') {
-                                    professorOrganizationForVersion.substr(1, professorOrganizationForVersion.size() - 1);
+                                    professorOrganizationForVersion = professorOrganizationForVersion.substr(1, professorOrganizationForVersion.size() - 1);
                                     levelIncrement++;
                                 } else if (professorOrganizationForVersion[professorOrganizationForVersion.size() - 1] == '}') {
-                                    professorOrganizationForVersion.substr(0, professorOrganizationForVersion.size() - 1);
+                                    professorOrganizationForVersion = professorOrganizationForVersion.substr(0, professorOrganizationForVersion.size() - 1);
                                     levelDecrement++;
                                 } else if (professorOrganizationForVersion[professorOrganizationForVersion.size() - 1] == ']') {
-                                    professorOrganizationForVersion.substr(0, professorOrganizationForVersion.size() - 1);
+                                    professorOrganizationForVersion = professorOrganizationForVersion.substr(0, professorOrganizationForVersion.size() - 1);
                                     levelDecrement++;
                                 } else {
                                     isLevelCorrect = true;
@@ -372,8 +372,8 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         case 1:{
                                             // here the field read is version id
                                             if (!professorOrganizationForVersion.empty()) {
-                                                itCourseFromFind = findCourse(dummyCoursesList, dummyCourse.getId(), dummyCourse.getStartYear(), professorOrganizationForVersion);
-                                                if (dummyCoursesList.empty() || (itCourseFromFind == dummyCoursesList.end())) {
+                                                itCourseFromFindConst = findCourse(dummyCoursesList, dummyCourse.getId(), dummyCourse.getStartYear(), professorOrganizationForVersion);
+                                                if (dummyCoursesList.empty() || (itCourseFromFindConst == dummyCoursesList.cend())) {
                                                     if (!dummyCourse.setParallelCoursesId(professorOrganizationForVersion)) {
                                                         errorIdentifier = ERR_file_format;
                                                         errorHandling = "Error: file: " + courseFileName + "row: " + to_string(row) +
@@ -412,9 +412,6 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 case 3:{
                                     switch (patternFieldForEachLevel[level - 1] % 4) {
                                         case 0:{
-                                            bool professorInsertion = false;
-
-                                            dummyAssociateProfessor.clear(professorList.end());
                                             if (patternFieldForEachLevel[level - 1] == 0) {
                                                 dummyAssociateProfessor.setIsMain(true);
                                                 if (!mainProfessorCourse.empty() && professorOrganizationForVersion.empty()) {
@@ -431,8 +428,9 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                 }
                                             }
                                             if ((!professorOrganizationForVersion.empty()) && (errorIdentifier == OK)) {
-//                                                itProfessorFromFind = findProfessor(professorList, professorOrganizationForVersion);
-                                                if (itProfessorFromFind != professorList.end()) {
+                                                itProfessorFromFindConst = findProfessor(professorList, professorOrganizationForVersion);
+                                                itProfessorFromFind = constItToNonConstIt(professorList, itProfessorFromFindConst);
+                                                if (itProfessorFromFindConst != professorList.cend()) {
                                                     dummyAssociateProfessor.setProfessorPointer(itProfessorFromFind);
                                                 } else {
                                                     // here a new professor is created if the professor read from the file can't be found in the professor's list
@@ -443,19 +441,9 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                                         "incorrect professor id: " + professorOrganizationForVersion;
                                                     }
                                                     if (errorIdentifier == OK) {
-                                                        itProfessorMain = professorList.begin();
-                                                        while ((itProfessorMain != professorList.end()) && !professorInsertion) {
-                                                            if (dummyProfessor.getId() < itProfessorMain->getId()) {
-                                                                professorList.insert(itProfessorMain, dummyProfessor);
-                                                                professorInsertion = true;
-                                                            } else {
-                                                                itProfessorMain++;
-                                                            }
-                                                        }
-                                                        if (!professorInsertion) {
-                                                            professorList.push_back(dummyProfessor);
-                                                        }
-//                                                        itProfessorFromFind = findProfessor(professorList, professorOrganizationForVersion);
+                                                        professorList.push_back(dummyProfessor);
+                                                        itProfessorFromFindConst = findProfessor(professorList, professorOrganizationForVersion);
+                                                        itProfessorFromFind = constItToNonConstIt(professorList, itProfessorFromFindConst);
                                                         if (itProfessorFromFind != professorList.end()) {
                                                             dummyAssociateProfessor.setProfessorPointer(itProfessorFromFind);
                                                         } else {
@@ -476,7 +464,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         case 1:{
                                             if (!professorOrganizationForVersion.empty()) {
                                                 try {
-                                                    if (dummyAssociateProfessor.setLessonH(stoi(professorOrganizationForVersion))) {
+                                                    if (!dummyAssociateProfessor.setLessonH(stoi(professorOrganizationForVersion))) {
                                                         errorIdentifier = ERR_hour_set;
                                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "the given lesson hour is below 0 (zero): " + professorOrganizationForVersion;
@@ -495,7 +483,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         case 2:{
                                             if (!professorOrganizationForVersion.empty()) {
                                                 try {
-                                                    if (dummyAssociateProfessor.setExerciseH(stoi(professorOrganizationForVersion))) {
+                                                    if (!dummyAssociateProfessor.setExerciseH(stoi(professorOrganizationForVersion))) {
                                                         errorIdentifier = ERR_hour_set;
                                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "the given exercise hour is below 0 (zero): " + professorOrganizationForVersion;
@@ -514,7 +502,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         case 3:{
                                             if (!professorOrganizationForVersion.empty()) {
                                                 try {
-                                                    if (dummyAssociateProfessor.setLabH(stoi(professorOrganizationForVersion))) {
+                                                    if (!dummyAssociateProfessor.setLabH(stoi(professorOrganizationForVersion))) {
                                                         errorIdentifier = ERR_hour_set;
                                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         "the given laboratory hour is below 0 (zero): " + professorOrganizationForVersion;
@@ -531,7 +519,9 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             // a push to a temporary list is made
                                             if (errorIdentifier == OK) {
                                                 dummyAssociateProfessorsList.push_back(dummyAssociateProfessor);
+                                                dummyAssociateProfessor.clear(professorList.end());
                                             }
+                                            patternFieldForEachLevel[level - 1]++;
                                             break;
                                         }
                                         default:{
@@ -558,32 +548,36 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             if (level == 0) {
                                 patternFieldForEachLevel[2] = 0;
                                 if (errorIdentifier == OK) {
-                                    if (dummyCourse.setListAssistant(dummyAssociateProfessorsList, errorHandling) == 255) {
-                                        dummyCoursesList.push_back(dummyCourse);
-                                        dummyAssociateProfessorsList.clear();
-                                    } else {
-                                        errorIdentifier = ERR_hour_set;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                        " incoherent number of hour, when pushing db temporary list, between the total amount given to the course and the sum of those of the given professors";
-                                    }
+                                    dummyCourse.setListAssistantNoChecks(dummyAssociateProfessorsList);
+                                    dummyCoursesList.push_back(dummyCourse);
+                                    dummyAssociateProfessorsList.clear();
+//                                    if (== OK) {
+//                                    } else {
+//                                        errorIdentifier = ERR_hour_set;
+//                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+//                                                        " version number: " + to_string(versionCounter) + " when pushing db temporary list " +
+//                                                        errorLine;
+//                                    }
                                 }
                             }
                         }
                         // here the row of given file is completely decoded
                         // the following part will take care of controlling the database (databaseCourseList) with regard to updated versions
-                        if (itCourseListYear != databaseCourseList.end()) {
-                            if (!fillCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
-                                errorIdentifier = ERR_update_database;
-                                errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYear->getId() +
-                                                " and year " + to_string(itCourseListYear->getStartYear()) + "-" + to_string(itCourseListYear->getStartYear() + 1) +
-                                                " has " + errorLine;
-                            }
-                        } else if (itCourseListId != databaseCourseList.end()) {
-                            if (!insertCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
-                                errorIdentifier = ERR_update_database;
-                                errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYear->getId() +
-                                                " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +
-                                                " which define a new course's organization has " + errorLine;
+                        if (errorIdentifier == OK) {
+                            if (itCourseListYearConst != databaseCourseList.end()) {
+                                if (!fillCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
+                                    errorIdentifier = ERR_update_database;
+                                    errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " +
+                                                    itCourseListYearConst->getId() + " and year " + to_string(itCourseListYearConst->getStartYear()) +
+                                                    "-" + to_string(itCourseListYearConst->getStartYear() + 1) + " has " + errorLine;
+                                }
+                            } else if (itCourseListIdConst != databaseCourseList.end()) {
+                                if (!insertCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
+                                    errorIdentifier = ERR_update_database;
+                                    errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " +
+                                                    itCourseListYearConst->getId() + " and year " + to_string(dummyCourse.getStartYear()) + "-" +
+                                                    to_string(dummyCourse.getStartYear() + 1) + " which define a new course's organization has " + errorLine;
+                                }
                             }
                         }
                     } else {
@@ -599,28 +593,28 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                     " " + courseProfessorOrganization.back();
                 }
             } else {
-                if (dummyCourse.getParallelCoursesNumber() <= itCourseListId->getParallelCoursesNumber()) {
-                    if (itCourseListYear != databaseCourseList.end()) {
+                if (dummyCourse.getParallelCoursesNumber() <= itCourseListIdConst->getParallelCoursesNumber()) {
+                    if (itCourseListYearConst != databaseCourseList.end()) {
                         // this part will be performed if both the id and the academic year is present, and is going to update the database with the correct data
                         if (!fillCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
-                            errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYear->getId() +
-                                            " and year " + to_string(itCourseListYear->getStartYear()) + "-" + to_string(itCourseListYear->getStartYear() + 1) +
+                            errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYearConst->getId() +
+                                            " and year " + to_string(itCourseListYearConst->getStartYear()) + "-" + to_string(itCourseListYearConst->getStartYear() + 1) +
                                             " has " + errorLine;
                         }
-                    } else if (itCourseListId != databaseCourseList.end()) {
+                    } else if (itCourseListIdConst != databaseCourseList.end()) {
                         // this part will be done only if the course id is present and will result in a fill of missing fields
                         // in the dummy list and an insertion of them in database in the  proper position
                         if (insertCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
-                            errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYear->getId() +
+                            errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYearConst->getId() +
                                             " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +
                                             " which define a new course's organization has " + errorLine;
                         }
                     }
                 } else {
                     errorIdentifier = ERR_parallel_course_number_inherit;
-                    errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYear->getId() +
+                    errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYearConst->getId() +
                                     " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +
                                     " require a complete inheritance of course's hour organization but the number of version to insert is greater than the number from which is possible to inherit data";
                 }

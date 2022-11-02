@@ -316,7 +316,7 @@ int ClassroomInputFile(string& errorHandling, const string& classroomFileName, l
     return (int) errorIdentifier;
 }
 
-int CourseInputFile(string& errorHandling, const string& courseFileName, list<Course>& courseList, list<Professor> tmpProfessorList, const bool& isDb) {
+int CourseInputFile(string& errorHandling, const string& courseFileName, list<Course>& courseList, list<Professor>& tmpProfessorList, const bool& isDb) {
     t_errorCodes errorIdentifier = OK;
     ifstream fileName;
     string readFromFile, readFromLine, errorLine;
@@ -337,9 +337,11 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                 patternField = 0;
                 if (readFromFile.empty()) {
                     errorIdentifier = ERR_empty_file;
+                    errorHandling = "Error: file " + courseFileName + "is empty";
                 }
                 if (getline(tmp, readFromLine, ';')){
                     if (readFromLine == "c") {
+                        dummyCourse.clearCFields();
                         while ((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                             switch (patternField) {
                                 case 0: {
@@ -359,7 +361,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                         if (!dummyCourse.setCfu(stoi(readFromLine))) {
                                             errorIdentifier = ERR_cfu_field;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            "the given value of cfu is below 0 (zero): " + readFromLine;
+                                                            " the given value of cfu is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
@@ -374,7 +376,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                         if (!dummyCourse.setCourseLessonH(stoi(readFromLine))) {
                                             errorIdentifier = ERR_hour_set;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            "the given value of lesson hour is below 0 (zero): " + readFromLine;
+                                                            " the given value of lesson hour is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
@@ -389,7 +391,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                         if (!dummyCourse.setCourseExerciseH(stoi(readFromLine))) {
                                             errorIdentifier = ERR_hour_set;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            "the given value of exercise hour is below 0 (zero): " + readFromLine;
+                                                            " the given value of exercise hour is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
@@ -404,7 +406,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                         if (!dummyCourse.setCourseLabH(stoi(readFromLine))) {
                                             errorIdentifier = ERR_hour_set;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            "the given value of laboratory hour is below 0 (zero): " + readFromLine;
+                                                            " the given value of laboratory hour is below 0 (zero): " + readFromLine;
                                         }
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
@@ -427,6 +429,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                         string associateProfessorFromDb;
                         Date beginYear, endYear;
 
+                        dummyCourse.clearAFields();
                         while ((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
 
                             switch (patternField) {
@@ -450,7 +453,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                                             " incorrect element impossible to convert the academic ending year field to int: " +
                                                             readFromLine.substr(6, 4);
                                         }
-                                        if ((endYear < beginYear) || ((endYear - beginYear)/365 == 1)) {
+                                        if ((endYear < beginYear) || ((endYear - beginYear) != 0)) {
                                             errorIdentifier = ERR_academic_year;
                                             errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                                             " the starting year is after the ending academic year";
@@ -866,6 +869,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                 patternField = 0;
                 if (readFromFile.empty()) {
                     errorIdentifier = ERR_empty_file;
+                    errorHandling = "Error: file " + courseFileName + "is empty";
                 }
                 while ((getline(tmp, readFromLine, ';')) && (errorIdentifier == OK)) {
                     switch (patternField) {
@@ -887,7 +891,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                                     " incorrect element impossible to convert the academic ending year field to int: " + readFromLine.substr(6, 4);
                                 }
-                                if ((endYear < beginYear) || ((endYear - beginYear)/365 == 1)) {
+                                if ((endYear < beginYear) || ((endYear - beginYear) != 0)) {
                                     errorIdentifier = ERR_academic_year;
                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                                     " the starting year is after the ending academic year";
@@ -1386,9 +1390,6 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
             }
         }
     }
-    if (errorIdentifier == ERR_empty_file) {
-        errorHandling = "Error: file " + courseFileName + "is empty";
-    }
     if (!fileName.is_open()) {
         fileName.close();
     }
@@ -1407,10 +1408,9 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
         errorHandling = "Error: file: " + courseOfStudyFileName + " not found.";
         errorIdentifier = ERR_open_file;
     } else {
-        CourseOfStudy dummyStudyCourse;
-
         while (getline(fileName, readFromFile) && (errorIdentifier == OK)) {
             stringstream courseOfStudyRow(readFromFile);
+            CourseOfStudy dummyStudyCourse;
 
             if (isDb) {
                 patternField = 0;
@@ -1419,13 +1419,14 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
             }
             if (readFromFile.empty()) {
                 errorIdentifier = ERR_empty_file;
+                errorHandling = "Error: file " + courseOfStudyFileName + " is empty";
             }
             while (getline(courseOfStudyRow, readFromLine, ';') && (errorIdentifier == OK)) {
                 switch (patternField) {
                     case 0: {
                         if (!dummyStudyCourse.setCourseOfStudyId(readFromLine)) {
                             errorIdentifier = ERR_id_field;
-                            errorHandling = "Error: file: " + courseOfStudyFileName + "the given study course's id does not match the pattern fiel (C000): " +
+                            errorHandling = "Error: file: " + courseOfStudyFileName + "the given study course's id does not match the pattern field (C000): " +
                                             readFromLine;
                         }
                         patternField++;
@@ -1442,7 +1443,7 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                         if (!dummyStudyCourse.setGaraduationType(readFromLine)) {
                             errorIdentifier = ERR_graduation_type;
                             errorHandling = "Error: file: " + courseOfStudyFileName +
-                                            "the given graduation time does not match the proper pattern (BS/MS): " +
+                                            " the given graduation type does not match the proper pattern (BS/MS): " +
                                             readFromLine;
                         }
                         patternField++;
@@ -1465,7 +1466,7 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                                     semesterCourse = semesterCourse.substr(0, semesterCourse.size() - 1);
                                     level--;
                                 } else {
-                                    if (level == '0') {
+                                    if ((level == 0) && semesterCourse.empty()) {
                                         errorIdentifier = ERR_course_of_study_format;
                                         errorHandling = "Error: file: " + courseOfStudyFileName + "semester: " +
                                                         to_string(semester) + "with no courses";
@@ -1529,9 +1530,6 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                 studyCoursesList.push_back(dummyStudyCourse);
             }
         }
-    }
-    if (errorIdentifier == ERR_empty_file) {
-        errorHandling = "Error: file " + courseOfStudyFileName + " is empty";
     }
     if (!fileName.is_open()) {
         fileName.close();

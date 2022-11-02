@@ -163,6 +163,7 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
                     fileName << endl;
                     itListCourse++;
                     itListCourse->printCourseOrganization(fileName);
+                    tmpCourseAA = 0;
                 }
                 if (tmpCourseAA != itListCourse->getStartYear()) {
                     tmpCourseAA = itListCourse->getStartYear();

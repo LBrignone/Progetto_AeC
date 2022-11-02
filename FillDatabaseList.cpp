@@ -3,6 +3,7 @@
 //
 
 #include "FillDatabaseList.h"
+#include "ConstConversion.hpp"
 
 // if the database has the course we are looking for (course id + academic year) an update of itself is performed
 // possible version(s) not included previously are inserted consequentially to their relative course (course id + academic year)
@@ -11,6 +12,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
     int i = 0, accLessonH, accExH, accLabH, courseVersion = 0;
     bool fromInsert;
     string errorString;
+    list<Course>::const_iterator itCourseMainConst;
     list<Course>::iterator itCourseMain, itCourseDummy;
     list<AssociateProfessor>::iterator itAssociateProfessorHourCheck;
     list<AssociateProfessor> associateProfessorFromDatabase;
@@ -22,17 +24,17 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
             accExH = 0;
             accLabH = 0;
             fromInsert = false;
-            itCourseMain = findCourse(databaseList, itCourseDummy->getId(), itCourseDummy->getStartYear(),
-                                      generateVersion(versionCounter));
 
+            itCourseMainConst = findCourse(databaseList, itCourseDummy->getId(), itCourseDummy->getStartYear(), generateVersion(versionCounter));
+            itCourseMain = constItToNonConstIt(databaseList, itCourseMainConst);
             if (versionCoherencyTest(errorString, i, itCourseDummy->getParallelCoursesId()) || itCourseDummy->getParallelCoursesId().empty()) {
-                if (itCourseMain != databaseList.end()) {
-                    if (itCourseMain->isActiveCourse() != itCourseDummy->isActiveCourse()) {
+                if (itCourseMainConst != databaseList.cend()) {
+                    if (itCourseMainConst->isActiveCourse() != itCourseDummy->isActiveCourse()) {
 //                         && !itCourseDummy->getActiveCourseFieldEmpty()) {
                         itCourseMain->setActiveCourse(itCourseDummy->isActiveCourse());
                     }
 //                    if (itCourseDummy->getParallelCoursesNumber() != -1) {
-                    if (itCourseMain->getParallelCoursesNumber() != itCourseDummy->getParallelCoursesNumber()) {
+                    if (itCourseMainConst->getParallelCoursesNumber() != itCourseDummy->getParallelCoursesNumber()) {
                         itCourseMain->setParallelCoursesNumber(itCourseDummy->getParallelCoursesNumber());
                     }
 //                    }
@@ -40,7 +42,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
                         itCourseMain->setExamType(itCourseDummy->getExamType());
                     }
                     if (itCourseDummy->getExamClassroomType() != '\0') {
-                        if (itCourseMain->getExamClassroomType() != itCourseDummy->getExamClassroomType()) {
+                        if (itCourseMainConst->getExamClassroomType() != itCourseDummy->getExamClassroomType()) {
                             itCourseMain->setExamClassroomType(itCourseDummy->getExamClassroomType());
                         }
                     }
@@ -142,11 +144,12 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
         }
         // here the dummy course version's list is ended, but the database has more versions for the given id and year that must be erased
         itCourseDummy--;
-        itCourseMain = findCourse(databaseList, generateVersion(i), itCourseDummy->getStartYear());
-        while (itCourseMain != databaseList.end()) {
+        itCourseMainConst = findCourse(databaseList, generateVersion(i), itCourseDummy->getStartYear());
+        while (itCourseMainConst != databaseList.cend()) {
+            itCourseMain = constItToNonConstIt(databaseList, itCourseMainConst);
             databaseList.erase(itCourseMain);
             i++;
-            itCourseMain = findCourse(databaseList, generateVersion(i), itCourseDummy->getStartYear());
+            itCourseMainConst = findCourse(databaseList, generateVersion(i), itCourseDummy->getStartYear());
         }
     } else {
         errorIdentifier = ERR_incoherent_version_number;
@@ -164,24 +167,29 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
 // version(s) previously not included in database rise an error due to incapability of inheriting missing elements for that version(s)
 bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCourseList, list<Professor>& profesorList) {
     t_errorCodes errorIdentifier = OK;
-    int i = 0;
+    int versionNum = 1;
     string errorLine;
-    list<Course>::iterator itDummyCourseList, itLastDbCourseId;
+    list<Course>::const_iterator itLastDbCourseIdConst, itDbCourseIdConst;
+    list<Course>::iterator itDummyCourseList, itLastDbCourseId, itDbCourseId;
     list<AssociateProfessor> associateProfessorFromDummyNewOrg;
-    list<Course>::iterator itDbCourseId;
 
     // first the course id that we are looking for is searched in database
-    itLastDbCourseId = findCourse(databaseList, dummyCourseList.begin()->getId());
-    if (itLastDbCourseId != databaseList.end()) {
+    itLastDbCourseIdConst = findCourse(databaseList, dummyCourseList.begin()->getId());
+    if (itLastDbCourseIdConst != databaseList.cend()) {
         // when the id previously found exist the last element of it is searched
-        itLastDbCourseId = findCourseLastForId(databaseList, dummyCourseList.begin()->getId(), itLastDbCourseId);
+        itLastDbCourseIdConst = findCourseLastForId(databaseList, dummyCourseList.begin()->getId(), itLastDbCourseIdConst);
+        itLastDbCourseId = constItToNonConstIt(databaseList, itLastDbCourseIdConst);
         // at the same time the first element with same course id and academic year is searched (the P001 version is expected)
-        itDbCourseId = findCourse(databaseList, itLastDbCourseId->getId(), itLastDbCourseId->getStartYear(),generateVersion(i));
+        itDbCourseIdConst = findCourse(databaseList, itLastDbCourseId->getId(), itLastDbCourseId->getStartYear(),generateVersion(versionNum - 1));
+        itDbCourseId = constItToNonConstIt(databaseList, itDbCourseIdConst);
     }
     itDummyCourseList = dummyCourseList.begin();
-    if ((dummyCourseList.begin()->getParallelCoursesNumber() == versionCounter) && (itLastDbCourseId->getParallelCoursesNumber() <= versionCounter)) {
-        while (i < versionCounter) {
-            if ((versionCoherencyTest(errorLine, i, itDummyCourseList->getParallelCoursesId()) || itDummyCourseList->getParallelCoursesId().empty()) && versionCoherencyTest(errorLine, i, itDbCourseId->getParallelCoursesId())) {
+    if ((dummyCourseList.begin()->getParallelCoursesNumber() == versionCounter) && (itLastDbCourseIdConst->getParallelCoursesNumber() <= versionCounter)) {
+        while ((versionNum < versionCounter) && (errorIdentifier == OK)) {
+            if (itDummyCourseList->getParallelCoursesId().empty()) {
+                itDummyCourseList->setParallelCoursesId(generateVersion(versionNum - 1));
+            }
+            if ((versionCoherencyTest(errorLine, versionNum, itDummyCourseList->getParallelCoursesId()) || itDummyCourseList->getParallelCoursesId().empty()) && versionCoherencyTest(errorLine, versionNum, itDbCourseIdConst->getParallelCoursesId())) {
 //               if (!itDummyCourseList->getActiveCourseFieldEmpty()) {
 //                   itDummyCourseList->setActiveCourse(itDbCourseId->isActiveCourse());
 //               }
@@ -215,7 +223,7 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
                         errorHandling = errorLine;
                     } else {
                         // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
-                        if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) < 255) {
+                        if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) < std::numeric_limits<unsigned int>::max()) {
                             errorIdentifier = ERR_professor_hour;
                             errorHandling = errorLine;
                         }
@@ -227,7 +235,7 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
             }
             itDbCourseId++;
             itDummyCourseList++;
-            i++;
+            versionNum++;
         }
         itLastDbCourseId++;
         if (errorIdentifier == OK) {

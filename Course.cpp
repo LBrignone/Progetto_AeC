@@ -211,8 +211,7 @@ list<AssociateProfessor>& Course::getListAssistant() {
     return _assistant;
 }
 
-int
-Course::setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant) {
+int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant) {
     t_errorCodes errorIdentifier = OK;
     int tmpLessonH = 0, tmpExerciseH = 0, tmpLabH = 0;
     list<AssociateProfessor>::const_iterator itAssociateProfessor;
@@ -253,6 +252,10 @@ Course::setListAssistant(const list<AssociateProfessor>& assistant, string& erro
     } else {
         return (int) errorIdentifier;
     }
+}
+
+void Course::setListAssistantNoChecks(const list<AssociateProfessor>& assistant) {
+    _assistant = assistant;
 }
 
 int Course::appendAssistant(const AssociateProfessor &toAppend, string &errorInAppend) {
@@ -485,9 +488,8 @@ void Course::resetConstrain() {
     _constrain = 0;
 }
 
-void Course::inheritCourse(const list<Course>::iterator& toInherit) {
+void Course::inheritCourse(const list<Course>::const_iterator& toInherit) {
     this->_id = toInherit->_id;
-    this->_startYear = toInherit->_startYear;
     this->_parallelCoursesNumber = toInherit->_parallelCoursesNumber;
     this->_activeCourse = toInherit->_activeCourse;
     this->_examType = toInherit->_examType;
@@ -497,6 +499,30 @@ void Course::inheritCourse(const list<Course>::iterator& toInherit) {
     this->_examDuration = toInherit->_examDuration;
     this->_partecipants = toInherit->_partecipants;
     this->_coursesGroupedId = toInherit->_coursesGroupedId;
+}
+
+void Course::clearCFields() {
+    _id.clear();
+    _title.clear();
+    _cfu = -1;
+    _courseLessonH = -1;
+    _courseExerciseH = -1;
+    _courseLabH = -1;
+}
+
+void Course::clearAFields() {
+    _startYear.setYear(0);
+    _activeCourse = true;
+    _parallelCoursesId.clear();
+    _parallelCoursesNumber = -1;
+    _assistant.clear();
+    _examType = NO_TYPE;
+    _examClassroomType = '\0';
+    _entryTime = -1;
+    _exitTime = -1;
+    _examDuration = -1;
+    _partecipants = -1;
+    _coursesGroupedId.clear();
 }
 
 ostream& Course::printCourseOrganization(ostream& os) const {
