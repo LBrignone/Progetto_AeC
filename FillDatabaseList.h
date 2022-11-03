@@ -16,10 +16,10 @@ using namespace std;
 
 bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCoursesList, list<Professor>& professorList);
 
-bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCourseList, list<Professor>& profesorList);
+bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCourseList, const list<Professor>& profesorList);
 
 bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& associateProfessorListDb, const list<AssociateProfessor>& associateProfessorListDummy, list<Professor>::iterator professorListEnd);
 
-bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfessor>& associateProfessorListDb, list<AssociateProfessor>& associateProfessorListDummy, list<Professor>::iterator professorListEnd);
+bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfessor>& associateProfessorListDb, list<AssociateProfessor>& associateProfessorListDummy, const list<Professor>& professorList);
 
 #endif //PROGETTO_FILLDATABASELIST_H

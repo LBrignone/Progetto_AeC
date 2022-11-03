@@ -276,7 +276,7 @@ bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompar
     bool allEnded = false;
     vector<bool> courseStatus;
     list<Course>::const_iterator itFirstForIdConst, itLastForIdConst;
-    list<Course>::iterator itFirstForId, itLastForId;
+    list<Course>::iterator itFirstForId;
     list<CourseOfStudy>::iterator itListCourseOfStudy;
 
     itFirstForIdConst = findCourse(courseList, courseToCompare.getId());
@@ -285,15 +285,17 @@ bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompar
         itLastForIdConst = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
         if (itLastForIdConst != courseList.cend()) {
             while (itFirstForId != itLastForIdConst) {
-                if (courseToCompare.getStartYear() != itFirstForIdConst->getStartYear()){
+                if (courseToCompare.getStartYear() != itFirstForIdConst->getStartYear()) {
                     courseStatus.push_back(itFirstForId->isActiveCourse());
                 }
                 itFirstForId++;
             }
             if (!courseStatus.empty()) {
-                for (int i = 0; i < (courseStatus.size() - 2); i++) {
-                    allEnded = courseStatus[i] || courseStatus[i + 1] || allEnded;
-                }
+                int i = 0;
+                do {
+                    allEnded = courseStatus[i] || allEnded;
+                    i++;
+                } while ((i < courseStatus.size()) && !allEnded);
             }
             itListCourseOfStudy = courseToHandle.begin();
             // allEnded = false -> all the courses are "non_attivo"
@@ -344,6 +346,7 @@ bool removeCourseFromEndedCourses(string& errorHandling, const Course& courseToC
             if (allActive) {
                 while ((itListCourseOfStudy != courseToHandle.end()) && errorHandling.empty()) {
                     itListCourseOfStudy->activateCourseFormEndedCourse(errorHandling, courseToCompare.getId(), allActive);
+                    itListCourseOfStudy++;
                 }
             }
         } else {

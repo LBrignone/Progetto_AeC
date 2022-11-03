@@ -152,7 +152,6 @@ list<Course>::const_iterator findCourseLastForId(const list<Course>& courseList,
             itCourseList++;
         }
     }
-    itCourseList--;
     return itCourseList;
 }
 

@@ -110,9 +110,9 @@ bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandlingFormPattern,
 
 bool CourseOfStudy::deleteEndedCourseFormActiveCourse(string& errorHandling, const string& courseId, const bool& allInactive) {
     string tmpError;
-    int startSemesterSearch = 0, semesterMapIndex;
+    int startSemesterSearch = 0, semesterMapIndex = 0;
 
-    while ((startSemesterSearch < 6) && (startSemesterSearch != -2) && errorHandling.empty()) {
+    while ((startSemesterSearch < 6) && (semesterMapIndex != -2) && errorHandling.empty()) {
         semesterMapIndex = this->findCourse(startSemesterSearch, courseId);
         if ((semesterMapIndex != -2) && (semesterMapIndex != -1)) {
             // allInactive = false -> all the courses are "non_attivo", so the remove is necessary
@@ -125,8 +125,9 @@ bool CourseOfStudy::deleteEndedCourseFormActiveCourse(string& errorHandling, con
                     errorHandling = tmpError;
                 }
             }
-            startSemesterSearch = semesterMapIndex + 1;
+            startSemesterSearch = semesterMapIndex;
         }
+        startSemesterSearch++;
     }
     return errorHandling.empty();
 }

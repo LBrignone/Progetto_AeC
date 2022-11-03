@@ -90,6 +90,10 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 itCourseListIdConst = findCourse(databaseCourseList, dummyCourse.getId());
                                 if (itCourseListIdConst != databaseCourseList.cend()) {
                                     itCourseListIdConst = findCourseLastForId(databaseCourseList, dummyCourse.getId(), itCourseListIdConst);
+                                    // the decrement below is necessary because the function returns the iterator to the next element in respect of
+                                    // last valid element with the searched id, so in order to gain proper information about the searched last course
+                                    // is necessary to proceed as follow
+                                    itCourseListIdConst--;
                                     dummyCourse.inheritCourse(itCourseListIdConst);
                                 } else {
                                     errorIdentifier = ERR_missing_field;
@@ -110,10 +114,10 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 errorIdentifier = ERR_file_format;
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " the given course has wrong definition of active or not active course: " + readFromLine;
-                            } else if ((readFromLine == "attivo") != dummyCourse.isActiveCourse()) {
+                            } else if ((readFromLine == "attivo") && !dummyCourse.isActiveCourse()) {
                                 dummyCourse.setActiveCourse(true);
                                 removeCourseFromEndedCourses(errorHandling, dummyCourse, databaseCourseList, courseOfStudy);
-                            } else if ((readFromLine == "non_attivo") != !dummyCourse.isActiveCourse()) {
+                            } else if ((readFromLine == "non_attivo") && dummyCourse.isActiveCourse()) {
                                 dummyCourse.setActiveCourse(false);
                                 putCourseInEndedCourses(errorHandling, dummyCourse, databaseCourseList, courseOfStudy);
                             }
@@ -146,11 +150,12 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                         break;
                     }
                     case 5:{
-                        int patternOfExamOrganization = 0;
-                        string examField;
-                        stringstream examOrganization(readFromLine.substr(1, readFromLine.size() - 2));
 
                         if (!readFromLine.empty()) {
+                            int patternOfExamOrganization = 0;
+                            string examField;
+                            stringstream examOrganization(readFromLine.substr(1, readFromLine.size() - 2));
+
                             if (readFromLine == "{}") {
                                 errorIdentifier = ERR_file_format;
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
@@ -281,12 +286,14 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                         break;
                     }
                     case 6: {
+                        // if the grouped courses field is empty this part wont be executed, so the only thing to controll is if
+                        // the field identifiers are present "{" "}"
                         // the dummy course is coming from a find, so the grouped courses are always inherited
                         // below the code control if the inherited list of grouped courses has to be maintained or performs corrective actions
                         string courseToAppend;
-
-                        if (!readFromLine.empty()) { // in case the field read (containing the list of grouped courses) is empty no changes must be performed at the already existing list
-                            if (readFromLine == "{}"){
+                        // in case the field read (containing the list of grouped courses) is empty no changes must be performed at the already existing list
+                        if ((readFromLine[0] == '{') && (readFromLine[readFromLine.size() - 1] == '}')) {
+                            if (readFromLine == "{}") {
                                 // here the inserted course doesn't have grouped courses
                                 // all the grouped courses inherited from the database be deleted
 
@@ -551,13 +558,6 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                     dummyCourse.setListAssistantNoChecks(dummyAssociateProfessorsList);
                                     dummyCoursesList.push_back(dummyCourse);
                                     dummyAssociateProfessorsList.clear();
-//                                    if (== OK) {
-//                                    } else {
-//                                        errorIdentifier = ERR_hour_set;
-//                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-//                                                        " version number: " + to_string(versionCounter) + " when pushing db temporary list " +
-//                                                        errorLine;
-//                                    }
                                 }
                             }
                         }

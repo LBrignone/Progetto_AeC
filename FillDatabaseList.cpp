@@ -165,7 +165,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
 
 // if the course we are looking for in database has only the course id the missing element are inherited from last element of database with same course id
 // version(s) previously not included in database rise an error due to incapability of inheriting missing elements for that version(s)
-bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCourseList, list<Professor>& profesorList) {
+bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCourseList, const list<Professor>& profesorList) {
     t_errorCodes errorIdentifier = OK;
     int versionNum = 1;
     string errorLine;
@@ -178,6 +178,10 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
     if (itLastDbCourseIdConst != databaseList.cend()) {
         // when the id previously found exist the last element of it is searched
         itLastDbCourseIdConst = findCourseLastForId(databaseList, dummyCourseList.begin()->getId(), itLastDbCourseIdConst);
+        // the decrement below is necessary because the function returns the iterator to the next element in respect of
+        // last valid element with the searched id, so in order to gain proper information about the searched last course
+        // is necessary to proceed as follow
+        itLastDbCourseIdConst--;
         itLastDbCourseId = constItToNonConstIt(databaseList, itLastDbCourseIdConst);
         // at the same time the first element with same course id and academic year is searched (the P001 version is expected)
         itDbCourseIdConst = findCourse(databaseList, itLastDbCourseId->getId(), itLastDbCourseId->getStartYear(),generateVersion(versionNum - 1));
@@ -185,40 +189,16 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
     }
     itDummyCourseList = dummyCourseList.begin();
     if ((dummyCourseList.begin()->getParallelCoursesNumber() == versionCounter) && (itLastDbCourseIdConst->getParallelCoursesNumber() <= versionCounter)) {
-        while ((versionNum < versionCounter) && (errorIdentifier == OK)) {
+        while ((versionNum < (versionCounter + 1)) && (errorIdentifier == OK)) {
             if (itDummyCourseList->getParallelCoursesId().empty()) {
                 itDummyCourseList->setParallelCoursesId(generateVersion(versionNum - 1));
             }
-            if ((versionCoherencyTest(errorLine, versionNum, itDummyCourseList->getParallelCoursesId()) || itDummyCourseList->getParallelCoursesId().empty()) && versionCoherencyTest(errorLine, versionNum, itDbCourseIdConst->getParallelCoursesId())) {
-//               if (!itDummyCourseList->getActiveCourseFieldEmpty()) {
-//                   itDummyCourseList->setActiveCourse(itDbCourseId->isActiveCourse());
-//               }
-//               if (itDummyCourseList->getParallelCoursesNumber() == -1) {
-//                   itDummyCourseList->setParallelCoursesNumber(itDbCourseId->getParallelCoursesNumber());
-//               }
-//               if (itDummyCourseList->getExamType() == "NO_TYPE") {
-//                   itDummyCourseList->setExamType(itDbCourseId->getExamType());
-//               }
-//               if (itDummyCourseList->getExamClassroomType() == '\0') {
-//                   itDummyCourseList->setExamClassroomType(itDbCourseId->getExamClassroomType());
-//               }
-//               if (itDummyCourseList->getEntranceTime() == -1) {
-//                   itDummyCourseList->setEntranceTime(itDbCourseId->getEntranceTime());
-//               }
-//               if (itDummyCourseList->getExitTime() == -1) {
-//                   itDummyCourseList->setExitTime(itDbCourseId->getExitTime());
-//               }
-//               if (itDummyCourseList->getExamDuration() == -1) {
-//                   itDummyCourseList->setExamDuration(itDbCourseId->getExamDuration());
-//               }
-//               if (itDummyCourseList->getPartecipants() == -1) {
-//                   itDummyCourseList->setPartecipants(itDbCourseId->getPartecipants());
-//               }
+            if ((versionCoherencyTest(errorLine, versionNum, itDummyCourseList->getParallelCoursesId()) || itDummyCourseList->getParallelCoursesId().empty()) && versionCoherencyTest(errorLine, versionNum, itDbCourseId->getParallelCoursesId())) {
                 // if there's some missing field in dummy course's list it will be inherited
                 // otherwise when the dummy list is empty all the associate professors' organization will be inherited from the database
                 if (!itDummyCourseList->getListAssistant().empty()) {
                     associateProfessorFromDummyNewOrg = itDummyCourseList->getListAssistant();
-                    if (!insertAssociateProfessor(errorLine, itDbCourseId->getListAssistant(), associateProfessorFromDummyNewOrg, profesorList.end())) {
+                    if (!insertAssociateProfessor(errorLine, itDbCourseId->getListAssistant(), associateProfessorFromDummyNewOrg, profesorList)) {
                         errorIdentifier = ERR_professor_list;
                         errorHandling = errorLine;
                     } else {
@@ -227,6 +207,11 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
                             errorIdentifier = ERR_professor_hour;
                             errorHandling = errorLine;
                         }
+                    }
+                } else {
+                    if (itDummyCourseList->setListAssistant(itDbCourseId->getListAssistant(), errorLine) < std::numeric_limits<unsigned int>::max()) {
+                        errorIdentifier = ERR_professor_hour;
+                        errorHandling = errorLine;
                     }
                 }
             } else {
@@ -237,8 +222,10 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
             itDummyCourseList++;
             versionNum++;
         }
-        itLastDbCourseId++;
         if (errorIdentifier == OK) {
+            // the following increment is used to point at next list's element so the insertion could take
+            // place in the correct place (it inserts an element before the pointed element)
+            itLastDbCourseId++;
             databaseList.insert(itLastDbCourseId, dummyCourseList.begin(), dummyCourseList.end());
         }
     } else {
@@ -344,7 +331,7 @@ bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& as
 
 // the list of associate professor is completed with elements read from the last course corresponding version from database
 // performed only for course id
-bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfessor>& associateProfessorListDb, list<AssociateProfessor>& associateProfessorListDummy, list<Professor>::iterator professorListEnd) {
+bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfessor>& associateProfessorListDb, list<AssociateProfessor>& associateProfessorListDummy, const list<Professor>& professorList) {
     t_errorCodes errorIdentifier = OK;
     int associateProfessorElement = 0;
     list<AssociateProfessor>::iterator itAssociateProfessorDummy;
@@ -354,7 +341,7 @@ bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfes
     itAssociateProfessorDummy = associateProfessorListDummy.begin();
     while (itAssociateProfessorDummy != associateProfessorListDummy.end()) {
         if (itAssociateProfessorMain != associateProfessorListDb.end()) {
-            if (itAssociateProfessorDummy->getProfessorPointer() != professorListEnd) {
+            if (itAssociateProfessorDummy->getProfessorPointer() != professorList.cend()) {
                 if ((itAssociateProfessorDummy->getProfessorPointer()->getId() != itAssociateProfessorMain->getProfessorPointer()->getId()) && itAssociateProfessorDummy->getToCheck()) {
                     errorIdentifier = ERR_regular_professor;
                     errorHandling = "the course's regular professor with id: " + itAssociateProfessorDummy->getProfessorPointer()->getId() +
@@ -390,7 +377,7 @@ bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfes
             errorHandling = "the number of associate professor is greater than the one present for the database's associate professor for the given course";
         }
         itAssociateProfessorDummy++;
-        itAssociateProfessorDummy++;
+        itAssociateProfessorMain++;
         associateProfessorElement++;
     }
     if (errorIdentifier == OK) {
