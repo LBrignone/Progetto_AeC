@@ -150,7 +150,6 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                         break;
                     }
                     case 5:{
-
                         if (!readFromLine.empty()) {
                             int patternOfExamOrganization = 0;
                             string examField;
@@ -161,8 +160,6 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
                                                 " the exam organization has the field identifiers (\"{}\") but without contents";
                             }
-
-
                             while (getline(examOrganization, examField, ',') && (errorIdentifier == OK)) {
                                 switch (patternOfExamOrganization) {
                                     case 0: {

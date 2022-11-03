@@ -492,6 +492,9 @@ void Course::inheritCourse(const list<Course>::const_iterator& toInherit) {
     this->_id = toInherit->_id;
     this->_parallelCoursesNumber = toInherit->_parallelCoursesNumber;
     this->_activeCourse = toInherit->_activeCourse;
+    this->_courseLessonH = toInherit->_courseLessonH;
+    this->_courseExerciseH = toInherit->_courseExerciseH;
+    this->_courseLabH = toInherit->_courseLabH;
     this->_examType = toInherit->_examType;
     this->_examClassroomType = toInherit->_examClassroomType;
     this->_entryTime = toInherit->_entryTime;
