@@ -219,9 +219,9 @@ int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& 
     itAssociateProfessor = assistant.cbegin();
     if ((_courseLessonH != -1) && (_courseExerciseH != -1) && (_courseLabH != -1)){
         while (itAssociateProfessor != assistant.cend()) {
-            tmpLabH += itAssociateProfessor->getLabH();
-            tmpExerciseH += itAssociateProfessor->getExerciseH();
             tmpLessonH += itAssociateProfessor->getLessonH();
+            tmpExerciseH += itAssociateProfessor->getExerciseH();
+            tmpLabH += itAssociateProfessor->getLabH();
             itAssociateProfessor++;
         }
         if (tmpLessonH != _courseLessonH) {
@@ -229,10 +229,10 @@ int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& 
             errorInAssistant = "the sum of lesson hour for professors in list is greater than the course's lesson hour " + to_string(_courseLessonH);
         } else if (tmpExerciseH != _courseExerciseH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "the sum of exercise hour for professors in list is greater than the course's lesson hour " + to_string(_courseLessonH);
+            errorInAssistant = "the sum of exercise hour for professors in list is greater than the course's exercise hour " + to_string(_courseExerciseH);
         } else if (tmpLabH != _courseLabH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "the sum of laboratory hour for professors in list is greater than the course's lesson hour " + to_string(_courseLessonH);
+            errorInAssistant = "the sum of laboratory hour for professors in list is greater than the course's laboratory hour " + to_string(_courseLabH);
         }
     } else {
         if (_courseLessonH != -1) {
@@ -290,13 +290,13 @@ int Course::appendAssistant(const AssociateProfessor &toAppend, string &errorInA
             }
         }
     } else {
-        if (_courseLessonH != -1) {
+        if (_courseLessonH == -1) {
             errorIdentifier = ERR_hours_not_set;
             errorInAppend = "Error: course has no lesson hour setted";
-        } else if (_courseExerciseH != -1) {
+        } else if (_courseExerciseH == -1) {
             errorIdentifier = ERR_hours_not_set;
             errorInAppend = "Error: course has no exercise hour setted";
-        } else if (_courseLabH != -1) {
+        } else if (_courseLabH == -1) {
             errorIdentifier = ERR_hours_not_set;
             errorInAppend = "Error: course has no laboratory hour setted";
         }
@@ -490,11 +490,14 @@ void Course::resetConstrain() {
 
 void Course::inheritCourse(const list<Course>::const_iterator& toInherit) {
     this->_id = toInherit->_id;
+    this->_title = toInherit->_title;
     this->_parallelCoursesNumber = toInherit->_parallelCoursesNumber;
     this->_activeCourse = toInherit->_activeCourse;
+    this->_cfu = toInherit->_cfu;
     this->_courseLessonH = toInherit->_courseLessonH;
     this->_courseExerciseH = toInherit->_courseExerciseH;
     this->_courseLabH = toInherit->_courseLabH;
+    this->_assistant = toInherit->_assistant;
     this->_examType = toInherit->_examType;
     this->_examClassroomType = toInherit->_examClassroomType;
     this->_entryTime = toInherit->_entryTime;

@@ -86,6 +86,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             itCourseListYearConst = findCourse(databaseCourseList, dummyCourse.getId(), dummyCourse.getStartYear());
                             if (itCourseListYearConst != databaseCourseList.cend()) {
                                 dummyCourse.inheritCourse(itCourseListYearConst) ;
+                                itCourseListIdConst = databaseCourseList.cend();
                             } else {
                                 itCourseListIdConst = findCourse(databaseCourseList, dummyCourse.getId());
                                 if (itCourseListIdConst != databaseCourseList.cend()) {
@@ -566,13 +567,13 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                     errorIdentifier = ERR_update_database;
                                     errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " +
                                                     itCourseListYearConst->getId() + " and year " + to_string(itCourseListYearConst->getStartYear()) +
-                                                    "-" + to_string(itCourseListYearConst->getStartYear() + 1) + " has " + errorLine;
+                                                    "-" + to_string(itCourseListYearConst->getStartYear() + 1) + " " + errorLine;
                                 }
                             } else if (itCourseListIdConst != databaseCourseList.end()) {
                                 if (!insertCourseDatabase(errorLine, versionCounter, databaseCourseList, dummyCoursesList, professorList)) {
                                     errorIdentifier = ERR_update_database;
                                     errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " +
-                                                    itCourseListYearConst->getId() + " and year " + to_string(dummyCourse.getStartYear()) + "-" +
+                                                    dummyCourse.getId() + " and year " + to_string(dummyCourse.getStartYear()) + "-" +
                                                     to_string(dummyCourse.getStartYear() + 1) + " which define a new course's organization has " + errorLine;
                                 }
                             }
@@ -580,24 +581,52 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                     } else {
                         // here the square brackets are present but empty so is an error
                         errorIdentifier = ERR_file_format;
-                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
+                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                         "the parallel version organization has the field identifiers (\"[]\") but without contents";
                     }
                 } else {
                     errorIdentifier = ERR_file_format;
-                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row) +
+                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                     " incorrect start and ending character of the pattern: " + courseProfessorOrganization.front() +
                                     " " + courseProfessorOrganization.back();
                 }
             } else {
-                if (dummyCourse.getParallelCoursesNumber() <= itCourseListIdConst->getParallelCoursesNumber()) {
+                int parallelCourseNumber = 0;
+                list<Course>::iterator itDbCourseListForFill;
+
+                if (itCourseListIdConst != databaseCourseList.cend()) {
+                    parallelCourseNumber = itCourseListIdConst->getParallelCoursesNumber();
+                    itDbCourseListForFill = constItToNonConstIt(databaseCourseList, itCourseListIdConst);
+                } else if (itCourseListYearConst != databaseCourseList.cend()) {
+                    parallelCourseNumber = itCourseListYearConst->getParallelCoursesNumber();
+                    itDbCourseListForFill = constItToNonConstIt(databaseCourseList, itCourseListYearConst);
+                } else {
+                    errorIdentifier = ERR_course_of_study_format;
+                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                    " can't find course id " + dummyCourse.getId() + " in database";
+                }
+                if (dummyCourse.getParallelCoursesNumber() == parallelCourseNumber) {
+                    for (int i = 0; i < dummyCourse.getParallelCoursesNumber(); i++) {
+                        if (i != 0) {
+                            itDbCourseListForFill++;
+                            if (dummyCourse.setListAssistant(itDbCourseListForFill->getListAssistant(), errorHandling) != OK) {
+                                errorIdentifier = ERR_hour_set;
+                            }
+                            dummyCourse.clearParallelCourseId();
+                        }
+                        dummyCoursesList.push_back(dummyCourse);
+                    }
+                } else {
+                    errorIdentifier = ERR_parallel_course_number;
+                }
+                if ((dummyCourse.getParallelCoursesNumber() <= parallelCourseNumber) && (errorIdentifier == OK)) {
                     if (itCourseListYearConst != databaseCourseList.end()) {
                         // this part will be performed if both the id and the academic year is present, and is going to update the database with the correct data
                         if (!fillCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
                             errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYearConst->getId() +
                                             " and year " + to_string(itCourseListYearConst->getStartYear()) + "-" + to_string(itCourseListYearConst->getStartYear() + 1) +
-                                            " has " + errorLine;
+                                            " " + errorLine;
                         }
                     } else if (itCourseListIdConst != databaseCourseList.end()) {
                         // this part will be done only if the course id is present and will result in a fill of missing fields
@@ -617,6 +646,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                 }
             }
             row++;
+            dummyCoursesList.clear();
         }
     }
     if (fileName.is_open()) {

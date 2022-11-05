@@ -177,7 +177,7 @@ ostream& CourseOfStudy::operator <<(ostream& os) const {
     }
     // print of active courses
     while (itMapBySemester != _semesterOfCourse.cend()) {
-        if (itMapBySemester != _semesterOfCourse.cbegin()) {
+        if (itMapBySemester != _semesterOfCourse.find(0)) {
             os << ",";
         }
         itListOfCourses = itMapBySemester->second.cbegin();

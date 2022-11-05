@@ -156,19 +156,22 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
             itListCourse->printCourseOrganization(fileName);
             itListCourse->printCourseOrganizationAcademicYearOpening(fileName);
             while (itListCourse != updatedCourseList.cend()) {
-                if (tmpCourseId != itListCourse->getId()) {
-                    tmpCourseId = itListCourse->getId();
+                if ((tmpCourseId != itListCourse->getId()) || tmpCourseAA != itListCourse->getStartYear()) {
                     itListCourse--;
                     itListCourse->printCourseOrganizationAcademicYearClosing(fileName);
                     fileName << endl;
                     itListCourse++;
-                    itListCourse->printCourseOrganization(fileName);
-                    tmpCourseAA = 0;
                 }
-                if (tmpCourseAA != itListCourse->getStartYear()) {
+                if (tmpCourseId != itListCourse->getId()) {
+                    tmpCourseId = itListCourse->getId();
+                    itListCourse->printCourseOrganization(fileName);
+                    firstVersion = true;
                     tmpCourseAA = itListCourse->getStartYear();
                     itListCourse->printCourseOrganizationAcademicYearOpening(fileName);
+                } else if (tmpCourseAA != itListCourse->getStartYear()) {
                     firstVersion = true;
+                    tmpCourseAA = itListCourse->getStartYear();
+                    itListCourse->printCourseOrganizationAcademicYearOpening(fileName);
                 }
                 itListCourse->printCourseOrganizationVersionOpening(fileName, firstVersion);
                 firstVersion = false;

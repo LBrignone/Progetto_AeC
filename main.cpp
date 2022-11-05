@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
                         if (functionReturn == OK) {
                             functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy);
                         } else {
-                            errorLine += "\n can't update the " + (string) courseOfStudyDatabaseName + " due to an error updating " + (string) courseDatabaseName;
+                            errorLine += "\nCan't update the " + (string) courseOfStudyDatabaseName + " due to an error updating " + (string) courseDatabaseName;
                         }
                     }
                     break;

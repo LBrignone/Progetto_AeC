@@ -18,7 +18,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
 
 bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCourseList, const list<Professor>& profesorList);
 
-bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& associateProfessorListDb, const list<AssociateProfessor>& associateProfessorListDummy, list<Professor>::iterator professorListEnd);
+bool fillAssociateProfessor (string& errorHandling, list<AssociateProfessor>& associateProfessorListDb, const list<AssociateProfessor>& associateProfessorListDummy, const list<Professor>& professorList);
 
 bool insertAssociateProfessor (string& errorHandling, const list<AssociateProfessor>& associateProfessorListDb, list<AssociateProfessor>& associateProfessorListDummy, const list<Professor>& professorList);
 
