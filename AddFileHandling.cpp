@@ -2070,7 +2070,7 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
     if (fileName.is_open()) {
         fileName.close();
     }
-    if (empty) {
+    if ((empty) && (errorIdentifier == OK)) {
         errorIdentifier = ERR_empty_file;
         errorHandling = "Error: file " + professorUnavailabilityFile + "is empty";
     }
