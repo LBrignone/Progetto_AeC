@@ -42,7 +42,7 @@ public:
     bool operator !=(const Date& date) const;
     int operator -(const Date& rValDate) const;
     Date operator ++(int);
-    ostream& operator <<(ostream& os);
+    ostream& operator <<(ostream& os) const;
 
 private:
     int _minutes = 0;

@@ -33,4 +33,6 @@ Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
 
 bool comp(Professor professorToCompare, Professor minimum);
 
+bool sortMethodForProf(Professor professorToCompare, Professor minimum);
+
 #endif //PROGETTO_FINDSOMETHINGINLIST_H

@@ -32,9 +32,10 @@ public:
     void setChangeInUnavail(const bool& newState);
     void resetChangeInUnavail();
     bool isAvailExamProgramming (const Date& data, const Date& academicYear);
-    const list<AvailForExam>& getUnavailListByAcademicYear (const Date& academicYear) const;
+    const list<AvailForExam>& getUnavailListByAcademicYear(string& errorHandling, const Date& academicYear) const;
     Date getMinDateForUnavail() const;
     Date getMaxDateForUnavail() const;
+    bool setUnavailability(const list<AvailForExam>& unavailDatesList, const Date& academicYear);
     void appendUnavailability(const Date &startUnavail, const Date &stopUnavail, const Date& academicYear);
     bool appendUnavailability(const AvailForExam& unavailDates, const Date& academicYear);     // all the controls on date's coherency MUST be performed before colling this function (NO control is performed inside)
     void appendUnavailabilityForExam(const Date &startUnavail, const Date &stopUnavail);

@@ -2,7 +2,6 @@
 // Created by Luca Brignone on 04/10/22.
 //
 
-#include "Student.h"
 #include "OutputOnDatabaseHandling.h"
 
 int updateStudentDatabaseFile(string& errorHandling, const string& databaseStudentFileName, const list<Student>& updatedStudentList) {
@@ -210,7 +209,7 @@ int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseE
             fileName << " ";
             itVectorDates = itMapExamSession->second.cbegin();
             while (itVectorDates != itMapExamSession->second.cend()) {
-                fileName << itVectorDates.operator->();
+                itVectorDates->operator<<(fileName);
                 switch (separator) {
                     case 0:{
                         fileName << "_";
@@ -230,13 +229,14 @@ int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseE
                 }
                 itVectorDates++;
             }
+            fileName << endl;
             itMapExamSession++;
         }
     }
     return (int) errorIdentifier;
 }
 
-int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, const list<Professor>& updatedProfessorList) {
+int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, list<Professor>& updatedProfessorList) {
     t_errorCodes errorIdentifier = OK;
     Date minDate, maxDate;
     ofstream fileName;
@@ -248,29 +248,36 @@ int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databa
         errorIdentifier = ERR_open_file;
         errorHandling = "Error: file " + databaseUnavailabilityFileName + " not found";
     } else {
+        updatedProfessorList.sort(sortMethodForProf);
         minInListProfessor = min_element(updatedProfessorList.begin(), updatedProfessorList.end(), comp);
         minDate = minInListProfessor.getMinDateForUnavail();
         maxDate = findMaxAcademicYearUnavail(updatedProfessorList);
-        itListProfessor = updatedProfessorList.cbegin();
-        while (minDate == maxDate) {
+        maxDate.increaseAcademicYear();
+        while (minDate != maxDate) {
             minDate.getAcademicYear(fileName);
+            fileName << endl;
+            itListProfessor = updatedProfessorList.cbegin();
             while (itListProfessor != updatedProfessorList.cend()) {
+                string tmpError;
                 Date tmpDate;
                 list<AvailForExam>::const_iterator itListUnavailDates;
 
-                fileName << itListProfessor->getId();
-                fileName << ";";
-                itListUnavailDates = itListProfessor->getUnavailListByAcademicYear(minDate).begin();
-                while (itListUnavailDates != itListProfessor->getUnavailListByAcademicYear(minDate).end()) {
-                    tmpDate = itListUnavailDates->start;
-                    tmpDate.operator<<(fileName);
-                    fileName << "|";
-                    tmpDate = itListUnavailDates->stop;
-                    tmpDate.operator<<(fileName);
-                    fileName << ";";
-                    itListUnavailDates++;
+                itListUnavailDates = itListProfessor->getUnavailListByAcademicYear(tmpError, minDate).begin();
+                if (tmpError.empty()) {
+                    fileName << itListProfessor->getId() << ";";
+                    while ((itListUnavailDates != itListProfessor->getUnavailListByAcademicYear(tmpError, minDate).end()) && tmpError.empty()) {
+                        if (itListUnavailDates != itListProfessor->getUnavailListByAcademicYear(tmpError, minDate).begin()) {
+                            fileName << ";";
+                        }
+                        tmpDate = itListUnavailDates->start;
+                        tmpDate.operator<<(fileName);
+                        fileName << "|";
+                        tmpDate = itListUnavailDates->stop;
+                        tmpDate.operator<<(fileName);
+                        itListUnavailDates++;
+                    }
+                    fileName << endl;
                 }
-
                 itListProfessor++;
             }
             minDate.increaseAcademicYear();

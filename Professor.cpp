@@ -86,10 +86,13 @@ bool Professor::isAvailExamProgramming(const Date& data, const Date& academicYea
     return flag;
 }
 
-const list<AvailForExam>& Professor::getUnavailListByAcademicYear (const Date& academicYear) const {
+const list<AvailForExam>& Professor::getUnavailListByAcademicYear (string& errorHandling, const Date& academicYear) const {
     map<Date, list<AvailForExam>>::const_iterator itMapByAcademicYear;
 
     itMapByAcademicYear = _unavailability.find(academicYear);
+    if (itMapByAcademicYear == _unavailability.end()) {
+        errorHandling = "can't find key map";
+    }
     return itMapByAcademicYear->second;
 }
 
@@ -107,8 +110,20 @@ Date Professor::getMaxDateForUnavail() const {
     if (_unavailability.empty()) {
         return tmpDate;
     } else {
-        return  _unavailability.cend()->first;
+        return  _unavailability.crbegin()->first;
     }
+}
+
+bool Professor::setUnavailability(const list<AvailForExam>& unavailDatesList, const Date& academicYear) {
+    // all the controls on date's coherency MUST be performed before calling this function (NO control is performed inside)
+    bool alreadyExist = false;
+    pair<Date, list<AvailForExam>> dummyUnavailDate;
+    pair<map<Date, list<AvailForExam>>:: iterator, bool> itMapUnavailability;
+
+    dummyUnavailDate.first = academicYear;
+    dummyUnavailDate.second = unavailDatesList;
+    itMapUnavailability = _unavailability.insert(dummyUnavailDate);
+    return itMapUnavailability.second;
 }
 
 void Professor::appendUnavailability(const Date &startUnavail, const Date &stopUnavail, const Date& academicYear) {
@@ -127,7 +142,7 @@ void Professor::appendUnavailability(const Date &startUnavail, const Date &stopU
 }
 
 bool Professor::appendUnavailability(const AvailForExam& unavailDates, const Date& academicYear) {
-    // all the controls on date's coherency MUST be performed before colling this function (NO control is performed inside)
+    // all the controls on date's coherency MUST be performed before calling this function (NO control is performed inside)
     bool alreadyExist = false;
     pair<Date, list<AvailForExam>> dummyUnavailDate;
     pair<map<Date, list<AvailForExam>>:: iterator, bool> itMapUnavailability;

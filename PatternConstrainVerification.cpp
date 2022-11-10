@@ -141,14 +141,14 @@ bool examSessionAcademicYearCoherencyTest (string& errorHandling, int academicYe
     int dateFieldSession = 0;
 
     while ((dateFieldSession < 6) && (errorIdentifier == OK)) {
-        if ((sessionToVerify.at(dateFieldSession).getYear() != academicYearStd) || (sessionToVerify.at(dateFieldSession).getYear() != (academicYearStd + 1))) {
+        if ((sessionToVerify.at(dateFieldSession).getYear() != academicYearStd) && (sessionToVerify.at(dateFieldSession).getYear() != (academicYearStd + 1))) {
             errorIdentifier = ERR_academic_year;
             if ((dateFieldSession % 2) == 0) {
-                errorHandling = "the year set as ending session number " + to_string(dateFieldSession / 2) + " is not compatible with academic year " +
-                                to_string(academicYearStd);
+                errorHandling = "the year set as ending session number " + to_string((dateFieldSession / 2) + (dateFieldSession % 2)) +
+                                " is not compatible with academic year " + to_string(academicYearStd);
             } else {
-                errorHandling = "the year set as starting session number " + to_string(dateFieldSession / 2) + " is not compatible with academic year" +
-                                to_string(academicYearStd);
+                errorHandling = "the year set as starting session number " + to_string((dateFieldSession / 2) + (dateFieldSession % 2)) +
+                                " is not compatible with academic year " + to_string(academicYearStd);
             }
         }
         dateFieldSession++;
@@ -187,23 +187,14 @@ bool examSessionOrderVerification(string& errorHandling, const vector<Date>& ses
     int sessionIdentifier = 0;
 
     while ((sessionIdentifier < 2) && (errorIdentifier == OK)) {
-        if (sessionIdentifier == 0) {
-            if (sessionToVerify.at(sessionIdentifier * 2) > sessionToVerify.at((sessionIdentifier * 2) + 4)) {
-                errorIdentifier = ERR_session_planning;
-                errorHandling = "the session number " + to_string(sessionIdentifier) + " begins after the beginning of session number " + to_string(sessionIdentifier + 2);
-            }
-            if (sessionToVerify.at((sessionIdentifier * 2) + 1) > sessionToVerify.at((sessionIdentifier * 2) + 4)) {
-                errorIdentifier = ERR_session_planning;
-                errorHandling = "the session number " + to_string(sessionIdentifier) + " ends after the beginning of session number " + to_string(sessionIdentifier + 2);
-            }
-        }
-        if (sessionToVerify.at(sessionIdentifier * 2) > sessionToVerify.at((sessionIdentifier * 2) + 2)) {
+        if (sessionToVerify.at(sessionIdentifier) > sessionToVerify.at(sessionIdentifier + 2)) {
             errorIdentifier = ERR_session_planning;
-            errorHandling = "the session number " + to_string(sessionIdentifier) + " begins after the beginning of session number " + to_string(sessionIdentifier + 1);
-        }
-        if (sessionToVerify.at((sessionIdentifier * 2) + 1) > sessionToVerify.at((sessionIdentifier * 2) + 2)) {
+            errorHandling = "the given session dates does not respect the ascending order, date " + sessionToVerify.at(sessionIdentifier * 2).getCompleteDate() +
+                            " is before " + sessionToVerify.at((sessionIdentifier * 2) + 2).getCompleteDate();
+        } else if (sessionToVerify.at(sessionIdentifier + 2) > sessionToVerify.at(sessionIdentifier + 4)) {
             errorIdentifier = ERR_session_planning;
-            errorHandling = "the session number " + to_string(sessionIdentifier) + " ends after the beginning of session number " + to_string(sessionIdentifier + 1);
+            errorHandling = "the given session dates does not respect the ascending order, date " + sessionToVerify.at(sessionIdentifier * 2).getCompleteDate() +
+                            " is before " + sessionToVerify.at((sessionIdentifier * 2) + 2).getCompleteDate();
         }
         sessionIdentifier++;
     }
@@ -250,17 +241,18 @@ bool unavailabilityDatesVerification (const AvailForExam& dateToVerify, const li
     list<AvailForExam>::const_iterator itListUnavailDates;
 
     itListUnavailDates = datesToVerifyWith.begin();
-    while ((itListUnavailDates != datesToVerifyWith.end()) && (errorIdentifier == OK)) {
+    while ((itListUnavailDates != datesToVerifyWith.end()) && (!datesToVerifyWith.empty()) && (errorIdentifier == OK)) {
         if ((itListUnavailDates->start == dateToVerify.start) || (itListUnavailDates->stop == dateToVerify.stop)) {
             errorIdentifier = ERR_unavailability_format;
-        }
-        if (((itListUnavailDates->start <= dateToVerify.stop) && (itListUnavailDates->start >= dateToVerify.start)) && (errorIdentifier == OK)) {
+        } else if (((itListUnavailDates->start <= dateToVerify.stop) && (itListUnavailDates->start >= dateToVerify.start)) && (errorIdentifier == OK)) {
             errorIdentifier = ERR_unavailability_format;
-        }
-        if (((itListUnavailDates->stop <= dateToVerify.stop) && (itListUnavailDates->stop >= dateToVerify.start)) && (errorIdentifier == OK)) {
+        } else if (((itListUnavailDates->start <= dateToVerify.start) && (itListUnavailDates->stop >= dateToVerify.stop)) && (errorIdentifier == OK)) {
             errorIdentifier = ERR_unavailability_format;
-        }
+        } else if (((itListUnavailDates->start <= dateToVerify.start) && (itListUnavailDates->stop >= dateToVerify.stop)) && (errorIdentifier == OK)) {
+            errorIdentifier = ERR_unavailability_format;
+        } else {
             itListUnavailDates++;
+        }
     }
     if (errorIdentifier == OK) {
         // if there's no incoherent date value the return is TRUE

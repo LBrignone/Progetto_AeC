@@ -33,6 +33,6 @@ int updateCourseDatabaseFile(string& errorHandling, const string& databaseCourse
 
 int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseExamSessionFileName, const map<Date, vector<Date>>& updatedExamSessionMap);
 
-int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, const list<Professor>& updatedProfessorList);
+int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, list<Professor>& updatedProfessorList);
 
 #endif //PROGETTO_OUTPUTONDATABASEHANDLING_H

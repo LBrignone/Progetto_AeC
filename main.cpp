@@ -280,16 +280,15 @@ int main(int argc, char** argv) {
             }
             case 's': {
                 if (actionIdentifier == "current_a") {
-                    functionReturn = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName,
+                    funcReturnDbFile = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName,
                                                           mapOfExamSession, true);
-                    if (((functionReturn == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file))
+                    if (((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file))
                         && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
                         functionReturn = ExamSessionInputFile(errorLine, academicYearFromCommandLineAndExamPeriod,
                                                               mapOfExamSession, false);
                     } else {
                         errorIdentifier = ERR_file_name;
-                        errorLine += "\nCan't proceed updating \"" + (string) examSessionPeriodsDatabaseName +
-                                     "\" with same database file";
+                        errorLine += "\nCan't update \"" + (string) examSessionPeriodsDatabaseName + "\"";
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateExamSessionDatabaseFile(errorLine, examSessionPeriodsDatabaseName,
@@ -305,7 +304,7 @@ int main(int argc, char** argv) {
                                                                           false);
                     } else {
                         errorIdentifier = ERR_file_name;
-                        errorLine += "\nCan't update \"" + (string) unavailabilityDatabaseFile + "\" with same database file";
+                        errorLine += "\nCan't update \"" + (string) unavailabilityDatabaseFile + "\"";
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateUnavailabilityDatabaseFile(errorLine, unavailabilityDatabaseFile,

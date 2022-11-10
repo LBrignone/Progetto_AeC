@@ -1,5 +1,1 @@
-cmake-build-debug/db_aule.txt
-cmake-build-debug/db_professori.txt
-cmake-build-debug/db_studenti.txt
-cmake-build-debug/db_corsi_studio.txt
-cmake-build-debug/db_corsi.txt
+*.txt

@@ -174,3 +174,7 @@ Date findMaxAcademicYearUnavail(const list<Professor>& professorList) {
 bool comp(Professor professorToCompare, Professor minimum) {
     return (professorToCompare.getMinDateForUnavail() < minimum.getMinDateForUnavail());
 }
+
+bool sortMethodForProf(Professor professorToCompare, Professor minimum) {
+    return (professorToCompare < minimum);
+}

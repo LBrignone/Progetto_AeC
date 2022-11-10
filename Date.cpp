@@ -249,11 +249,11 @@ int Date::operator - (const Date& rValDate) const {
         tmp = _day;
     }
     if (rValDate._month == 2) {
-        tmp = 28 - _day + 1 + tmp;
+        tmp = 28 - rValDate._day + tmp;
     } else if ((rValDate._month == 4) || (rValDate._month == 6) || (rValDate._month == 9) || (rValDate._month == 11)) {
-        tmp = 30 - _day + 1 + tmp;
+        tmp = 30 - rValDate._day + tmp;
     } else if ((rValDate._month == 1) || (rValDate._month == 3) || (rValDate._month == 5) || (rValDate._month == 7) || (rValDate._month == 8) || (rValDate._month == 10) || (rValDate._month == 12)) {
-        tmp = 31 - _day + 1 + tmp;
+        tmp = 31 - rValDate._day + tmp;
     }
     if ((_month - rValDate._month) > 1) {
         tmpMonth = _month - 1;
@@ -329,7 +329,7 @@ Date Date::operator ++ (int) {
     return old;
 }
 
-ostream& Date::operator << (ostream& os) {
-    os << setfill ('0') << setw (4) <<_year << "-" << setfill ('0') << setw (2) << _month << "_" << setfill ('0') << setw (2) << _day;
+ostream& Date::operator << (ostream& os) const {
+    os << setfill ('0') << setw (4) <<_year << "-" << setfill ('0') << setw (2) << _month << "-" << setfill ('0') << setw (2) << _day;
     return os;
 }

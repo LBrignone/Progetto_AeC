@@ -5,7 +5,7 @@
 #include "ConstConversion.hpp"
 #include "InsertFileHandling.h"
 
-// here is handled the update or changes for existing courses
+// here is handled the update for existing courses or new courses with existing id
 int CourseToInsertFile(string& errorHandling, const string& courseFileName, list<Course>& databaseCourseList, list<Professor>& professorList, list<CourseOfStudy>& courseOfStudy) {
     t_errorCodes errorIdentifier = OK;
     ifstream fileName;
