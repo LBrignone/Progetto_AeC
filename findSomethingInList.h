@@ -6,12 +6,14 @@
 #define PROGETTO_FINDSOMETHINGINLIST_H
 
 #include <list>
+#include <algorithm>
 
 #include "Date.h"
 #include "Course.h"
 #include "Student.h"
 #include "Classroom.h"
 #include "Professor.h"
+#include "CourseOfStudy.h"
 
 list<Student>::const_iterator findStudent(const list<Student>& studentList, const string& idToFind);
 
@@ -28,6 +30,10 @@ list<Course>::const_iterator findCourse(const list<Course>& courseList, const st
 list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const int& startPos);
 
 list<Course>::const_iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const list<Course>::const_iterator& startPos);
+
+list<string> findCourseOfStudy(string& errorHandling, const list<CourseOfStudy>& courseOfStudyList, const string& idToFind);
+
+list<string> findCourseIdGrouped(const list<Course>& courseList, const string& idToFind);
 
 Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
 

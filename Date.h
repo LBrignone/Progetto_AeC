@@ -30,6 +30,7 @@ public:
     bool setYear(int year);
     string getCompleteDate() const;
     void getAcademicYear(ostream& os) const;
+    string getAcademicYear() const;
     void getTimeSlot(ostream& os);
     void increaseAcademicYear();
     void increaseTimeSlot();

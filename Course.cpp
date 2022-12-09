@@ -211,6 +211,10 @@ list<AssociateProfessor>& Course::getListAssistant() {
     return _assistant;
 }
 
+const list<AssociateProfessor>& Course::getListAssistant() const {
+    return _assistant;
+}
+
 int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant) {
     t_errorCodes errorIdentifier = OK;
     int tmpLessonH = 0, tmpExerciseH = 0, tmpLabH = 0;
@@ -587,6 +591,13 @@ void Course::printCourseOrganizationAcademicYearClosing(ostream& os) const {
         itListGroupedCourses++;
     }
     os << "}";
+}
+
+bool Course::operator <(const Course& course) const {
+    int lval, rVal;
+    lval = stoi(_id.substr(1, _id.size() - 1));
+    rVal = stoi(course.getId().substr(1, course.getId().size() - 1));
+    return lval < rVal;
 }
 
 Course& Course::operator=(const Course &toCopy) {

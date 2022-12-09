@@ -37,7 +37,7 @@ public:
 
 private:
     string _id;
-    char _type;
+    char _type = '\0';
     string _classroomName;
     int _capacity = 0;
     int _examCapacity = 0;

@@ -22,6 +22,7 @@ class Course {
 public:
     Course() {};
     Course(const Course& toCopy);
+    ~Course() {};
     string getId() const;
     bool setId(const string& id);
     bool generateNewId(const string& lastId);
@@ -47,6 +48,7 @@ public:
     int getCourseLabH() const;
     bool setCourseLabH(const int& courseLabH);
     list<AssociateProfessor>& getListAssistant();
+    const list<AssociateProfessor>& getListAssistant() const;
     int setListAssistant(const list<AssociateProfessor>& assistant, string& errorInAssistant);
     void setListAssistantNoChecks(const list<AssociateProfessor>& assistant);
     int appendAssistant(const AssociateProfessor &toAppend, string &errorInAppend);
@@ -80,6 +82,7 @@ public:
     ostream& printCourseOrganizationAcademicYearOpening(ostream& os) const;
     ostream& printCourseOrganizationVersionOpening(ostream& os, const bool& first) const; // see implementation to further comment
     void printCourseOrganizationAcademicYearClosing(ostream& os) const;
+    bool operator <(const Course& course) const;
     Course& operator =(const Course& toCopy);
     Course& operator =(const list<Course>::iterator& toCopy);
     ostream& operator <<(ostream& os) const;
@@ -89,7 +92,7 @@ private:
 
     string _id;
     Date _startYear;
-    string _parallelCoursesId = "";
+    string _parallelCoursesId;
     string _title;
     int _cfu = -1;
     int _parallelCoursesNumber = -1;

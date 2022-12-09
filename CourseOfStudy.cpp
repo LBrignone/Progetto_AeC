@@ -74,38 +74,63 @@ const list<string>& CourseOfStudy::getListOfCoursesBySemester(const int & key) c
     return _semesterOfCourse.at(key);
 }
 
-bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandlingFormPattern, const int& semesterKey, const string& courseId) {
-    bool flagStringFormatError = false;
+// the course id is inserted in the map with regard to given semester, with proper controls about course coherency
+bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandling, const int& semesterKey, const string& courseId) {
+    bool statusToReturn;
     list<string> tmpListOfCourses;
+    map<int, list<string>>::const_iterator itMapOfCoursesBySemester;
+    list<string>::const_iterator itCoursesList;
+
     if (!courseId.empty() && (courseId.size() == 7)){
         for (int i = 0; i < courseId.size(); ++i) {
             if (i == 0) {
                 if (courseId[i] != '0') {
-                    flagStringFormatError = true;
+                    statusToReturn = false;
+                    i = 7;
                 }
             } else if (i == 1) {
                 if (courseId[i] != '1') {
-                    flagStringFormatError = true;
+                    statusToReturn = false;
+                    i = 7;
                 }
+            } else if ((courseId[i] < 'A') || (courseId[i] > 'Z')) {
+                    statusToReturn = false;
+                    i = 7;
             } else {
-                if ((courseId[i] < 'A') || (courseId[i] > 'Z')) {
-                    flagStringFormatError = true;
-                }
+                statusToReturn = true;
             }
         }
     } else {
-        flagStringFormatError = true;
-        errorHandlingFormPattern = "the given course id doesn't match the pattern for the field (01XXXXX): ";
+        statusToReturn = false;
     }
-    if ((!flagStringFormatError) && (((_graduationType == BS) && ((semesterKey > -2) && (semesterKey < 7))) ||
-            ((_graduationType == MS) && ((semesterKey > -2) && (semesterKey < 5))))) {
-        // the following if try to make an emplace and uses the second term of the returned iterator as test
-        this->_semesterOfCourse[semesterKey].push_back(courseId);
-        return true;
+    if (statusToReturn) {
+        if (((_graduationType == BS) && ((semesterKey > -2) && (semesterKey < 7))) ||
+            ((_graduationType == MS) && ((semesterKey > -2) && (semesterKey < 5)))) {
+            // here it is performed a control which aims at find possible duplication of the course in all semesters
+            // if the course id is present in the list of ended courses this duplication will be neglected
+            for (itMapOfCoursesBySemester = _semesterOfCourse.cbegin(); itMapOfCoursesBySemester != _semesterOfCourse.cend();) {
+                for (itCoursesList = itMapOfCoursesBySemester->second.cbegin(); itCoursesList != itMapOfCoursesBySemester->second.cend();) {
+                    if ((courseId == *itCoursesList && (itMapOfCoursesBySemester != _semesterOfCourse.cbegin()))) {
+                        statusToReturn = false;
+                        errorHandling = "the course is already present in the semester";
+                        itCoursesList = itMapOfCoursesBySemester->second.cend();
+                        itMapOfCoursesBySemester = _semesterOfCourse.cend();
+                    }
+                    itCoursesList++;
+                }
+                itMapOfCoursesBySemester++;
+            }
+            if (statusToReturn) {
+                this->_semesterOfCourse[semesterKey].push_back(courseId);
+            }
+        } else {
+            statusToReturn = false;
+            errorHandling = "semester not congruent with the specified graduation type ";
+        }
     } else {
-        errorHandlingFormPattern = " semester not congruent with the specified graduation type ";
-        return false;
+        errorHandling = "the given course id doesn't match the pattern for the field (01XXXXX): ";
     }
+    return statusToReturn;
 }
 
 bool CourseOfStudy::deleteEndedCourseFormActiveCourse(string& errorHandling, const string& courseId, const bool& allInactive) {
@@ -151,6 +176,21 @@ int CourseOfStudy::findCourse(int startSemester, const string& courseId) {
         if(_semesterOfCourse.find(i) != _semesterOfCourse.end())
         {
             if(std::find(_semesterOfCourse[i].begin(), _semesterOfCourse[i].end(), courseId) != _semesterOfCourse[i].end()) {
+                returnKey = i;
+            }
+        }
+        i++;
+    }
+    return returnKey;
+}
+
+int CourseOfStudy::findCourse(int startSemester, const string& courseId) const {
+    int returnKey = -2;
+    int i = startSemester;
+    while ((i < 6) && (returnKey == -2)) {
+        if(_semesterOfCourse.find(i) != _semesterOfCourse.end())
+        {
+            if(std::find(_semesterOfCourse.at(i).begin(), _semesterOfCourse.at(i).end(), courseId) != _semesterOfCourse.at(i).end()) {
                 returnKey = i;
             }
         }

@@ -26,10 +26,11 @@ public:
     string getGraduationType() const;
     bool setGaraduationType(const string& graduationType);
     const list<string>& getListOfCoursesBySemester(const int& key) const;
-    bool setListOfCoursesBySemester(string& errorHandlingFormPattern, const int& semesterKey, const string& courseId);
+    bool setListOfCoursesBySemester(string& errorHandling, const int& semesterKey, const string& courseId);
     bool deleteEndedCourseFormActiveCourse(string& errorHandling, const string& courseId,const bool& allInactive);
     bool activateCourseFormEndedCourse(string& errorHandling, const string& courseId, const bool& allActive);
     int findCourse(int startSemester, const string& courseId);
+    int findCourse(int startSemester, const string& courseId) const;
     ostream& operator <<(ostream& os) const;
 
 private:

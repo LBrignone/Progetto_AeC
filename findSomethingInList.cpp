@@ -155,6 +155,81 @@ list<Course>::const_iterator findCourseLastForId(const list<Course>& courseList,
     return itCourseList;
 }
 
+// this function is going to work only on database so all the data should be correct at the time of using it
+// the function returns a list of courses of study as ids, and the semester in which they are scheduled as last element
+list<string> findCourseOfStudy(string& errorHandling, const list<CourseOfStudy>& courseOfStudyList, const string& idToFind) {
+    bool errorInCheck = false;
+    int j = 0, semester = -2, endedCourse = -2;
+    vector<int> vectorOfSemesterForCourse;
+    list<string> listOfCoursesOfStudyForCourse;
+    list<CourseOfStudy>::const_iterator itCourseOfStudyList;
+
+    itCourseOfStudyList = courseOfStudyList.cbegin();
+    while(itCourseOfStudyList != courseOfStudyList.cend()) {
+        if (itCourseOfStudyList->getGraduationType() == "BS") {
+            for (int i = -1; i < 6; i++) {
+                semester = itCourseOfStudyList->findCourse(i, idToFind);
+                if (semester == -2) {
+                    i = 6;
+                } else {
+                    vectorOfSemesterForCourse.push_back(semester % 2);
+                    listOfCoursesOfStudyForCourse.push_back(itCourseOfStudyList->getCourseOfStudyId());
+                }
+            }
+        } else if (itCourseOfStudyList->getGraduationType() == "MS") {
+            for (int i = -1; i < 4; i++) {
+                semester = itCourseOfStudyList->findCourse(i, idToFind);
+                if (semester == -2) {
+                    i = 4;
+                } else {
+                    vectorOfSemesterForCourse.push_back(semester % 2);
+                    listOfCoursesOfStudyForCourse.push_back(itCourseOfStudyList->getCourseOfStudyId());
+                }
+            }
+        }
+        itCourseOfStudyList++;
+    }
+    if (vectorOfSemesterForCourse[0] != -1) {
+        semester = vectorOfSemesterForCourse[0];
+    } else {
+        endedCourse = -1;
+    }
+    while ((j < ((vectorOfSemesterForCourse.size() - 1))) && !errorInCheck) {
+        j++;
+        if ((vectorOfSemesterForCourse[j - 1] != vectorOfSemesterForCourse[j]) &&
+            ((vectorOfSemesterForCourse[j - 1] != -1) || (vectorOfSemesterForCourse[j] != -1))) {
+            listOfCoursesOfStudyForCourse.clear();
+            errorHandling = "ERROR: the course " + idToFind + "appears to be in more than one semester";
+            errorInCheck = true;
+        } else {
+            if (vectorOfSemesterForCourse[j] != -1) {
+                semester = vectorOfSemesterForCourse[j];
+            } else {
+                endedCourse = -1;
+            }
+        }
+    }
+    if (!listOfCoursesOfStudyForCourse.empty()) {
+        listOfCoursesOfStudyForCourse.push_back(to_string(semester));
+        listOfCoursesOfStudyForCourse.push_back(to_string(endedCourse));
+    }
+    return listOfCoursesOfStudyForCourse;
+}
+
+list<string> findCourseIdGrouped(const list<Course>& courseList, const string& idToFind) {
+    list<string> toReturn;
+    list<Course>::const_iterator itCourseList;
+
+    itCourseList = courseList.cbegin();
+    while (itCourseList != courseList.cend()) {
+        if (std::find(itCourseList->getListGroupedId().begin(), itCourseList->getListGroupedId().end(), idToFind) != itCourseList->getListGroupedId().end()) {
+            toReturn.push_back(itCourseList->getId());
+        }
+        itCourseList++;
+    }
+    return toReturn;
+}
+
 // MAX UNAVAIL DATE
 Date findMaxAcademicYearUnavail(const list<Professor>& professorList) {
     Date tmpMax;

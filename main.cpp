@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
     int functionReturn = OK, funcReturnDbFile = OK;
     string commandIdentifier, actionIdentifier, fileNameFromCommandLine, academicYearFromCommandLine, academicYearFromCommandLineAndExamPeriod;
     string errorLine;
+    Date academicYear;
     list<Student> listOfStudents;
     list<Professor> listOfProfessors;
     list<Classroom> listOfClassrooms;
@@ -47,6 +48,11 @@ int main(int argc, char** argv) {
     switch (argc) {
         case 3:{
             fileNameFromCommandLine = argv[2];
+            break;
+        }
+        case 4:{
+            academicYearFromCommandLine = argv[2];
+            fileNameFromCommandLine = argv[3];
             break;
         }
         case 5:{
@@ -318,6 +324,8 @@ int main(int argc, char** argv) {
                 break;
             }
             case 'g': {
+                academicYear.setYear()
+                academicYearFromCommandLine = academicYearFromCommandLine.substr(0, 4);
                 for (int i = 0; i < 3; i++) {
                 }
                 break;
