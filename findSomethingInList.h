@@ -14,6 +14,7 @@
 #include "Classroom.h"
 #include "Professor.h"
 #include "CourseOfStudy.h"
+#include "SessionScheduler.h"
 
 list<Student>::const_iterator findStudent(const list<Student>& studentList, const string& idToFind);
 
@@ -37,8 +38,14 @@ list<string> findCourseIdGrouped(const list<Course>& courseList, const string& i
 
 Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
 
+bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<examScheduled>>>>& planningToSearchIn, const string& courseOfStudyToFind, const int& dayRefPosition);
+
 bool comp(Professor professorToCompare, Professor minimum);
 
 bool sortMethodForProf(Professor professorToCompare, Professor minimum);
+
+bool sortMethodForClassroom(Classroom classroomToCompare, Classroom minimum);
+
+bool sortMethodForCourse(CourseOrgBySemester courseToCompare, CourseOrgBySemester minimum);
 
 #endif //PROGETTO_FINDSOMETHINGINLIST_H

@@ -335,6 +335,14 @@ Date Date::operator ++ (int) {
     return old;
 }
 
+Date Date::operator +(const int& timeLapse) const {
+    Date toReturn = *this;
+    for (int i = 0; i < timeLapse; i++) {
+        toReturn++;
+    }
+    return toReturn;
+}
+
 ostream& Date::operator << (ostream& os) const {
     os << setfill ('0') << setw (4) <<_year << "-" << setfill ('0') << setw (2) << _month << "-" << setfill ('0') << setw (2) << _day;
     return os;

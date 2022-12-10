@@ -43,6 +43,7 @@ public:
     bool operator !=(const Date& date) const;
     int operator -(const Date& rValDate) const;
     Date operator ++(int);
+    Date operator +(const int& timeLapse) const;
     ostream& operator <<(ostream& os) const;
 
 private:

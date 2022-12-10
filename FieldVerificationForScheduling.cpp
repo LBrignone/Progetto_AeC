@@ -275,25 +275,32 @@ int groupedCoursesVerification(string& errorHandling, const list<string>& groupe
         if (errorIdentifier == OK) {
             list<Course>::const_iterator itCoursesToScheduleForVersion;
 
-            itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.cbegin();
-            while (itCourseOfStudyRelatedToCourse != courseOfStudyRelatedToCourse.cend()) {
-                itCoursesToScheduleForVersion = itCoursesToSchedule;
-                if (std::find(cumulativeCourseOfStudyToCompare.begin(), cumulativeCourseOfStudyToCompare.end(), *itCourseOfStudyRelatedToCourse) != cumulativeCourseOfStudyToCompare.end()) {
-                    errorIdentifier = ERR_same_course_of_study;
-                    errorHandling = "ERROR: the course " + *itGroupedCourses + "has a course of study in common " +
-                                    "with another course, this will lead to a non compliance with rule regarding " +
-                                    "the 2 dd minimum distance between courses with same course of study";
-                    itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.cend();
-                } else {
-                    cumulativeCourseOfStudyToCompare.push_back(*itCourseOfStudyRelatedToCourse);
-                    for (int i = 0; i < numberOfVersions; i++) {
-                        elementListStructGroupedCourse._course = *itCoursesToScheduleForVersion;
-                        elementListStructGroupedCourse._assignedCourseOfStudy = *itCourseOfStudyRelatedToCourse;
-                        courseListToSchedule.push_back(elementListStructGroupedCourse);
-                        itCoursesToScheduleForVersion++;
-                    }
-                }
-                itCourseOfStudyRelatedToCourse++;
+            //itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.cbegin();
+            //while (itCourseOfStudyRelatedToCourse != courseOfStudyRelatedToCourse.cend()) {
+            //    itCoursesToScheduleForVersion = itCoursesToSchedule;
+            //    if (std::find(cumulativeCourseOfStudyToCompare.begin(), cumulativeCourseOfStudyToCompare.end(), *itCourseOfStudyRelatedToCourse) != cumulativeCourseOfStudyToCompare.end()) {
+            //        errorIdentifier = ERR_same_course_of_study;
+            //        errorHandling = "ERROR: the course " + *itGroupedCourses + "has a course of study in common " +
+            //                        "with another course, this will lead to a non compliance with rule regarding " +
+            //                        "the 2 dd minimum distance between courses with same course of study";
+            //        itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.cend();
+            //    } else {
+            //        cumulativeCourseOfStudyToCompare.push_back(*itCourseOfStudyRelatedToCourse);
+            //        for (int i = 0; i < numberOfVersions; i++) {
+            //            elementListStructGroupedCourse._course = *itCoursesToScheduleForVersion;
+            //            elementListStructGroupedCourse._assignedCourseOfStudy = *itCourseOfStudyRelatedToCourse;
+            //            courseListToSchedule.push_back(elementListStructGroupedCourse);
+            //            itCoursesToScheduleForVersion++;
+            //        }
+            //    }
+            //    itCourseOfStudyRelatedToCourse++;
+            //}
+
+            for (int i = 0; i < numberOfVersions; i++) {
+                elementListStructGroupedCourse._course = *itCoursesToScheduleForVersion;
+                elementListStructGroupedCourse._assignedCourseOfStudy = courseOfStudyRelatedToCourse;
+                courseListToSchedule.push_back(elementListStructGroupedCourse);
+                itCoursesToScheduleForVersion++;
             }
         }
         itGroupedCourses++;

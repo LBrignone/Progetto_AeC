@@ -23,33 +23,44 @@
 
 using namespace std;
 
-typedef struct examScheduled {
+typedef struct {
     list<string> _assignedCourseOfStudy;
     string _relateCourse;
     string _version;
     string _classroom;
-}examScheduled;
+    bool isEmpty () {
+        if (_assignedCourseOfStudy.empty() && _relateCourse.empty() && _version.empty() && _classroom.empty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+} examScheduled;
 
 typedef struct {
     Course _course;
-    string _assignedCourseOfStudy;
-    int constrainDeactivevated = 0;
-}CourseOrgBySemester;
+    list<string> _assignedCourseOfStudy;
+    vector<bool> _constrainDeactivevated = {false, false, false, false, false};
+    bool operator <(const CourseOrgBySemester& toCompare) {return (this._course.getPartecipants()) < toCompare._course.getPartecipants();}
+} CourseOrgBySemester;
 
 class SessionScheduler {
 public:
     SessionScheduler() {};
-    SessionScheduler(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear, list<Professor>& databaseProfessor);
+    SessionScheduler(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear, list<Professor>& databaseProfessor, const list<Classroom>& databaseClassroom);
     ~SessionScheduler() {};
     bool coursesForGivenAcademicYEar(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear, list<Professor>& databaseProfessor);
     int groupingCoursesBySemester(string& errorHandling, const list<CourseOfStudy>& databaseCourseOfStudy);
     int sessionScheduleFromDate(string& errorHandling, const Date& startDate, const Date& stopDate, const int& sessionNumber);
 private:
+    void groupedCoursesScheduling(const int& sessionNumber, const int& semesterToSchedule,
+                                  const Date& startDate, list<Professor>& databaseProfessorList);
+
     // the map has as key the classroom and keeps for each of them a "calendar" (second parameter of the map)
-    map<Classroom, vector<vector<examScheduled>>> _datesPlanning;
+    vector<pair<Classroom, vector<vector<examScheduled>>>> _datesPlanning;
     // the map has the semester as key for access then a second map as second element, this one keeps as key a list of courses
     // (grouped courses) and a bool that it indicates if the group has been scheduled
-    map<int, vector<pair<list<CourseOrgBySemester>, bool>>> _groupedCoursesToPlan;
+    map<int, vector<list<CourseOrgBySemester>>> _groupedCoursesToPlan;
     list<Course> _coursesToSchedule;
 };
 

@@ -245,6 +245,38 @@ Date findMaxAcademicYearUnavail(const list<Professor>& professorList) {
     return tmpMax;
 }
 
+bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<examScheduled>>>>& planningToSearchIn, const string& courseOfStudyToFind, const int& dayRefPosition) {
+    int position = -2, slot = 0;
+    vector<pair<Classroom, vector<vector<examScheduled>>>>::const_iterator itPlanningToSearchIn;
+
+    position = dayRefPosition - 2;
+    itPlanningToSearchIn = planningToSearchIn.begin();
+    while (position < (dayRefPosition + 2)) {
+        while (itPlanningToSearchIn != planningToSearchIn.cend()) {
+            while (slot < 5) {
+                if (itPlanningToSearchIn->second[position][slot]._assignedCourseOfStudy != courseOfStudyToFind) {
+                    slot++;
+                } else if (position == dayRefPosition) {
+                    slot++;
+                } else {
+                    slot = 6;
+                }
+            }
+            if (slot != 6) {
+                itPlanningToSearchIn++;
+            } else {
+                itPlanningToSearchIn = planningToSearchIn.cend();
+            }
+        }
+        if (slot != 6) {
+            position++;
+        } else {
+            position = dayRefPosition + 2;
+        }
+    }
+    return slot == 6;
+}
+
 // MIN UNAVAIL DATE
 bool comp(Professor professorToCompare, Professor minimum) {
     return (professorToCompare.getMinDateForUnavail() < minimum.getMinDateForUnavail());
@@ -252,4 +284,12 @@ bool comp(Professor professorToCompare, Professor minimum) {
 
 bool sortMethodForProf(Professor professorToCompare, Professor minimum) {
     return (professorToCompare < minimum);
+}
+
+bool sortMethodForClassroom(Classroom classroomToCompare, Classroom minimum) {
+    return (classroomToCompare.getExamCapacity() < minimum.getExamCapacity());
+}
+
+bool sortMethodForCourse(CourseOrgBySemester courseToCompare, CourseOrgBySemester minimum) {
+    return (courseToCompare._course.getPartecipants() < minimum._course.getPartecipants());
 }
