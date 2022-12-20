@@ -245,19 +245,35 @@ Date findMaxAcademicYearUnavail(const list<Professor>& professorList) {
     return tmpMax;
 }
 
-bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<examScheduled>>>>& planningToSearchIn, const string& courseOfStudyToFind, const int& dayRefPosition) {
-    int position = -2, slot = 0;
+bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<examScheduled>>>>& planningToSearchIn, const list<string>& courseOfStudyToFind, const int& dayRefPosition) {
+    bool constrain1Violated = false;
+    int position = 0, slot = 0;
+    list<string>::const_iterator itCourseOfStudyListFromToFind, itCourseOfStudyListFromScheduling;
     vector<pair<Classroom, vector<vector<examScheduled>>>>::const_iterator itPlanningToSearchIn;
 
     position = dayRefPosition - 2;
+    if (position < 0) {
+        position = 0;
+    }
     itPlanningToSearchIn = planningToSearchIn.begin();
     while (position < (dayRefPosition + 2)) {
         while (itPlanningToSearchIn != planningToSearchIn.cend()) {
             while (slot < 5) {
-                if (itPlanningToSearchIn->second[position][slot]._assignedCourseOfStudy != courseOfStudyToFind) {
+                itCourseOfStudyListFromToFind = courseOfStudyToFind.begin();
+                while (itCourseOfStudyListFromToFind != courseOfStudyToFind.end()) {
+                    itCourseOfStudyListFromScheduling = find(itPlanningToSearchIn->second[position][slot]._assignedCourseOfStudy.begin(), itPlanningToSearchIn->second[position][slot]._assignedCourseOfStudy.end(), *itCourseOfStudyListFromToFind);
+                    if (itCourseOfStudyListFromScheduling != itPlanningToSearchIn->second[position][slot]._assignedCourseOfStudy.end()) {
+                        constrain1Violated = true;
+                        itCourseOfStudyListFromToFind = courseOfStudyToFind.end();
+                    } else {
+                        itCourseOfStudyListFromToFind++;
+                    }
+                }
+                if (!constrain1Violated) {
                     slot++;
                 } else if (position == dayRefPosition) {
-                    slot++;
+                    slot = 0;
+                    position++;
                 } else {
                     slot = 6;
                 }
@@ -270,6 +286,7 @@ bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<ex
         }
         if (slot != 6) {
             position++;
+            slot = 0;
         } else {
             position = dayRefPosition + 2;
         }

@@ -7,6 +7,7 @@
 
 #include <map>
 #include <list>
+#include <cmath>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -18,8 +19,14 @@
 #include "Professor.h"
 #include "Classroom.h"
 #include "CourseOfStudy.h"
+#include "ConstConversion.hpp"
 #include "findSomethingInList.h"
 #include "FieldVerificationForScheduling.h"
+
+#define CONSTRAIN_1_DISTANCE 2
+#define CONSTRAIN_2_DISTANCE 14
+#define CONSTRAIN_2_DISTANCE_RELAXED 3
+#define MAX_SLOT_PER_DAY 5
 
 using namespace std;
 
@@ -28,7 +35,8 @@ typedef struct {
     string _relateCourse;
     string _version;
     string _classroom;
-    bool isEmpty () {
+
+    const bool isEmpty () const {
         if (_assignedCourseOfStudy.empty() && _relateCourse.empty() && _version.empty() && _classroom.empty()) {
             return true;
         } else {
@@ -39,28 +47,55 @@ typedef struct {
 
 typedef struct {
     Course _course;
-    list<string> _assignedCourseOfStudy;
+    list<pair<string, bool>> _assignedCourseOfStudy;
     vector<bool> _constrainDeactivevated = {false, false, false, false, false};
+
+    void setCourseOfStudyError(const string& courseOfStudyToSet) {
+        list<pair<string, bool>>::iterator it_assignedCourseOfStudy;
+        it_assignedCourseOfStudy = find(_assignedCourseOfStudy.begin(), _assignedCourseOfStudy.end(), make_pair(courseOfStudyToSet, false));
+        it_assignedCourseOfStudy->second = true;
+    }
     bool operator <(const CourseOrgBySemester& toCompare) {return (this._course.getPartecipants()) < toCompare._course.getPartecipants();}
 } CourseOrgBySemester;
 
 class SessionScheduler {
 public:
     SessionScheduler() {};
-    SessionScheduler(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear, list<Professor>& databaseProfessor, const list<Classroom>& databaseClassroom);
+    SessionScheduler(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear,
+                     list<Professor>& databaseProfessor, const list<Classroom>& databaseClassroom);
     ~SessionScheduler() {};
-    bool coursesForGivenAcademicYEar(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear, list<Professor>& databaseProfessor);
+    bool coursesForGivenAcademicYear(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear,
+                                     list<Professor>& databaseProfessor);
     int groupingCoursesBySemester(string& errorHandling, const list<CourseOfStudy>& databaseCourseOfStudy);
     int sessionScheduleFromDate(string& errorHandling, const Date& startDate, const Date& stopDate, const int& sessionNumber);
+    void outputSessionFile(const string fileBaseName, const int& sessionNumber);
+    void outputWarningFile(const string fileBaseName, const int& sessionNumber);
+    ostream& operator <<(ostream& os) const;
 private:
     void groupedCoursesScheduling(const int& sessionNumber, const int& semesterToSchedule,
-                                  const Date& startDate, list<Professor>& databaseProfessorList);
+                                  const Date& startDate, list<Professor>& databaseProfessorList,
+                                  const int& academicYearRef);
+    bool constrain_1(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
+                     const int& dayRef,
+                     map<int, vector<vector<CourseOrgBySemester>>>& copyCoursesForConstrainViolation,
+                     const int& semesterRef, const int& groupRef, const int& courseRef);
+    bool constrain_2(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
+                     const int& dayRef, const int& slotRef, const int& constrainRelaxed,
+                     map<int, vector<vector<CourseOrgBySemester>>>& copyCoursesForConstrainViolation,
+                     const int& semesterRef, const int& groupRef, const int& courseRef);
+    bool constrain_3(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
+                     const int& academicYearRef, const Date& startSessionDate, const int& dateIncrement, const int& slotRef,
+                     const Course& courseToInsert, list<Professor>& professorListToVerifyAndUpdate);
+    bool constrain_4(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
+                     const Course& courseToInsert, const int& dayRef, const int& slotRef, int& classroomChosen);
+    bool coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
+                           const Course& courseToInsert, const int& classroomChosen, const int& dayRef, const int& slotRef);
 
     // the map has as key the classroom and keeps for each of them a "calendar" (second parameter of the map)
     vector<pair<Classroom, vector<vector<examScheduled>>>> _datesPlanning;
     // the map has the semester as key for access then a second map as second element, this one keeps as key a list of courses
     // (grouped courses) and a bool that it indicates if the group has been scheduled
-    map<int, vector<list<CourseOrgBySemester>>> _groupedCoursesToPlan;
+    map<int, vector<vector<CourseOrgBySemester>>> _groupedCoursesToPlan;
     list<Course> _coursesToSchedule;
 };
 

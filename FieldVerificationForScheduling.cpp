@@ -297,8 +297,13 @@ int groupedCoursesVerification(string& errorHandling, const list<string>& groupe
             //}
 
             for (int i = 0; i < numberOfVersions; i++) {
+                list<pair<string, bool>> dummyAssignedCourseOfStudy;
+
+                for (itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.begin(); itCourseOfStudyRelatedToCourse !=  courseOfStudyRelatedToCourse.end(); itCourseOfStudyRelatedToCourse++) {
+                    dummyAssignedCourseOfStudy.emplace_back(*itCourseOfStudyRelatedToCourse, false);
+                }
                 elementListStructGroupedCourse._course = *itCoursesToScheduleForVersion;
-                elementListStructGroupedCourse._assignedCourseOfStudy = courseOfStudyRelatedToCourse;
+                elementListStructGroupedCourse._assignedCourseOfStudy = dummyAssignedCourseOfStudy;
                 courseListToSchedule.push_back(elementListStructGroupedCourse);
                 itCoursesToScheduleForVersion++;
             }
