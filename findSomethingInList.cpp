@@ -307,6 +307,68 @@ bool sortMethodForClassroom(Classroom classroomToCompare, Classroom minimum) {
     return (classroomToCompare.getExamCapacity() < minimum.getExamCapacity());
 }
 
-bool sortMethodForCourse(CourseOrgBySemester courseToCompare, CourseOrgBySemester minimum) {
+bool sortMethodForCourse(courseOrgBySemester courseToCompare, courseOrgBySemester minimum) {
     return (courseToCompare._course.getPartecipants() < minimum._course.getPartecipants());
+}
+
+bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum) {
+    bool toReturn = false;
+    int courseToCompareVal, courseMinimumVal;
+    string courseToCompare, courseMinimum;
+
+    courseToCompare = structToCompare._assignedCourseOfStudy.substr(2, (structToCompare._assignedCourseOfStudy.size() - 2));
+    courseMinimum = minimum._assignedCourseOfStudy.substr(2, (minimum._assignedCourseOfStudy.size() - 2));
+    for (int i = 0; i < 5; ++i) {
+        courseToCompareVal += courseToCompare[i];
+        courseMinimumVal += courseMinimum[i];
+    }
+    if (stoi(structToCompare._relateCourse.substr(1, structToCompare._relateCourse.size() - 1)) < stoi(minimum._relateCourse.substr(1, minimum._relateCourse.size()))) {
+        toReturn = true;
+    } else {
+        if (stoi(structToCompare._relateCourse.substr(1, structToCompare._relateCourse.size() - 1)) == stoi(minimum._relateCourse.substr(1, minimum._relateCourse.size()))) {
+            if (stoi(structToCompare._version.substr(1, structToCompare._version.size() - 1)) < stoi(minimum._version.substr(1, minimum._version.size() - 1))) {
+                toReturn = true;
+            } else {
+                if (stoi(structToCompare._version.substr(1, structToCompare._version.size() - 1)) == stoi(minimum._version.substr(1, minimum._version.size() - 1))) {
+                    if (courseToCompareVal < courseMinimumVal) {
+                        toReturn = true;
+                    } else {
+                        toReturn = false;
+                    }
+                } else {
+                    toReturn = false;
+                }
+            }
+        } else {
+            toReturn = false;
+        }
+    }
+    return toReturn;
+}
+
+bool sortMethodForPrintWarnings(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum) {
+    bool toReturn = false;
+    int courseToCompareVal, courseMinimumVal;
+    string courseToCompare, courseMinimum;
+
+    courseToCompare = structToCompare._assignedCourseOfStudy.substr(2, (structToCompare._assignedCourseOfStudy.size() - 2));
+    courseMinimum = minimum._assignedCourseOfStudy.substr(2, (minimum._assignedCourseOfStudy.size() - 2));
+    for (int i = 0; i < 5; ++i) {
+        courseToCompareVal += courseToCompare[i];
+        courseMinimumVal += courseMinimum[i];
+    }
+    if (courseToCompareVal < courseMinimumVal) {
+        toReturn = true;
+    } else {
+        if (courseToCompareVal == courseMinimumVal) {
+            if (stoi(structToCompare._relateCourse.substr(1, structToCompare._relateCourse.size() - 1)) < stoi(minimum._relateCourse.substr(1, minimum._relateCourse.size() - 1))) {
+                toReturn = true;
+            } else {
+                toReturn = false;
+            }
+        } else {
+            toReturn = false;
+        }
+    }
+    return toReturn;
 }

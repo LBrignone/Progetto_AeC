@@ -6,7 +6,7 @@
 
 SessionScheduler::SessionScheduler(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear, list<Professor>& databaseProfessor, const list<Classroom>& databaseClassroom) {
     string errorLine;
-    vector<vector<CourseOrgBySemester>> placeHolderForCourses;
+    vector<vector<courseOrgBySemester>> placeHolderForCourses;
     vector<vector<examScheduled>> placeHolderForCalendar;
     list<Classroom> copyOfClassroomList = databaseClassroom;
     list<Classroom>::const_iterator itClassroomList;
@@ -51,10 +51,10 @@ int SessionScheduler::groupingCoursesBySemester(string& errorHandling, const lis
     t_errorCodes errorIdentifier = OK;
     int errorReturn, semesterRef;
     list<string> coursesAlreadyUsed, coursesToExtend;
-    list<CourseOrgBySemester> courseExtended;
-    vector<CourseOrgBySemester> courseExtendedVector;
+    list<courseOrgBySemester> courseExtended;
+    vector<courseOrgBySemester> courseExtendedVector;
     list<string>::const_iterator itCoursesAlreadyUsed;
-    list<CourseOrgBySemester>::const_iterator itCourseExtended;
+    list<courseOrgBySemester>::const_iterator itCourseExtended;
     list<Course>::const_iterator itInternalCourseList;
 
     itInternalCourseList = _coursesToSchedule.cbegin();
@@ -100,9 +100,9 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
     bool firstAppeal = false, secondAppeal = false;
     int day = 0, slot = 0;
     list<Professor> copyDatabaseProfessorList;
-    map<int, vector<vector<CourseOrgBySemester>>> copyOfGroupedCoursesToPlan;
+    map<int, vector<vector<courseOrgBySemester>>> copyOfGroupedCoursesToPlan;
     vector<pair<Classroom, vector<vector<examScheduled>>>> copyOfDatesPlanning;
-    vector<vector<CourseOrgBySemester>>::iterator itGroupedCourseToPlanVector;
+    vector<vector<courseOrgBySemester>>::iterator itGroupedCourseToPlanVector;
 
     copyDatabaseProfessorList = databaseProfessorList;
     copyOfDatesPlanning = _datesPlanning;
@@ -127,7 +127,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
             bool endSchedulingGroup = false, errorInScheduling = false, forcedExit = false;
             int relaxedConstrain = 0, coursesPositioned = 0, coursesPositionedMax = 0, dayMax = 0, slotMax = 0;
             int freeClassroomToUse;
-            vector<CourseOrgBySemester>::iterator itGroupedCoursesToPlanList;
+            vector<courseOrgBySemester>::iterator itGroupedCoursesToPlanList;
 
             groupNumber++;
             itGroupedCoursesToPlanList = itGroupedCourseToPlanVector->begin();
@@ -230,7 +230,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
 // this private method handles the controls of constrain 1, regarding the two days distance between courses having tha same
 // course of study, it returns TRUE if the constrain is not respected, while returns False in the opposite case
 bool SessionScheduler::constrain_1(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning, const int& dayRef,
-                                   map<int, vector<vector<CourseOrgBySemester>>>& copyCoursesForConstrainViolation,
+                                   map<int, vector<vector<courseOrgBySemester>>>& copyCoursesForConstrainViolation,
                                    const int& semesterRef, const int& groupRef, const int& courseRef) {
     bool constrain1Violated = false;
     int position = 0, positionMax = 0, slot = 0, classroom = 0;
@@ -294,7 +294,7 @@ bool SessionScheduler::constrain_1(const vector<pair<Classroom, vector<vector<ex
 // this private method returns TRUE if the rule 2 is not respected, and FALSE for the opposite outcome
 bool SessionScheduler::constrain_2(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                                    const int& dayRef, const int& slotRef, const int& constrainRelaxed,
-                                   map<int, vector<vector<CourseOrgBySemester>>>& copyCoursesForConstrainViolation,
+                                   map<int, vector<vector<courseOrgBySemester>>>& copyCoursesForConstrainViolation,
                                    const int& semesterRef, const int& groupRef, const int& courseRef) {
     bool constrain2Error = false, constrain2Violated = false;
     int position = 0, positionMax = 0, slot = 0, classroom = 0;
@@ -422,9 +422,106 @@ bool SessionScheduler::coursePositioning(vector<pair<Classroom, vector<vector<ex
     copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef]._classroom = copyOfDatesPlanning[classroomChosen].first.getId();
 }
 
-void outputSessionFile(const string fileBaseName, const int& sessionNumber) {
+void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& sessionNumber, const Date& sessionDateStartRef) {
+    int classroom = 0, day = 0, slot = 0;
     string fileCompleteName = fileBaseName + "_" + to_string(sessionNumber) + ".txt";
-    fstream fileSessionName;
+    ofstream fileSessionName;
+    Date dateToPrint(sessionDateStartRef);
+    expandedScheduleForPrint dummyElementToInsert;
+    list<expandedScheduleForPrint> dailyScheduleToSortAndPrint, previousSchedule;
+    list<string>::const_iterator itExamScheduled;
 
-    fileSessionName.open(fileCompleteName, fstream::out);
+    fileSessionName.open(fileCompleteName, ofstream::out);
+    while (day < _datesPlanning[classroom].second.size()) {
+        dateToPrint.operator<<(fileSessionName);
+        fileSessionName << endl;
+        while (slot < _datesPlanning[classroom].second[day].size()) {
+            list<expandedScheduleForPrint>::iterator itDailyScheduleToSortAndPrint, itReturnFromFindDuplicates;
+
+            if (slot == 0) {
+                dateToPrint.setHour(8);
+            }
+            dateToPrint.getTimeSlot(fileSessionName);
+            fileSessionName << ";";
+            while (classroom < _datesPlanning.size()) {
+                itExamScheduled = _datesPlanning[classroom].second[day][slot]._assignedCourseOfStudy.cbegin();
+                while (itExamScheduled != _datesPlanning[classroom].second[day][slot]._assignedCourseOfStudy.cend()) {
+                    dummyElementToInsert._assignedCourseOfStudy = *itExamScheduled;
+                    dummyElementToInsert._relateCourse = _datesPlanning[classroom].second[day][slot]._relateCourse;
+                    dummyElementToInsert._version = _datesPlanning[classroom].second[day][slot]._version;
+                    dummyElementToInsert._classroom = _datesPlanning[classroom].second[day][slot]._classroom;
+                    dailyScheduleToSortAndPrint.push_back(dummyElementToInsert);
+                    itExamScheduled++;
+                }
+                classroom++;
+            }
+            sort(dailyScheduleToSortAndPrint.begin(), dailyScheduleToSortAndPrint.end(), sortMethodForPrintSchedule);
+            if (previousSchedule.empty()) {
+                previousSchedule = dailyScheduleToSortAndPrint;
+            } else {
+                for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
+                    itReturnFromFindDuplicates = find(previousSchedule.begin(), previousSchedule.end(), *itDailyScheduleToSortAndPrint);
+                    if (itReturnFromFindDuplicates != previousSchedule.end()) {
+                        dailyScheduleToSortAndPrint.erase(itDailyScheduleToSortAndPrint);
+                    }
+                }
+            }
+            for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
+                itDailyScheduleToSortAndPrint->operator<<(fileSessionName);
+            }
+            fileSessionName << endl;
+            classroom = 0;
+            slot++;
+            dateToPrint.setHour(8 + (2 * slot));
+        }
+        slot = 0;
+        if ((day % 7) == 0) {
+            dateToPrint = dateToPrint + 2;
+        } else {
+            dateToPrint++;
+        }
+        day++;
+    }
+}
+
+void SessionScheduler::outputWarningFile(const string& fileBaseName, const int& sessionNumber) {
+    string fileCompleteName = fileBaseName + "_" + to_string(sessionNumber) + "_warnings.txt";
+    vector<expandedScheduleForPrint> copyAndExtensionOfGroupedCoursesToPlan;
+    ofstream fileSessionName;
+
+    fileSessionName.open(fileCompleteName, ofstream::out);
+    for (map<int, vector < vector < courseOrgBySemester>>>::const_iterator itGroupedCoursesToPlan = _groupedCoursesToPlan.cbegin(); itGroupedCoursesToPlan != _groupedCoursesToPlan.cend(); itGroupedCoursesToPlan++) {
+        for (vector < vector < courseOrgBySemester >> ::const_iterator itGroupOfCourses = itGroupedCoursesToPlan->second.cbegin(); itGroupOfCourses < itGroupedCoursesToPlan->second.cend(); itGroupOfCourses++) {
+            for (vector<courseOrgBySemester>::const_iterator itCourseInGroup = itGroupOfCourses->cbegin(); itCourseInGroup != itGroupOfCourses->cend(); itCourseInGroup++) {
+                for (list<pair<string, bool>>::const_iterator itCourseOfStudyList = itCourseInGroup->_assignedCourseOfStudy.cbegin(); itCourseOfStudyList != itCourseInGroup->_assignedCourseOfStudy.cend(); itCourseOfStudyList++) {
+                    expandedScheduleForPrint dummyElementToInsert;
+
+                    dummyElementToInsert._assignedCourseOfStudy = itCourseOfStudyList->first;
+                    dummyElementToInsert._relateCourse = itCourseInGroup->_course.getId();
+                    if (itCourseOfStudyList->second) {
+                        dummyElementToInsert._constrainDeactivevated[0] = true;
+                    }
+                    if (itCourseInGroup->_constrainDeactivevated[2]) {
+                        dummyElementToInsert._constrainDeactivevated[1] = true;
+                    }
+                    if (itCourseInGroup->_constrainDeactivevated[3]) {
+                        dummyElementToInsert._constrainDeactivevated[2] = true;
+                    }
+                    if (itCourseInGroup->_constrainDeactivevated[4]) {
+                        dummyElementToInsert._constrainDeactivevated[3] = true;
+                    }
+                    copyAndExtensionOfGroupedCoursesToPlan.push_back(dummyElementToInsert);
+                }
+            }
+        }
+    }
+    sort(copyAndExtensionOfGroupedCoursesToPlan.begin(), copyAndExtensionOfGroupedCoursesToPlan.end(), sortMethodForPrintWarnings);
+    for (vector<expandedScheduleForPrint>::const_iterator itCopyAndExtensionOfGroupedCoursesToPlan = copyAndExtensionOfGroupedCoursesToPlan.cbegin(); itCopyAndExtensionOfGroupedCoursesToPlan != copyAndExtensionOfGroupedCoursesToPlan.cend(); itCopyAndExtensionOfGroupedCoursesToPlan++) {
+        for (int i = 0; i < 4; i++) {
+            if (itCopyAndExtensionOfGroupedCoursesToPlan->_constrainDeactivevated[i]) {
+                fileSessionName << itCopyAndExtensionOfGroupedCoursesToPlan->_assignedCourseOfStudy << ";" <<
+                                itCopyAndExtensionOfGroupedCoursesToPlan->_relateCourse << ";" << to_string(i + 1) << endl;
+            }
+        }
+    }
 }

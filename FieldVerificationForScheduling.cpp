@@ -206,11 +206,11 @@ list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedu
 // this function is used to verify the consistency of a grouped course's list with regard to course's semester with other
 // courses in the list and the rule that impose 2 days distance between courses organized in the same course of study, other
 // than create the expanded list of courses related with the version and course of study
-int groupedCoursesVerification(string& errorHandling, const list<string>& groupedCourses, const list<Course>& coursesToSchedule, const list<CourseOfStudy>& databaseCourseOfStudy, list<CourseOrgBySemester>& courseListToSchedule, int& semester) {
+int groupedCoursesVerification(string& errorHandling, const list<string>& groupedCourses, const list<Course>& coursesToSchedule, const list<CourseOfStudy>& databaseCourseOfStudy, list<courseOrgBySemester>& courseListToSchedule, int& semester) {
     t_errorCodes errorIdentifier = OK;
     int numberOfVersions;
     string errorLine;
-    CourseOrgBySemester elementListStructGroupedCourse;
+    courseOrgBySemester elementListStructGroupedCourse;
     list<string> courseOfStudyRelatedToCourse, cumulativeCourseOfStudyToCompare;
     list<string>::const_iterator itGroupedCourses, itCourseOfStudyRelatedToCourse;
     list<Course>::const_iterator  itCoursesToSchedule;

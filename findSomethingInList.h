@@ -6,6 +6,8 @@
 #define PROGETTO_FINDSOMETHINGINLIST_H
 
 #include <list>
+#include <string>
+#include <iostream>
 #include <algorithm>
 
 #include "Date.h"
@@ -40,14 +42,16 @@ Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
 
 bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<examScheduled>>>>& planningToSearchIn, const list<string>& courseOfStudyToFind, const int& dayRefPosition);
 
-bool findDistancesecondSession();
-
 bool comp(Professor professorToCompare, Professor minimum);
 
 bool sortMethodForProf(Professor professorToCompare, Professor minimum);
 
 bool sortMethodForClassroom(Classroom classroomToCompare, Classroom minimum);
 
-bool sortMethodForCourse(CourseOrgBySemester courseToCompare, CourseOrgBySemester minimum);
+bool sortMethodForCourse(courseOrgBySemester courseToCompare, courseOrgBySemester minimum);
+
+bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum);
+
+bool sortMethodForPrintWarnings(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum);
 
 #endif //PROGETTO_FINDSOMETHINGINLIST_H

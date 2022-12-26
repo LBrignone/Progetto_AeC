@@ -24,7 +24,7 @@ bool classroomFieldVerification(string& errorHandling, const list<Classroom>& da
 
 list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedule, const string& idToFind);
 
-int groupedCoursesVerification(string& errorHandling, const list<string>& groupedCourses, const list<Course>& coursesToSchedule, const list<CourseOfStudy>& databaseCourseOfStudy, list<CourseOrgBySemester>& courseListToSchedule, int& semester);
+int groupedCoursesVerification(string& errorHandling, const list<string>& groupedCourses, const list<Course>& coursesToSchedule, const list<CourseOfStudy>& databaseCourseOfStudy, list<courseOrgBySemester>& courseListToSchedule, int& semester);
 
 void myUnique(list<string>& courseList);
 
