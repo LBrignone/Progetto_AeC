@@ -2,7 +2,7 @@
 // Created by Luca Brignone on 27/08/22.
 //
 
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 
 // STUDENT
 // given the id of a student a search in the student list is performed by mean of the given id
@@ -313,34 +313,22 @@ bool sortMethodForCourse(courseOrgBySemester courseToCompare, courseOrgBySemeste
 
 bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum) {
     bool toReturn = false;
-    int courseToCompareVal, courseMinimumVal;
-    string courseToCompare, courseMinimum;
 
-    courseToCompare = structToCompare._assignedCourseOfStudy.substr(2, (structToCompare._assignedCourseOfStudy.size() - 2));
-    courseMinimum = minimum._assignedCourseOfStudy.substr(2, (minimum._assignedCourseOfStudy.size() - 2));
-    for (int i = 0; i < 5; ++i) {
-        courseToCompareVal += courseToCompare[i];
-        courseMinimumVal += courseMinimum[i];
-    }
-    if (stoi(structToCompare._relateCourse.substr(1, structToCompare._relateCourse.size() - 1)) < stoi(minimum._relateCourse.substr(1, minimum._relateCourse.size()))) {
+    if (structToCompare._relateCourse.compare(minimum._relateCourse) < 0) {
         toReturn = true;
+    } else if (structToCompare._relateCourse.compare(minimum._relateCourse) > 0) {
+        toReturn = false;
     } else {
-        if (stoi(structToCompare._relateCourse.substr(1, structToCompare._relateCourse.size() - 1)) == stoi(minimum._relateCourse.substr(1, minimum._relateCourse.size()))) {
-            if (stoi(structToCompare._version.substr(1, structToCompare._version.size() - 1)) < stoi(minimum._version.substr(1, minimum._version.size() - 1))) {
+        if (structToCompare._version.compare(minimum._version) < 0) {
+            toReturn = true;
+        } else if (structToCompare._version.compare(minimum._version) > 0) {
+            toReturn = false;
+        } else {
+            if (structToCompare._assignedCourseOfStudy.compare(minimum._assignedCourseOfStudy) < 0) {
                 toReturn = true;
             } else {
-                if (stoi(structToCompare._version.substr(1, structToCompare._version.size() - 1)) == stoi(minimum._version.substr(1, minimum._version.size() - 1))) {
-                    if (courseToCompareVal < courseMinimumVal) {
-                        toReturn = true;
-                    } else {
-                        toReturn = false;
-                    }
-                } else {
-                    toReturn = false;
-                }
+                toReturn = false;
             }
-        } else {
-            toReturn = false;
         }
     }
     return toReturn;
@@ -348,27 +336,25 @@ bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare,
 
 bool sortMethodForPrintWarnings(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum) {
     bool toReturn = false;
-    int courseToCompareVal, courseMinimumVal;
-    string courseToCompare, courseMinimum;
 
-    courseToCompare = structToCompare._assignedCourseOfStudy.substr(2, (structToCompare._assignedCourseOfStudy.size() - 2));
-    courseMinimum = minimum._assignedCourseOfStudy.substr(2, (minimum._assignedCourseOfStudy.size() - 2));
-    for (int i = 0; i < 5; ++i) {
-        courseToCompareVal += courseToCompare[i];
-        courseMinimumVal += courseMinimum[i];
-    }
-    if (courseToCompareVal < courseMinimumVal) {
+    if (structToCompare._assignedCourseOfStudy.compare(minimum._assignedCourseOfStudy) < 0) {
         toReturn = true;
+    } else if (structToCompare._assignedCourseOfStudy.compare(minimum._assignedCourseOfStudy) > 0) {
+        toReturn = false;
     } else {
-        if (courseToCompareVal == courseMinimumVal) {
-            if (stoi(structToCompare._relateCourse.substr(1, structToCompare._relateCourse.size() - 1)) < stoi(minimum._relateCourse.substr(1, minimum._relateCourse.size() - 1))) {
-                toReturn = true;
-            } else {
-                toReturn = false;
-            }
+        if (structToCompare._relateCourse.compare(minimum._relateCourse) < 0) {
+            toReturn = true;
         } else {
             toReturn = false;
         }
     }
     return toReturn;
+}
+
+int approXimationFunct(const int& rightVal, const int& leftVal) {
+    int tmp = rightVal/leftVal, resto = rightVal % leftVal;
+    if (resto != 0) {
+        tmp += 1;
+    }
+    return tmp;
 }

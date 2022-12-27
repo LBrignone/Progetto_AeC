@@ -22,7 +22,7 @@
 #include "Classroom.h"
 #include "CourseOfStudy.h"
 #include "ErrorHandling.h"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 #include "PatternConstrainVerification.h"
 
 using namespace std;

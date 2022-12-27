@@ -2,7 +2,7 @@
 // Created by Luca Brignone on 14/10/22.
 //
 
-#include "schedulingChecks.h"
+#include "SchedulingChecks.h"
 
 int courseIdISInSemester(const string& idToFind, const int& semesterSession, const list<CourseOfStudy>& courseOfStudyList) {
     t_errorCodes coherencyTest = OK;

@@ -54,4 +54,6 @@ bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare,
 
 bool sortMethodForPrintWarnings(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum);
 
+int approXimationFunct(const int& rightVal, const int& leftVal);
+
 #endif //PROGETTO_FINDSOMETHINGINLIST_H

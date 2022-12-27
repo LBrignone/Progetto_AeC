@@ -15,7 +15,7 @@
 #include "Professor.h"
 #include "CourseOfStudy.h"
 #include "FillDatabaseList.h"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 #include "PatternConstrainVerification.h"
 
 int CourseToInsertFile(string& errorHandling, const string& courseFileName, list<Course>& databaseCourseList, list<Professor>& professorList, list<CourseOfStudy>& courseOfStudy);

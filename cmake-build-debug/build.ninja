@@ -106,8 +106,8 @@ build CMakeFiles/Progetto.dir/AddFileHandling.cpp.o: CXX_COMPILER__Progetto_Debu
   OBJECT_DIR = CMakeFiles/Progetto.dir
   OBJECT_FILE_DIR = CMakeFiles/Progetto.dir
 
-build CMakeFiles/Progetto.dir/findSomethingInList.cpp.o: CXX_COMPILER__Progetto_Debug /Users/lucabrignone/CLionProjects/Progetto/findSomethingInList.cpp || cmake_object_order_depends_target_Progetto
-  DEP_FILE = CMakeFiles/Progetto.dir/findSomethingInList.cpp.o.d
+build CMakeFiles/Progetto.dir/FindSomethingInList.cpp.o: CXX_COMPILER__Progetto_Debug /Users/lucabrignone/CLionProjects/Progetto/FindSomethingInList.cpp || cmake_object_order_depends_target_Progetto
+  DEP_FILE = CMakeFiles/Progetto.dir/FindSomethingInList.cpp.o.d
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++14
   OBJECT_DIR = CMakeFiles/Progetto.dir
   OBJECT_FILE_DIR = CMakeFiles/Progetto.dir
@@ -148,8 +148,8 @@ build CMakeFiles/Progetto.dir/ErrorHandling.cpp.o: CXX_COMPILER__Progetto_Debug 
   OBJECT_DIR = CMakeFiles/Progetto.dir
   OBJECT_FILE_DIR = CMakeFiles/Progetto.dir
 
-build CMakeFiles/Progetto.dir/schedulingChecks.cpp.o: CXX_COMPILER__Progetto_Debug /Users/lucabrignone/CLionProjects/Progetto/schedulingChecks.cpp || cmake_object_order_depends_target_Progetto
-  DEP_FILE = CMakeFiles/Progetto.dir/schedulingChecks.cpp.o.d
+build CMakeFiles/Progetto.dir/SchedulingChecks.cpp.o: CXX_COMPILER__Progetto_Debug /Users/lucabrignone/CLionProjects/Progetto/SchedulingChecks.cpp || cmake_object_order_depends_target_Progetto
+  DEP_FILE = CMakeFiles/Progetto.dir/SchedulingChecks.cpp.o.d
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++14
   OBJECT_DIR = CMakeFiles/Progetto.dir
   OBJECT_FILE_DIR = CMakeFiles/Progetto.dir
@@ -174,7 +174,7 @@ build CMakeFiles/Progetto.dir/SessionScheduler.cpp.o: CXX_COMPILER__Progetto_Deb
 #############################################
 # Link the executable Progetto
 
-build Progetto: CXX_EXECUTABLE_LINKER__Progetto_Debug CMakeFiles/Progetto.dir/main.cpp.o CMakeFiles/Progetto.dir/Person.cpp.o CMakeFiles/Progetto.dir/Professor.cpp.o CMakeFiles/Progetto.dir/Date.cpp.o CMakeFiles/Progetto.dir/Student.cpp.o CMakeFiles/Progetto.dir/Classroom.cpp.o CMakeFiles/Progetto.dir/AssociateProfessor.cpp.o CMakeFiles/Progetto.dir/Course.cpp.o CMakeFiles/Progetto.dir/CourseOfStudy.cpp.o CMakeFiles/Progetto.dir/AddFileHandling.cpp.o CMakeFiles/Progetto.dir/findSomethingInList.cpp.o CMakeFiles/Progetto.dir/PatternConstrainVerification.cpp.o CMakeFiles/Progetto.dir/UpdateFileHandling.cpp.o CMakeFiles/Progetto.dir/InsertFileHandling.cpp.o CMakeFiles/Progetto.dir/FillDatabaseList.cpp.o CMakeFiles/Progetto.dir/OutputOnDatabaseHandling.cpp.o CMakeFiles/Progetto.dir/ErrorHandling.cpp.o CMakeFiles/Progetto.dir/schedulingChecks.cpp.o CMakeFiles/Progetto.dir/FieldVerificationForScheduling.cpp.o CMakeFiles/Progetto.dir/SessionScheduler.cpp.o
+build Progetto: CXX_EXECUTABLE_LINKER__Progetto_Debug CMakeFiles/Progetto.dir/main.cpp.o CMakeFiles/Progetto.dir/Person.cpp.o CMakeFiles/Progetto.dir/Professor.cpp.o CMakeFiles/Progetto.dir/Date.cpp.o CMakeFiles/Progetto.dir/Student.cpp.o CMakeFiles/Progetto.dir/Classroom.cpp.o CMakeFiles/Progetto.dir/AssociateProfessor.cpp.o CMakeFiles/Progetto.dir/Course.cpp.o CMakeFiles/Progetto.dir/CourseOfStudy.cpp.o CMakeFiles/Progetto.dir/AddFileHandling.cpp.o CMakeFiles/Progetto.dir/FindSomethingInList.cpp.o CMakeFiles/Progetto.dir/PatternConstrainVerification.cpp.o CMakeFiles/Progetto.dir/UpdateFileHandling.cpp.o CMakeFiles/Progetto.dir/InsertFileHandling.cpp.o CMakeFiles/Progetto.dir/FillDatabaseList.cpp.o CMakeFiles/Progetto.dir/OutputOnDatabaseHandling.cpp.o CMakeFiles/Progetto.dir/ErrorHandling.cpp.o CMakeFiles/Progetto.dir/SchedulingChecks.cpp.o CMakeFiles/Progetto.dir/FieldVerificationForScheduling.cpp.o CMakeFiles/Progetto.dir/SessionScheduler.cpp.o
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
   OBJECT_DIR = CMakeFiles/Progetto.dir
   POST_BUILD = :

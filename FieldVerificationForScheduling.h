@@ -12,7 +12,7 @@
 #include "CourseOfStudy.h"
 #include "ErrorHandling.h"
 #include "SessionScheduler.h"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 
 using namespace std;
 

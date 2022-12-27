@@ -126,7 +126,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
         for (itGroupedCourseToPlanVector = copyOfGroupedCoursesToPlan[semesterToSchedule].begin(); itGroupedCourseToPlanVector != copyOfGroupedCoursesToPlan[semesterToSchedule].end(); itGroupedCourseToPlanVector++) {
             bool endSchedulingGroup = false, errorInScheduling = false, forcedExit = false;
             int relaxedConstrain = 0, coursesPositioned = 0, coursesPositionedMax = 0, dayMax = 0, slotMax = 0;
-            int freeClassroomToUse;
+            int freeClassroomToUse = 0;
             vector<courseOrgBySemester>::iterator itGroupedCoursesToPlanList;
 
             groupNumber++;
@@ -385,7 +385,7 @@ bool SessionScheduler::constrain_3(const vector<pair<Classroom, vector<vector<ex
 bool SessionScheduler::constrain_4(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                                    const Course& courseToInsert, const int& dayRef, const int& slotRef, int& classroomChosen) {
     bool coursePositioned = false;
-    int classroom = -2, slot = slotRef, slotOccupancy = 0, slotOccupancyMax = ceil((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()) / 2);
+    int classroom = 0, slot = slotRef, slotOccupancy = 0, slotOccupancyMax = approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 2);
 
     while (classroom < copyOfDatesPlanning.size()) {
         if (courseToInsert.getPartecipants() <= copyOfDatesPlanning[classroom].first.getCapacity()){
@@ -416,15 +416,17 @@ bool SessionScheduler::constrain_4(const vector<pair<Classroom, vector<vector<ex
 
 bool SessionScheduler::coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                                          const Course& courseToInsert, const int& classroomChosen, const int& dayRef, const int& slotRef) {
-    copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef]._relateCourse = courseToInsert.getId();
-    copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef]._version = courseToInsert.getParallelCoursesId();
-    copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef]._assignedCourseOfStudy = courseToInsert.getListGroupedId();
-    copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef]._classroom = copyOfDatesPlanning[classroomChosen].first.getId();
+    for (int i = 0; i < approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 2); i++) {
+        copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._relateCourse = courseToInsert.getId();
+        copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._version = courseToInsert.getParallelCoursesId();
+        copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._assignedCourseOfStudy = courseToInsert.getListGroupedId();
+        copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._classroom = copyOfDatesPlanning[classroomChosen].first.getId();
+    }
 }
 
 void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& sessionNumber, const Date& sessionDateStartRef) {
     int classroom = 0, day = 0, slot = 0;
-    string fileCompleteName = fileBaseName + "_" + to_string(sessionNumber) + ".txt";
+    string fileCompleteName = fileBaseName + "_s" + to_string(sessionNumber) + ".txt";
     ofstream fileSessionName;
     Date dateToPrint(sessionDateStartRef);
     expandedScheduleForPrint dummyElementToInsert;
@@ -440,6 +442,7 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
 
             if (slot == 0) {
                 dateToPrint.setHour(8);
+                previousSchedule.clear();
             }
             dateToPrint.getTimeSlot(fileSessionName);
             fileSessionName << ";";
@@ -458,16 +461,18 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
             sort(dailyScheduleToSortAndPrint.begin(), dailyScheduleToSortAndPrint.end(), sortMethodForPrintSchedule);
             if (previousSchedule.empty()) {
                 previousSchedule = dailyScheduleToSortAndPrint;
+                for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
+                    itDailyScheduleToSortAndPrint->operator<<(fileSessionName);
+                }
             } else {
                 for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
                     itReturnFromFindDuplicates = find(previousSchedule.begin(), previousSchedule.end(), *itDailyScheduleToSortAndPrint);
                     if (itReturnFromFindDuplicates != previousSchedule.end()) {
-                        dailyScheduleToSortAndPrint.erase(itDailyScheduleToSortAndPrint);
+                        fileSessionName << ";";
+                    } else {
+                        itDailyScheduleToSortAndPrint->operator<<(fileSessionName);
                     }
                 }
-            }
-            for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
-                itDailyScheduleToSortAndPrint->operator<<(fileSessionName);
             }
             fileSessionName << endl;
             classroom = 0;
@@ -475,12 +480,12 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
             dateToPrint.setHour(8 + (2 * slot));
         }
         slot = 0;
-        if ((day % 7) == 0) {
+        day++;
+        if ((day % 6) == 0) {
             dateToPrint = dateToPrint + 2;
         } else {
             dateToPrint++;
         }
-        day++;
     }
 }
 

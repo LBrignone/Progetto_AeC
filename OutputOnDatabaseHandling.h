@@ -17,7 +17,7 @@
 #include "Classroom.h"
 #include "CourseOfStudy.h"
 #include "ErrorHandling.h"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 
 using namespace std;
 

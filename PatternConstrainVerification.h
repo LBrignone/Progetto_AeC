@@ -16,7 +16,7 @@
 #include "Professor.h"
 #include "CourseOfStudy.h"
 #include "AssociateProfessor.h"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 
 using namespace std;
 

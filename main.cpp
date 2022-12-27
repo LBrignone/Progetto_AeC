@@ -1,8 +1,10 @@
 #include <map>
 #include <list>
+#include <regex>
 #include <vector>
 #include <string>
 #include <iostream>
+#include <stdexcept>
 #include <algorithm>
 
 #include "Date.h"
@@ -318,14 +320,21 @@ int main(int argc, char** argv) {
                     }
                 } else {
                     errorIdentifier = ERR_wrong_identifier;
-                    errorLine = "Error: no matching action for command identifier: " + commandIdentifier + " " +
+                    errorLine = "ERROR: no matching action for command identifier: " + commandIdentifier + " " +
                                 actionIdentifier;
                 }
                 break;
             }
             case 'g': {
-                academicYear.setYear()
-                academicYearFromCommandLine = academicYearFromCommandLine.substr(0, 4);
+                regex rePattern("\\w*\\.txt");
+                try {
+                    academicYear.setYear(stoi(academicYearFromCommandLine.substr(0, 4)));
+                }
+                catch (const invalid_argument& excepFromStoi) {
+                    errorIdentifier = ERR_stoi_conversion;
+                    errorLine = "ERROR: can't convert academic year given for exam's scheduling to int";
+                }
+                if ()
                 for (int i = 0; i < 3; i++) {
                 }
                 break;

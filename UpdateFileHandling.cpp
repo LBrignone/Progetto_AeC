@@ -42,7 +42,7 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                                         }
                                         patternfield++;
                                     }
-                                    catch (const invalid_argument &excepFromStoi) {
+                                    catch (const invalid_argument& excepFromStoi) {
                                         errorIdentifier = ERR_stoi_conversion;
                                         errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                                         " can't convert student id number to int";

@@ -199,7 +199,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "findSomethingInList.cpp",
+			"path" : "FindSomethingInList.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -241,7 +241,7 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "schedulingChecks.cpp",
+			"path" : "SchedulingChecks.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

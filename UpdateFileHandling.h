@@ -13,7 +13,7 @@
 #include "Student.h"
 #include "Classroom.h"
 #include "Professor.h"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 
 using namespace std;
 

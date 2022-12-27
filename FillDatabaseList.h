@@ -9,7 +9,7 @@
 
 #include "Course.h"
 #include "AssociateProfessor.h"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 #include "PatternConstrainVerification.h"
 
 using namespace std;

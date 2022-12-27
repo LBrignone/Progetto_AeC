@@ -20,7 +20,7 @@
 #include "Classroom.h"
 #include "CourseOfStudy.h"
 #include "ConstConversion.hpp"
-#include "findSomethingInList.h"
+#include "FindSomethingInList.h"
 #include "FieldVerificationForScheduling.h"
 
 #define CONSTRAIN_1_DISTANCE 2
@@ -30,7 +30,7 @@
 
 using namespace std;
 
-typedef struct {
+typedef struct examScheduled{
     list<string> _assignedCourseOfStudy;
     string _relateCourse;
     string _version;
@@ -45,7 +45,7 @@ typedef struct {
     }
 } examScheduled;
 
-typedef struct {
+typedef struct courseOrgBySemester{
     Course _course;
     list<pair<string, bool>> _assignedCourseOfStudy;
     vector<bool> _constrainDeactivevated = {false, false, false, false, false};
@@ -58,7 +58,7 @@ typedef struct {
     bool operator <(const CourseOrgBySemester& toCompare) {return (this._course.getPartecipants()) < toCompare._course.getPartecipants();}
 } courseOrgBySemester;
 
-struct expandedScheduleForPrint {
+typedef struct expandedScheduleForPrint{
     string _assignedCourseOfStudy;
     string _relateCourse;
     string _version;
@@ -71,7 +71,7 @@ struct expandedScheduleForPrint {
         os << _relateCourse << "[" << _version << "]" << "(" << _assignedCourseOfStudy << ")|" << _classroom << ";";
         return os;
     }
-};
+} expandedScheduleForPrint;
 
 class SessionScheduler {
 public:
