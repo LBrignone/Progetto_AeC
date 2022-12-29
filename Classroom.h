@@ -39,8 +39,8 @@ private:
     string _id;
     char _type = '\0';
     string _classroomName;
-    int _capacity = 0;
-    int _examCapacity = 0;
+    int _capacity = -1;
+    int _examCapacity = -1;
     vector<bool> _hourSlotOccupation = {false, false, false, false, false, false};
 };
 

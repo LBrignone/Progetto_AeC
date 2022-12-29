@@ -4,7 +4,11 @@
 
 #include "SessionScheduler.h"
 
-SessionScheduler::SessionScheduler(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear, list<Professor>& databaseProfessor, const list<Classroom>& databaseClassroom) {
+SessionScheduler::SessionScheduler(string& errorHandling, const int& refAcademicYear,
+                                   const list<Course>& databaseCourses, list<Professor>& databaseProfessor,
+                                   const list<Classroom>& databaseClassroom,
+                                   const list<CourseOfStudy>& databaseCourseOfStudy, const Date& startRef,
+                                   const Date& stopRef, const int& sessionNumber) {
     string errorLine;
     vector<vector<courseOrgBySemester>> placeHolderForCourses;
     vector<vector<examScheduled>> placeHolderForCalendar;
@@ -12,15 +16,28 @@ SessionScheduler::SessionScheduler(string& errorHandling, const list<Course>& da
     list<Classroom>::const_iterator itClassroomList;
 
     if (this->coursesForGivenAcademicYear(errorLine, databaseCourses, refAcademicYear, databaseProfessor)) {
-        errorHandling = "ERROR: can't construct the class \"SessionScheduler\"\n" + errorLine;
-    }
-    for (int i = -1; i < 2; i++) {
-        _groupedCoursesToPlan[i] = placeHolderForCourses;
-    }
-
-    copyOfClassroomList.sort(sortMethodForClassroom);
-    for (itClassroomList = copyOfClassroomList.cbegin(); itClassroomList != copyOfClassroomList.cend(); itClassroomList++) {
-        _datesPlanning.emplace_back(*itClassroomList, placeHolderForCalendar);
+        errorHandling = "ERROR: can't construct object \"SessionScheduler\"\n" + errorLine;
+    } else {
+        if (this->groupingCoursesBySemester(errorLine, databaseCourseOfStudy) == OK) {
+            if (!classroomFieldVerification(errorLine, databaseClassroom)) {
+                errorHandling = "ERROR: can't construct object \"SessionScheduler\"\n" + errorLine;
+            } else {
+                copyOfClassroomList.sort(sortMethodForClassroom);
+                for (itClassroomList = copyOfClassroomList.cbegin();
+                     itClassroomList != copyOfClassroomList.cend(); itClassroomList++) {
+                    _datesPlanning.emplace_back(*itClassroomList, placeHolderForCalendar);
+                }
+                if (this->sessionScheduleFromDate(errorLine, startRef, stopRef, sessionNumber)) {
+                    for (int i = -1; i < 2; i++) {
+                        _groupedCoursesToPlan[i] = placeHolderForCourses;
+                    }
+                } else {
+                    errorHandling = "ERROR: can't construct object \"SessionScheduler\"\n" + errorLine;
+                }
+            }
+        } else {
+            errorHandling = "ERROR: can't construct object \"SessionScheduler\"\n" + errorLine;
+        }
     }
 }
 
@@ -79,8 +96,7 @@ int SessionScheduler::groupingCoursesBySemester(string& errorHandling, const lis
     return errorIdentifier;
 }
 
-int SessionScheduler::sessionScheduleFromDate(string& errorHandling, const Date& startDate, const Date& stopDate, const int& sessionNumber) {
-    t_errorCodes errorIdentifier;
+bool SessionScheduler::sessionScheduleFromDate(string& errorHandling, const Date& startDate, const Date& stopDate, const int& sessionNumber) {
     bool errorInScheduling = false;
     int sessionDuration;
     vector<examScheduled> dummyElementForInit(5);
@@ -88,12 +104,14 @@ int SessionScheduler::sessionScheduleFromDate(string& errorHandling, const Date&
 
     sessionDuration = stopDate - startDate + 1 - ((stopDate - startDate + 1) / 7);
     if (sessionDuration < 13) {
-        errorHandling = "ERRROR:  ";
-        errorIdentifier = ERR_exam_scheduling;
+        errorHandling = "ERROR: the session duration doesn't guarantee the possibility of placing the second appeal and other semester's courses";
+        errorInScheduling = true;
+    } else {
+        for (itDatesPlanning = _datesPlanning.begin(); itDatesPlanning != _datesPlanning.end(); itDatesPlanning++) {
+            itDatesPlanning->second.insert(itDatesPlanning->second.end(), sessionDuration, dummyElementForInit);
+        }
     }
-    for (itDatesPlanning = _datesPlanning.begin(); itDatesPlanning != _datesPlanning.end(); itDatesPlanning++) {
-        itDatesPlanning->second.insert(itDatesPlanning->second.end(), sessionDuration, dummyElementForInit);
-    }
+    return !errorInScheduling;
 }
 
 void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const int& semesterToSchedule, const Date& startDate, list<Professor>& databaseProfessorList, const int& academicYearRef) {

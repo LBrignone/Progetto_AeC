@@ -231,7 +231,7 @@ int groupedCoursesVerification(string& errorHandling, const list<string>& groupe
             // here the proper controls are performed regarding the coherency and proper memorization regarding the semester
             if (semester == -2) {
                 if (courseOfStudyRelatedToCourse.back() == "-1") {
-                    semester = stoi(courseOfStudyRelatedToCourse.back());
+                    semester = -1;
                     courseOfStudyRelatedToCourse.pop_back();
                     courseOfStudyRelatedToCourse.pop_back();
                 } else {
@@ -250,6 +250,7 @@ int groupedCoursesVerification(string& errorHandling, const list<string>& groupe
                 courseOfStudyRelatedToCourse.pop_back();
             }
         } else if (itCoursesToSchedule->isActiveCourse()) {
+            // in case the course is active the first semester is "0" and the second is "1"
             // here the course is active, but the last element proposes an inactive status hence a pop is done and the new last
             // element is taken into account controlling if it's valid and the coherent with previous course's semester
             courseOfStudyRelatedToCourse.pop_back();

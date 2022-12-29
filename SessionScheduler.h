@@ -76,20 +76,22 @@ typedef struct expandedScheduleForPrint{
 class SessionScheduler {
 public:
     SessionScheduler() {};
-    SessionScheduler(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear,
-                     list<Professor>& databaseProfessor, const list<Classroom>& databaseClassroom);
+    SessionScheduler(string& errorHandling, const int& refAcademicYear,
+                     const list<Course>& databaseCourses, list<Professor>& databaseProfessor,
+                     const list<Classroom>& databaseClassroom,
+                     const list<CourseOfStudy>& databaseCourseOfStudy, const Date& startRef,
+                     const Date& stopRef, const int& sessionNumber);
     ~SessionScheduler() {};
-    bool coursesForGivenAcademicYear(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear,
-                                     list<Professor>& databaseProfessor);
-    int groupingCoursesBySemester(string& errorHandling, const list<CourseOfStudy>& databaseCourseOfStudy);
-    int sessionScheduleFromDate(string& errorHandling, const Date& startDate, const Date& stopDate, const int& sessionNumber);
-    void outputSessionFile(const string& fileBaseName, const int& sessionNumber, const Date& sessionDateStartRef);
-    void outputWarningFile(const string& fileBaseName, const int& sessionNumber);
-    ostream& operator <<(ostream& os) const;
-private:
     void groupedCoursesScheduling(const int& sessionNumber, const int& semesterToSchedule,
                                   const Date& startDate, list<Professor>& databaseProfessorList,
                                   const int& academicYearRef);
+    void outputSessionFile(const string& fileBaseName, const int& sessionNumber, const Date& sessionDateStartRef);
+    void outputWarningFile(const string& fileBaseName, const int& sessionNumber);
+private:
+    bool coursesForGivenAcademicYear(string& errorHandling, const list<Course>& databaseCourses, const int& refAcademicYear,
+                                     list<Professor>& databaseProfessor);
+    int groupingCoursesBySemester(string& errorHandling, const list<CourseOfStudy>& databaseCourseOfStudy);
+    bool sessionScheduleFromDate(string& errorHandling, const Date& startDate, const Date& stopDate, const int& sessionNumber);
     bool constrain_1(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                      const int& dayRef,
                      map<int, vector<vector<courseOrgBySemester>>>& copyCoursesForConstrainViolation,

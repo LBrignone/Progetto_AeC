@@ -1,11 +1,9 @@
 #include <map>
 #include <list>
-#include <regex>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <stdexcept>
-#include <algorithm>
 
 #include "Date.h"
 #include "Course.h"
@@ -31,16 +29,17 @@ using namespace std;
 
 int main(int argc, char** argv) {
     t_errorCodes errorIdentifier = OK;
-    int functionReturn = OK, funcReturnDbFile = OK;
+    bool okSchedule = true;
+    int functionReturn = OK, funcReturnDbFile = OK, academicYearInt;
     string commandIdentifier, actionIdentifier, fileNameFromCommandLine, academicYearFromCommandLine, academicYearFromCommandLineAndExamPeriod;
-    string errorLine;
+    string errorLine, errorLineDummy;
     Date academicYear;
-    list<Student> listOfStudents;
-    list<Professor> listOfProfessors;
-    list<Classroom> listOfClassrooms;
-    list<Course> listOfCourses;
-    list<CourseOfStudy> listOfCoursesOfStudy;
-    map<Date, vector<Date>> mapOfExamSession;
+    list<Student> databaseOfStudents;
+    list<Professor> databaseOfProfessors;
+    list<Classroom> databaseOfClassrooms;
+    list<Course> databaseOfCourses;
+    list<CourseOfStudy> databaseOfCoursesOfStudy;
+    map<Date, vector<Date>> databaseOfExamSession;
 
     if (argc < 3) {
         errorIdentifier = ERR_arguments_number;
@@ -86,79 +85,84 @@ int main(int argc, char** argv) {
                 switch (commandIdentifier[3]) {
                     case 's': {
                         if (fileNameFromCommandLine == studentDatabaseName) {
-                            funcReturnDbFile = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, true);
+                            funcReturnDbFile = StudentInputFile(errorLine, fileNameFromCommandLine, databaseOfStudents, true);
                         } else {
-                            funcReturnDbFile = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
+                            funcReturnDbFile = StudentInputFile(errorLine, studentDatabaseName, databaseOfStudents, true);
                             if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
                                 (funcReturnDbFile == ERR_empty_file)) {
-                                functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, listOfStudents, false);
+                                funcReturnDbFile = OK;
+                                functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, databaseOfStudents, false);
                             }
                         }
                         if (functionReturn == OK || functionReturn == ERR_not_found) {
-                            functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
+                            functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, databaseOfStudents);
                         }
                         break;
                     }
                     case 'd': {
                         if (fileNameFromCommandLine == professorDatabaseName) {
-                            funcReturnDbFile = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, true);
+                            funcReturnDbFile = ProfessorInputFile(errorLine, fileNameFromCommandLine, databaseOfProfessors, true);
                         } else {
-                            funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                            funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, databaseOfProfessors, true);
                             if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
                                 (funcReturnDbFile == ERR_empty_file)) {
-                                functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, listOfProfessors, false);
+                                funcReturnDbFile = OK;
+                                functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, databaseOfProfessors, false);
                             }
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, listOfProfessors);
+                            functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, databaseOfProfessors);
                         }
                         break;
                     }
                     case 'a': {
                         if (fileNameFromCommandLine == classroomDatabaseName) {
-                            funcReturnDbFile = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, true);
+                            funcReturnDbFile = ClassroomInputFile(errorLine, fileNameFromCommandLine, databaseOfClassrooms, true);
                         } else {
-                            funcReturnDbFile = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
+                            funcReturnDbFile = ClassroomInputFile(errorLine, classroomDatabaseName, databaseOfClassrooms, true);
                             if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
                                 (funcReturnDbFile == ERR_empty_file)) {
-                                functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, listOfClassrooms, false);
+                                funcReturnDbFile = OK;
+                                functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, databaseOfClassrooms, false);
                             }
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, listOfClassrooms);
+                            functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, databaseOfClassrooms);
                         }
                         break;
                     }
                     case 'c': {
                         // it is necessary to recall in first place the professor's database, because it will be used when reading the course's database
                         // and perform proper controls, BUT if the file exists or not is not a binding condition
-                        ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                        ProfessorInputFile(errorLine, professorDatabaseName, databaseOfProfessors, true);
                         if (fileNameFromCommandLine == courseDatabaseName) {
-                            funcReturnDbFile = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, true);
+                            funcReturnDbFile = CourseInputFile(errorLine, fileNameFromCommandLine, databaseOfCourses, databaseOfProfessors, true);
                         } else {
-                            funcReturnDbFile = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors, true);
+                            funcReturnDbFile = CourseInputFile(errorLine, courseDatabaseName, databaseOfCourses, databaseOfProfessors, true);
                             if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
                                 (funcReturnDbFile == ERR_empty_file)) {
-                                functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, listOfCourses, listOfProfessors, false);
+                                funcReturnDbFile = OK;
+                                functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, databaseOfCourses, databaseOfProfessors, false);
                             }
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, listOfCourses);
+                            functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, databaseOfCourses);
                         }
                         break;
                     }
                     case 'f': {
                         if (fileNameFromCommandLine == courseOfStudyDatabaseName) {
-                            funcReturnDbFile = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, true);
+                            funcReturnDbFile = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, databaseOfCoursesOfStudy, true);
                         } else {
-                            funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
+                            funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy, true);
                             if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
                                 (funcReturnDbFile == ERR_empty_file)) {
-                                functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, listOfCoursesOfStudy, false);
+                                funcReturnDbFile = OK;
+                                functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, databaseOfCoursesOfStudy, false);
                             }
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy);
+                            functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy);
                         }
                         break;
                     }
@@ -174,9 +178,9 @@ int main(int argc, char** argv) {
                 switch (commandIdentifier[3]) {
                     case 's': {
                         if (fileNameFromCommandLine != studentDatabaseName) {
-                            funcReturnDbFile = StudentInputFile(errorLine, studentDatabaseName, listOfStudents, true);
+                            funcReturnDbFile = StudentInputFile(errorLine, studentDatabaseName, databaseOfStudents, true);
                             if (funcReturnDbFile == OK) {
-                                functionReturn = StudentToUpdateFile(errorLine, fileNameFromCommandLine, listOfStudents);
+                                functionReturn = StudentToUpdateFile(errorLine, fileNameFromCommandLine, databaseOfStudents);
                             } else {
                                 errorLine += "\nImpossible to update  \"" + (string) studentDatabaseName + "\"  without database to start from";
                             }
@@ -185,15 +189,15 @@ int main(int argc, char** argv) {
                             errorLine = "Error: can't update \"" + (string) studentDatabaseName + "\" with the same database file";
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, listOfStudents);
+                            functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, databaseOfStudents);
                         }
                         break;
                     }
                     case 'd': {
                         if (fileNameFromCommandLine != professorDatabaseName) {
-                            funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                            funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, databaseOfProfessors, true);
                             if (funcReturnDbFile == OK) {
-                                functionReturn = ProfessorToUpdateFile(errorLine, fileNameFromCommandLine, listOfProfessors);
+                                functionReturn = ProfessorToUpdateFile(errorLine, fileNameFromCommandLine, databaseOfProfessors);
                             } else {
                                 errorLine += "\nImpossible to update \"" + (string) professorDatabaseName + "\" without database to start from";
                             }
@@ -202,15 +206,15 @@ int main(int argc, char** argv) {
                             errorLine = "Error: can't update \"" + (string) professorDatabaseName + "\" with the same database file";
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, listOfProfessors);
+                            functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, databaseOfProfessors);
                         }
                         break;
                     }
                     case 'a': {
                         if (fileNameFromCommandLine != classroomDatabaseName) {
-                            funcReturnDbFile = ClassroomInputFile(errorLine, classroomDatabaseName, listOfClassrooms, true);
+                            funcReturnDbFile = ClassroomInputFile(errorLine, classroomDatabaseName, databaseOfClassrooms, true);
                             if (funcReturnDbFile == OK) {
-                                functionReturn = ClassroomToUpdateFile(errorLine, fileNameFromCommandLine, listOfClassrooms);
+                                functionReturn = ClassroomToUpdateFile(errorLine, fileNameFromCommandLine, databaseOfClassrooms);
                             } else {
                                 errorLine += "\nImpossible to update \"" + (string) classroomDatabaseName + "\" without database to start from";
                             }
@@ -219,7 +223,7 @@ int main(int argc, char** argv) {
                             errorLine = "Error: can't update \"" + (string) courseDatabaseName + "\" with same database file";
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, listOfClassrooms);
+                            functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, databaseOfClassrooms);
                         }
                         break;
                     }
@@ -236,9 +240,10 @@ int main(int argc, char** argv) {
                     case 'c': {
                         // the existence of professor's database is not a constraint for the insertion or modification of courses,
                         // so the return is checked only for file correctness
-                        funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, listOfProfessors, true);
+                        funcReturnDbFile = ProfessorInputFile(errorLine, professorDatabaseName, databaseOfProfessors, true);
                         if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
                             (funcReturnDbFile == ERR_empty_file)) {
+                            funcReturnDbFile = OK;
                             // also the presence of course of study's database isn't a constraint to the correct functioning of
                             // courses insertion, but if it is present it is necessary to perform some actions on itself too
                             // if a course is set as "non_attivo" if the same course is used in some course of study then:
@@ -246,13 +251,14 @@ int main(int argc, char** argv) {
                             //   COPIED in non-active list
                             // - if all years for which is defined are "non_attivo" then it is REMOVED from its semester and inserted
                             //   in non-active list
-                            funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, listOfCoursesOfStudy, true);
+                            funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy, true);
                             if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
                                 (funcReturnDbFile == ERR_empty_file)) {
-                                funcReturnDbFile = CourseInputFile(errorLine, courseDatabaseName, listOfCourses, listOfProfessors, true);
+                                funcReturnDbFile = OK;
+                                funcReturnDbFile = CourseInputFile(errorLine, courseDatabaseName, databaseOfCourses, databaseOfProfessors, true);
                                 if (funcReturnDbFile == OK) {
                                     functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine,
-                                                                        listOfCourses, listOfProfessors, listOfCoursesOfStudy);
+                                                                        databaseOfCourses, databaseOfProfessors, databaseOfCoursesOfStudy);
                                 } else {
                                     errorLine +=
                                             "\nCan't perform an insertion or modification without the course's database file \"" +
@@ -267,10 +273,10 @@ int main(int argc, char** argv) {
                                          (string) courseOfStudyDatabaseName + "\" has been found corrupted";
                         }
                         if (functionReturn == OK) {
-                            functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, listOfCourses);
+                            functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, databaseOfCourses);
                             if (functionReturn == OK) {
                                 functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName,
-                                                                                 listOfCoursesOfStudy);
+                                                                                 databaseOfCoursesOfStudy);
                             } else {
                                 errorLine += "\nCan't update the " + (string) courseOfStudyDatabaseName +
                                              " due to an error updating " + (string) courseDatabaseName;
@@ -289,26 +295,28 @@ int main(int argc, char** argv) {
             case 's': {
                 if (actionIdentifier == "current_a") {
                     funcReturnDbFile = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName,
-                                                          mapOfExamSession, true);
+                                                            databaseOfExamSession, true);
                     if (((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file))
                         && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
+                        funcReturnDbFile = OK;
                         functionReturn = ExamSessionInputFile(errorLine, academicYearFromCommandLineAndExamPeriod,
-                                                              mapOfExamSession, false);
+                                                              databaseOfExamSession, false);
                     } else {
                         errorIdentifier = ERR_file_name;
                         errorLine += "\nCan't update \"" + (string) examSessionPeriodsDatabaseName + "\"";
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateExamSessionDatabaseFile(errorLine, examSessionPeriodsDatabaseName,
-                                                                       mapOfExamSession);
+                                                                       databaseOfExamSession);
                     }
                 } else if (actionIdentifier == "set_availability") {
                     funcReturnDbFile = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile,
-                                                                        listOfProfessors, "", true);
+                                                                        databaseOfProfessors, "", true);
                     if (((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file))
                         && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
+                        funcReturnDbFile = OK;
                         functionReturn = ProfessorUnavailabilityInputFile(errorLine, fileNameFromCommandLine,
-                                                                          listOfProfessors, academicYearFromCommandLine,
+                                                                          databaseOfProfessors, academicYearFromCommandLine,
                                                                           false);
                     } else {
                         errorIdentifier = ERR_file_name;
@@ -316,7 +324,7 @@ int main(int argc, char** argv) {
                     }
                     if (functionReturn == OK) {
                         functionReturn = updateUnavailabilityDatabaseFile(errorLine, unavailabilityDatabaseFile,
-                                                                          listOfProfessors);
+                                                                          databaseOfProfessors);
                     }
                 } else {
                     errorIdentifier = ERR_wrong_identifier;
@@ -326,27 +334,137 @@ int main(int argc, char** argv) {
                 break;
             }
             case 'g': {
-                regex rePattern("\\w*\\.txt");
+                map<Date, vector<Date>>::const_iterator itDatabaseOfExamSession;
+
+                fileNameFromCommandLine = fileNameFromCommandLine.substr(0, fileNameFromCommandLine.find('.'));
                 try {
-                    academicYear.setYear(stoi(academicYearFromCommandLine.substr(0, 4)));
+                    academicYearInt = stoi(academicYearFromCommandLine.substr(0, 4));
+                    academicYear.setYear(academicYearInt);
                 }
                 catch (const invalid_argument& excepFromStoi) {
                     errorIdentifier = ERR_stoi_conversion;
                     errorLine = "ERROR: can't convert academic year given for exam's scheduling to int";
                 }
-                if ()
-                for (int i = 0; i < 3; i++) {
+                if (errorIdentifier == OK) {
+                    funcReturnDbFile = ProfessorInputFile(errorLineDummy, professorDatabaseName, databaseOfProfessors,
+                                                          true);
+                    if (funcReturnDbFile != OK) {
+                        okSchedule = false;
+                        errorLine += errorLineDummy + "\n";
+                    }
+                    funcReturnDbFile = ClassroomInputFile(errorLineDummy, classroomDatabaseName, databaseOfClassrooms,
+                                                          true);
+                    if (funcReturnDbFile != OK) {
+                        okSchedule = false;
+                        errorLine += errorLineDummy + "\n";
+                    }
+                    funcReturnDbFile = CourseInputFile(errorLineDummy, courseDatabaseName, databaseOfCourses,
+                                                       databaseOfProfessors, true);
+                    if (funcReturnDbFile != OK) {
+                        okSchedule = false;
+                        errorLine += errorLineDummy + "\n";
+                    }
+                    funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy,
+                                                              true);
+                    if (funcReturnDbFile != OK) {
+                        okSchedule = false;
+                        errorLine += errorLineDummy + "\n";
+                    }
+                    funcReturnDbFile = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName, databaseOfExamSession,
+                                                            true);
+                    if (funcReturnDbFile != OK) {
+                        okSchedule = false;
+                        errorLine += errorLineDummy + "\n";
+                    } else {
+                        itDatabaseOfExamSession = databaseOfExamSession.find(academicYear);
+                        if (itDatabaseOfExamSession == databaseOfExamSession.cend()) {
+                            okSchedule = false;
+                            errorLine += "Can't find the specified academic year (" + academicYear.getAcademicYear() + ") in "
+                                        + (string)examSessionPeriodsDatabaseName + "\n";
+                        }
+                    }
+                    funcReturnDbFile = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile,
+                                                                        databaseOfProfessors, "", true);
+                    if (funcReturnDbFile != OK) {
+                        okSchedule = false;
+                        errorLine += errorLineDummy + "\n";
+                    }
+                    if (okSchedule) {
+                        int i = 0;
+
+                        while ((i < 3) && okSchedule) {
+                            SessionScheduler examPlanning(errorLine, academicYearInt, databaseOfCourses,
+                                                          databaseOfProfessors, databaseOfClassrooms,
+                                                          databaseOfCoursesOfStudy, itDatabaseOfExamSession->second[i * 2],
+                                                          itDatabaseOfExamSession->second[(i * 2) + 1],i);
+                            if (errorLine.empty()) {
+                                switch (i) {
+                                    case 0:{
+                                        examPlanning.groupedCoursesScheduling(i, 0,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 1,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, -1,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        break;
+                                    }
+                                    case 1:{
+                                        examPlanning.groupedCoursesScheduling(i, 1,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 0,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, -1,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        break;
+                                    }
+                                    case 2: {
+                                        examPlanning.groupedCoursesScheduling(i, 0,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 1,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, -1,
+                                                                              itDatabaseOfExamSession->second[i * 2],
+                                                                              databaseOfProfessors, academicYearInt);
+                                        break;
+                                    }
+                                    default:{
+                                        errorLine = "ERROR: wrong semester to cycle on for scheduling";
+                                        okSchedule = false;
+                                        break;
+                                    }
+                                }
+                                if (okSchedule) {
+                                    examPlanning.outputSessionFile(fileNameFromCommandLine, i,
+                                                                   itDatabaseOfExamSession->second[i * 2]);
+                                    examPlanning.outputWarningFile(fileNameFromCommandLine, i);
+                                }
+                                i++;
+                            } else {
+                                okSchedule = false;
+                            }
+                        }
+                        break;
+                    } else {
+                        errorLine = "ERROR: one or more database's file/s are missing\n" + errorLine;
+                    }
                 }
-                break;
             }
             default: {
                 errorIdentifier = ERR_wrong_identifier;
-                errorLine = "Error: no matching action for command identifier: " + commandIdentifier;
+                errorLine = "ERROR: no matching action for command identifier: " + commandIdentifier;
                 break;
             }
         }
     }
-    if (((funcReturnDbFile != OK) && (funcReturnDbFile != ERR_open_file)) || (functionReturn != OK) || (errorIdentifier != OK)) {
+    if ((funcReturnDbFile != OK) || (functionReturn != OK) || (errorIdentifier != OK) || !okSchedule) {
         cerr << errorLine;
     } else {
         cout << "program ended successfully";
