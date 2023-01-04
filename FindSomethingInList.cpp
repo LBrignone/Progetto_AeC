@@ -95,8 +95,8 @@ list<Course>::const_iterator findCourse(const list<Course>& courseList, const st
 }
 
 // COURSE 3
-// given the id and academic year of a course a search in the course list is performed by mean of the given id AND academic year
-// return an iterator that identify the presence of the given id and academic year
+// given the id and academic year of a course a search in the course list is performed by mean of the given id, academic year AND version
+// return an iterator that identify the presence of the given id, academic year and version
 list<Course>::const_iterator findCourse(const list<Course>& courseList, const string& idToFind, const int& academicYear , const string& parallelVersion) {
     list<Course>::const_iterator itCourseList;
     bool found = false;
@@ -147,6 +147,24 @@ list<Course>::const_iterator findCourseLastForId(const list<Course>& courseList,
     itCourseList = startPos;
     while ((itCourseList != courseList.end()) && !found) {
         if (itCourseList->getId() != idToFind) {
+            found = true;
+        } else {
+            itCourseList++;
+        }
+    }
+    return itCourseList;
+}
+
+// COURSE 6
+// given the id and academic year of a course a search in the course list is performed by mean of the given id AND academic year
+// return an iterator that identify the presence of last element represented by the id AND academic year
+list<Course>::const_iterator findCourseLastForIdAndYear(const list<Course>& courseList, const string& idToFind, const int& academicYear, const list<Course>::const_iterator& startPos) {
+    list<Course>::const_iterator itCourseList;
+    bool found = false;
+
+    itCourseList = startPos;
+    while ((itCourseList != courseList.cend()) && !found) {
+        if ((itCourseList->getId() != idToFind) || (itCourseList->getStartYear() != academicYear)) {
             found = true;
         } else {
             itCourseList++;
@@ -307,11 +325,11 @@ bool sortMethodForClassroom(Classroom classroomToCompare, Classroom minimum) {
     return (classroomToCompare.getExamCapacity() < minimum.getExamCapacity());
 }
 
-bool sortMethodForCourse(courseOrgBySemester courseToCompare, courseOrgBySemester minimum) {
+bool sortMethodForCourse(struct courseOrgBySemester courseToCompare, struct courseOrgBySemester minimum) {
     return (courseToCompare._course.getPartecipants() < minimum._course.getPartecipants());
 }
 
-bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum) {
+bool sortMethodForPrintSchedule(const struct expandedScheduleForPrint& structToCompare, const struct expandedScheduleForPrint& minimum) {
     bool toReturn = false;
 
     if (structToCompare._relateCourse.compare(minimum._relateCourse) < 0) {
@@ -334,7 +352,7 @@ bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare,
     return toReturn;
 }
 
-bool sortMethodForPrintWarnings(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum) {
+bool sortMethodForPrintWarnings(const struct expandedScheduleForPrint& structToCompare, const struct expandedScheduleForPrint& minimum) {
     bool toReturn = false;
 
     if (structToCompare._assignedCourseOfStudy.compare(minimum._assignedCourseOfStudy) < 0) {

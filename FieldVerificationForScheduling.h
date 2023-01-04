@@ -4,6 +4,7 @@
 #ifndef PROGETTO_FIELDVERIFICATIONFORSCHEDULING_H
 #define PROGETTO_FIELDVERIFICATIONFORSCHEDULING_H
 
+#include <list>
 #include <string>
 
 #include "Course.h"
@@ -22,9 +23,10 @@ bool professorFieldVerification(string& errorHandling, const Professor& professo
 
 bool classroomFieldVerification(string& errorHandling, const list<Classroom>& databaseClassroomToVerify);
 
-list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedule, const string& idToFind);
+list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedule, const Course& idToFind);
 
-int groupedCoursesVerification(string& errorHandling, const list<string>& groupedCourses, const list<Course>& coursesToSchedule, const list<CourseOfStudy>& databaseCourseOfStudy, list<courseOrgBySemester>& courseListToSchedule, int& semester);
+int groupedCoursesVerification(string& errorHandling, const list<string>& groupedCourses, const list<Course>& coursesToSchedule,
+                               const list<CourseOfStudy>& databaseCourseOfStudy, list<struct courseOrgBySemester>& courseListToSchedule, int& semester);
 
 void myUnique(list<string>& courseList);
 

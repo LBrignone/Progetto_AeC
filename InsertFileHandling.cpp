@@ -24,7 +24,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
             int startYear;
             string courseId, courseProfessorOrganization;
             stringstream lineToInsertFromFile(readFromFile);
-            list<Course>::const_iterator itCourseListIdConst, itCourseListYearConst;
+            list<Course>::const_iterator itCourseListIdConst, itCourseListIdFirstConst, itCourseListYearConst;
             list<Course>::iterator itCourseListId, itCourseListYear;
 
             if (readFromFile.empty()) {
@@ -88,9 +88,9 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 dummyCourse.inheritCourse(itCourseListYearConst) ;
                                 itCourseListIdConst = databaseCourseList.cend();
                             } else {
-                                itCourseListIdConst = findCourse(databaseCourseList, dummyCourse.getId());
-                                if (itCourseListIdConst != databaseCourseList.cend()) {
-                                    itCourseListIdConst = findCourseLastForId(databaseCourseList, dummyCourse.getId(), itCourseListIdConst);
+                                itCourseListIdFirstConst = findCourse(databaseCourseList, dummyCourse.getId());
+                                if (itCourseListIdFirstConst != databaseCourseList.cend()) {
+                                    itCourseListIdConst = findCourseLastForId(databaseCourseList, dummyCourse.getId(), itCourseListIdFirstConst);
                                     // the decrement below is necessary because the function returns the iterator to the next element in respect of
                                     // last valid element with the searched id, so in order to gain proper information about the searched last course
                                     // is necessary to proceed as follow
@@ -284,7 +284,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                         break;
                     }
                     case 6: {
-                        // if the grouped courses field is empty this part wont be executed, so the only thing to controll is if
+                        // if the grouped courses field is empty this part wont be executed, so the only thing to control is if
                         // the field identifiers are present "{" "}"
                         // the dummy course is coming from a find, so the grouped courses are always inherited
                         // below the code control if the inherited list of grouped courses has to be maintained or performs corrective actions
@@ -585,6 +585,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         "the parallel version organization has the field identifiers (\"[]\") but without contents";
                     }
                 } else {
+                    // here the string of professor's organization with assigned hour is empty
                     errorIdentifier = ERR_file_format;
                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                     " incorrect start and ending character of the pattern: " + courseProfessorOrganization.front() +
@@ -595,8 +596,9 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                 list<Course>::iterator itDbCourseListForFill;
 
                 if (itCourseListIdConst != databaseCourseList.cend()) {
-                    parallelCourseNumber = itCourseListIdConst->getParallelCoursesNumber();
-                    itDbCourseListForFill = constItToNonConstIt(databaseCourseList, itCourseListIdConst);
+                    itCourseListIdFirstConst = findCourse(databaseCourseList, itCourseListIdConst->getId(), itCourseListIdConst->getStartYear());
+                    parallelCourseNumber = itCourseListIdFirstConst->getParallelCoursesNumber();
+                    itDbCourseListForFill = constItToNonConstIt(databaseCourseList, itCourseListIdFirstConst);
                 } else if (itCourseListYearConst != databaseCourseList.cend()) {
                     parallelCourseNumber = itCourseListYearConst->getParallelCoursesNumber();
                     itDbCourseListForFill = constItToNonConstIt(databaseCourseList, itCourseListYearConst);
@@ -605,44 +607,54 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                     " can't find course id " + dummyCourse.getId() + " in database";
                 }
-                if (dummyCourse.getParallelCoursesNumber() == parallelCourseNumber) {
+                if (dummyCourse.getParallelCoursesNumber() <= parallelCourseNumber) {
                     for (int i = 0; i < dummyCourse.getParallelCoursesNumber(); i++) {
-                        if (i != 0) {
-                            itDbCourseListForFill++;
-                            if (dummyCourse.setListAssistant(itDbCourseListForFill->getListAssistant(), errorHandling) != OK) {
-                                errorIdentifier = ERR_hour_set;
-                            }
-                            dummyCourse.clearParallelCourseId();
+                        if (dummyCourse.setListAssistant(itDbCourseListForFill->getListAssistant(), errorLine) != OK) {
+                            errorIdentifier = ERR_hour_set;
+                            errorHandling = errorLine;
                         }
+                        dummyCourse.clearParallelCourseId();
                         dummyCoursesList.push_back(dummyCourse);
+                        itDbCourseListForFill++;
                     }
                 } else {
                     errorIdentifier = ERR_parallel_course_number;
-                }
-                if ((dummyCourse.getParallelCoursesNumber() <= parallelCourseNumber) && (errorIdentifier == OK)) {
+                    errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course ";
                     if (itCourseListYearConst != databaseCourseList.end()) {
-                        // this part will be performed if both the id and the academic year is present, and is going to update the database with the correct data
-                        if (!fillCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
+                        errorHandling += itCourseListYearConst->getId();
+                    } else {
+                        errorHandling += itCourseListIdFirstConst->getId();
+                    }
+                    errorHandling += " and year " + to_string(dummyCourse.getStartYear()) + "-" +
+                                     to_string(dummyCourse.getStartYear() + 1) +
+                                     " require a complete inheritance of course's organization but the number of version" +
+                                     " to insert is greater than the number from which is possible to inherit data";
+                }
+                if (errorIdentifier == OK) {
+                    if (itCourseListYearConst != databaseCourseList.end()) {
+                        // this part will be performed if both the id and the academic year is present, and is going to
+                        // update the database with the correct data
+                        if (!fillCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(),
+                                                databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
-                            errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " + itCourseListYearConst->getId() +
-                                            " and year " + to_string(itCourseListYearConst->getStartYear()) + "-" + to_string(itCourseListYearConst->getStartYear() + 1) +
-                                            " " + errorLine;
+                            errorHandling = "Error: file: " + courseFileName + " the line defining an update for course " +
+                                            itCourseListYearConst->getId() + " and year " +
+                                            to_string(itCourseListYearConst->getStartYear()) +
+                                            "-" + to_string(itCourseListYearConst->getStartYear() + 1) + " " + errorLine;
                         }
-                    } else if (itCourseListIdConst != databaseCourseList.end()) {
+                    } else if (itCourseListIdFirstConst != databaseCourseList.end()) {
                         // this part will be done only if the course id is present and will result in a fill of missing fields
                         // in the dummy list and an insertion of them in database in the  proper position
-                        if (insertCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
+                        if (!insertCourseDatabase(errorLine, dummyCourse.getParallelCoursesNumber(), databaseCourseList, dummyCoursesList, professorList)) {
                             errorIdentifier = ERR_update_database;
-                            errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYearConst->getId() +
-                                            " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +
+                            errorHandling = "Error: file: " + courseFileName +
+                                            " the line defining an insertion for course " +
+                                            itCourseListIdFirstConst->getId() + " and year " +
+                                            to_string(dummyCourse.getStartYear()) + "-" +
+                                            to_string(dummyCourse.getStartYear() + 1) +
                                             " which define a new course's organization has " + errorLine;
                         }
                     }
-                } else {
-                    errorIdentifier = ERR_parallel_course_number_inherit;
-                    errorHandling = "Error: file: " + courseFileName + " the line defining an insertion for course " + itCourseListYearConst->getId() +
-                                    " and year " + to_string(dummyCourse.getStartYear()) + "-" + to_string(dummyCourse.getStartYear() + 1) +
-                                    " require a complete inheritance of course's hour organization but the number of version to insert is greater than the number from which is possible to inherit data";
                 }
             }
             row++;

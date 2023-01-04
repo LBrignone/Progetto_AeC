@@ -809,6 +809,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                             // the following push is to create the associate professor list
                                             if (errorIdentifier == OK) {
                                                 tmpAssociateProfessorList.push_back(dummyAssociateProfessor);
+                                                dummyAssociateProfessor.clear(tmpProfessorList.end());
                                             }
                                             patternFieldForEachLevel[level - 1]++;
                                             break;

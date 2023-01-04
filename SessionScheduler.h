@@ -12,6 +12,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #include "Date.h"
 #include "Course.h"
@@ -30,7 +31,7 @@
 
 using namespace std;
 
-typedef struct examScheduled{
+struct examScheduled{
     list<string> _assignedCourseOfStudy;
     string _relateCourse;
     string _version;
@@ -43,35 +44,35 @@ typedef struct examScheduled{
             return false;
         }
     }
-} examScheduled;
+};
 
-typedef struct courseOrgBySemester{
+struct courseOrgBySemester{
     Course _course;
     list<pair<string, bool>> _assignedCourseOfStudy;
-    vector<bool> _constrainDeactivevated = {false, false, false, false, false};
+    vector<bool> _constrainDeactivated = {false, false, false, false, false};
 
     void setCourseOfStudyError(const string& courseOfStudyToSet) {
         list<pair<string, bool>>::iterator it_assignedCourseOfStudy;
         it_assignedCourseOfStudy = find(_assignedCourseOfStudy.begin(), _assignedCourseOfStudy.end(), make_pair(courseOfStudyToSet, false));
         it_assignedCourseOfStudy->second = true;
     }
-    bool operator <(const CourseOrgBySemester& toCompare) {return (this._course.getPartecipants()) < toCompare._course.getPartecipants();}
-} courseOrgBySemester;
+    bool operator <(const courseOrgBySemester& toCompare) {return (this->_course.getPartecipants()) < toCompare._course.getPartecipants();}
+};
 
-typedef struct expandedScheduleForPrint{
+struct expandedScheduleForPrint{
     string _assignedCourseOfStudy;
     string _relateCourse;
     string _version;
     string _classroom;
-    vector<bool> _constrainDeactivevated = {false, false, false, false};
+    vector<bool> _constrainDeactivated = {false, false, false, false};
     bool operator ==(const expandedScheduleForPrint& toCompare) {
-        return ((this._assignedCourseOfStudy == toCompare._assignedCourseOfStudy) && (this._relateCourse == toCompare._relateCourse) && (this._version == toCompare._version) && (this._classroom == toCompare._classroom));
+        return ((this->_assignedCourseOfStudy == toCompare._assignedCourseOfStudy) && (this->_relateCourse == toCompare._relateCourse) && (this->_version == toCompare._version) && (this->_classroom == toCompare._classroom));
     }
     ostream& operator <<(ostream& os) const {
         os << _relateCourse << "[" << _version << "]" << "(" << _assignedCourseOfStudy << ")|" << _classroom << ";";
         return os;
     }
-} expandedScheduleForPrint;
+};
 
 class SessionScheduler {
 public:
@@ -105,7 +106,7 @@ private:
                      const Course& courseToInsert, list<Professor>& professorListToVerifyAndUpdate);
     bool constrain_4(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                      const Course& courseToInsert, const int& dayRef, const int& slotRef, int& classroomChosen);
-    bool coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
+    void coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                            const Course& courseToInsert, const int& classroomChosen, const int& dayRef, const int& slotRef);
 
     // the map has as key the classroom and keeps for each of them a "calendar" (second parameter of the map)

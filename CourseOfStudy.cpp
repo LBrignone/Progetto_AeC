@@ -76,7 +76,7 @@ const list<string>& CourseOfStudy::getListOfCoursesBySemester(const int & key) c
 
 // the course id is inserted in the map with regard to given semester, with proper controls about course coherency
 bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandling, const int& semesterKey, const string& courseId) {
-    bool statusToReturn;
+    bool statusToReturn = true;
     list<string> tmpListOfCourses;
     map<int, list<string>>::const_iterator itMapOfCoursesBySemester;
     list<string>::const_iterator itCoursesList;
@@ -108,13 +108,13 @@ bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandling, const int&
             ((_graduationType == MS) && ((semesterKey > -2) && (semesterKey < 5)))) {
             // here it is performed a control which aims at find possible duplication of the course in all semesters
             // if the course id is present in the list of ended courses this duplication will be neglected
-            for (itMapOfCoursesBySemester = _semesterOfCourse.cbegin(); itMapOfCoursesBySemester != _semesterOfCourse.cend();) {
-                for (itCoursesList = itMapOfCoursesBySemester->second.cbegin(); itCoursesList != itMapOfCoursesBySemester->second.cend();) {
-                    if ((courseId == *itCoursesList && (itMapOfCoursesBySemester != _semesterOfCourse.cbegin()))) {
+            itMapOfCoursesBySemester = _semesterOfCourse.cbegin();
+            while ((itMapOfCoursesBySemester != _semesterOfCourse.cend()) && statusToReturn) {
+                itCoursesList = itMapOfCoursesBySemester->second.cbegin();
+                while ((itCoursesList != itMapOfCoursesBySemester->second.cend()) && statusToReturn) {
+                    if ((courseId == *itCoursesList) && (itMapOfCoursesBySemester->first == semesterKey)) {
                         statusToReturn = false;
                         errorHandling = "the course is already present in the semester";
-                        itCoursesList = itMapOfCoursesBySemester->second.cend();
-                        itMapOfCoursesBySemester = _semesterOfCourse.cend();
                     }
                     itCoursesList++;
                 }

@@ -78,11 +78,11 @@ int SessionScheduler::groupingCoursesBySemester(string& errorHandling, const lis
     while ((itInternalCourseList != _coursesToSchedule.cend()) && (errorIdentifier == OK)) {
         itCoursesAlreadyUsed = find(coursesAlreadyUsed.cbegin(), coursesAlreadyUsed.cend(), itInternalCourseList->getId());
         if (itCoursesAlreadyUsed == coursesAlreadyUsed.cend()) {
-            coursesToExtend = regroupingCoursesForCommonCourse(_coursesToSchedule, itInternalCourseList->getId());
+            coursesToExtend = regroupingCoursesForCommonCourse(_coursesToSchedule, *itInternalCourseList);
             coursesAlreadyUsed.insert(coursesAlreadyUsed.cend(), coursesToExtend.cbegin(), coursesToExtend.cend());
             errorReturn = groupedCoursesVerification(errorHandling, coursesToExtend, _coursesToSchedule, databaseCourseOfStudy, courseExtended, semesterRef);
             if (errorReturn == OK) {
-                courseExtended.sort(sortMethodForCourse());
+                courseExtended.sort(sortMethodForCourse);
                 for (itCourseExtended = courseExtended.cbegin(); itCourseExtended !=  courseExtended.cend(); itCourseExtended++) {
                     courseExtendedVector.push_back(*itCourseExtended);
                 }
@@ -151,7 +151,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
             itGroupedCoursesToPlanList = itGroupedCourseToPlanVector->begin();
             while (!endSchedulingGroup) {
                 courseNumber++;
-                itGroupedCoursesToPlanList->_constrainDeactivevated[0] = false;
+                itGroupedCoursesToPlanList->_constrainDeactivated[0] = false;
                 errorInScheduling = false;
                 if (!constrain_1(copyOfDatesPlanning, day, copyOfGroupedCoursesToPlan, semesterToSchedule, groupNumber, courseNumber)) {
                     if (relaxedConstrain < 1) {
@@ -165,16 +165,16 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                 if (!constrain_3(copyOfDatesPlanning, academicYearRef, startDate, day, slot,
                                  itGroupedCoursesToPlanList->_course, copyDatabaseProfessorList)) {
                     if (relaxedConstrain >= 3) {
-                        itGroupedCoursesToPlanList->_constrainDeactivevated[3] = true;
+                        itGroupedCoursesToPlanList->_constrainDeactivated[3] = true;
                     } else {
                         errorInScheduling = true;
                     }
                 }
                 if (!constrain_4(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, day,
                                  slot, freeClassroomToUse)) {
-                    itGroupedCoursesToPlanList->_constrainDeactivevated[0] = true;
+                    itGroupedCoursesToPlanList->_constrainDeactivated[0] = true;
                     if (relaxedConstrain >= 4) {
-                        itGroupedCoursesToPlanList->_constrainDeactivevated[4] = true;
+                        itGroupedCoursesToPlanList->_constrainDeactivated[4] = true;
                     } else {
                         errorInScheduling = true;
                     }
@@ -202,7 +202,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                         }
                     }
                 } else {
-                    if (!itGroupedCoursesToPlanList->_constrainDeactivevated[0]) {
+                    if (!itGroupedCoursesToPlanList->_constrainDeactivated[0]) {
                         coursePositioning(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, freeClassroomToUse, day, slot);
                         coursesPositioned++;
                     }
@@ -274,7 +274,7 @@ bool SessionScheduler::constrain_1(const vector<pair<Classroom, vector<vector<ex
                         if (copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._course.getId() != copyOfDatesPlanning[classroom].second[position][slot]._relateCourse) {
                             constrain1Violated = true;
                             itIdCourseOfStudyToFind->second = true;
-                            copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._constrainDeactivevated[1] = true;
+                            copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._constrainDeactivated[1] = true;
 
                             int semesterCourse = -1, groupCourse = 0, courseForCourseOfStudy = 0;
 
@@ -331,7 +331,7 @@ bool SessionScheduler::constrain_2(const vector<pair<Classroom, vector<vector<ex
             while (classroom < copyOfDatesPlanning.size()) {
                 if ((copyOfDatesPlanning[classroom].second[position][slot]._relateCourse == copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._course.getId())
                     && (copyOfDatesPlanning[classroom].second[position][slot]._version == copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._course.getParallelCoursesId())) {
-                    copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._constrainDeactivevated[2] = true;
+                    copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._constrainDeactivated[2] = true;
                     constrain2Violated = true;
                     if (position == dayRef) {
                         if ((slot >= (slotRef - CONSTRAIN_2_DISTANCE_RELAXED)) && (slot <= (slotRef + CONSTRAIN_2_DISTANCE_RELAXED))) {
@@ -432,7 +432,7 @@ bool SessionScheduler::constrain_4(const vector<pair<Classroom, vector<vector<ex
     return coursePositioned;
 }
 
-bool SessionScheduler::coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
+void SessionScheduler::coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                                          const Course& courseToInsert, const int& classroomChosen, const int& dayRef, const int& slotRef) {
     for (int i = 0; i < approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 2); i++) {
         copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._relateCourse = courseToInsert.getId();
@@ -447,8 +447,8 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
     string fileCompleteName = fileBaseName + "_s" + to_string(sessionNumber) + ".txt";
     ofstream fileSessionName;
     Date dateToPrint(sessionDateStartRef);
-    expandedScheduleForPrint dummyElementToInsert;
-    list<expandedScheduleForPrint> dailyScheduleToSortAndPrint, previousSchedule;
+    struct expandedScheduleForPrint dummyElementToInsert;
+    list<struct expandedScheduleForPrint> dailyScheduleToSortAndPrint, previousSchedule;
     list<string>::const_iterator itExamScheduled;
 
     fileSessionName.open(fileCompleteName, ofstream::out);
@@ -456,7 +456,7 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
         dateToPrint.operator<<(fileSessionName);
         fileSessionName << endl;
         while (slot < _datesPlanning[classroom].second[day].size()) {
-            list<expandedScheduleForPrint>::iterator itDailyScheduleToSortAndPrint, itReturnFromFindDuplicates;
+            list<struct expandedScheduleForPrint>::iterator itDailyScheduleToSortAndPrint, itReturnFromFindDuplicates;
 
             if (slot == 0) {
                 dateToPrint.setHour(8);
@@ -476,7 +476,7 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
                 }
                 classroom++;
             }
-            sort(dailyScheduleToSortAndPrint.begin(), dailyScheduleToSortAndPrint.end(), sortMethodForPrintSchedule);
+            dailyScheduleToSortAndPrint.sort(sortMethodForPrintSchedule);
             if (previousSchedule.empty()) {
                 previousSchedule = dailyScheduleToSortAndPrint;
                 for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
@@ -522,16 +522,16 @@ void SessionScheduler::outputWarningFile(const string& fileBaseName, const int& 
                     dummyElementToInsert._assignedCourseOfStudy = itCourseOfStudyList->first;
                     dummyElementToInsert._relateCourse = itCourseInGroup->_course.getId();
                     if (itCourseOfStudyList->second) {
-                        dummyElementToInsert._constrainDeactivevated[0] = true;
+                        dummyElementToInsert._constrainDeactivated[0] = true;
                     }
-                    if (itCourseInGroup->_constrainDeactivevated[2]) {
-                        dummyElementToInsert._constrainDeactivevated[1] = true;
+                    if (itCourseInGroup->_constrainDeactivated[2]) {
+                        dummyElementToInsert._constrainDeactivated[1] = true;
                     }
-                    if (itCourseInGroup->_constrainDeactivevated[3]) {
-                        dummyElementToInsert._constrainDeactivevated[2] = true;
+                    if (itCourseInGroup->_constrainDeactivated[3]) {
+                        dummyElementToInsert._constrainDeactivated[2] = true;
                     }
-                    if (itCourseInGroup->_constrainDeactivevated[4]) {
-                        dummyElementToInsert._constrainDeactivevated[3] = true;
+                    if (itCourseInGroup->_constrainDeactivated[4]) {
+                        dummyElementToInsert._constrainDeactivated[3] = true;
                     }
                     copyAndExtensionOfGroupedCoursesToPlan.push_back(dummyElementToInsert);
                 }
@@ -541,7 +541,7 @@ void SessionScheduler::outputWarningFile(const string& fileBaseName, const int& 
     sort(copyAndExtensionOfGroupedCoursesToPlan.begin(), copyAndExtensionOfGroupedCoursesToPlan.end(), sortMethodForPrintWarnings);
     for (vector<expandedScheduleForPrint>::const_iterator itCopyAndExtensionOfGroupedCoursesToPlan = copyAndExtensionOfGroupedCoursesToPlan.cbegin(); itCopyAndExtensionOfGroupedCoursesToPlan != copyAndExtensionOfGroupedCoursesToPlan.cend(); itCopyAndExtensionOfGroupedCoursesToPlan++) {
         for (int i = 0; i < 4; i++) {
-            if (itCopyAndExtensionOfGroupedCoursesToPlan->_constrainDeactivevated[i]) {
+            if (itCopyAndExtensionOfGroupedCoursesToPlan->_constrainDeactivated[i]) {
                 fileSessionName << itCopyAndExtensionOfGroupedCoursesToPlan->_assignedCourseOfStudy << ";" <<
                                 itCopyAndExtensionOfGroupedCoursesToPlan->_relateCourse << ";" << to_string(i + 1) << endl;
             }

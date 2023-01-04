@@ -34,13 +34,15 @@ list<Course>::iterator findCourseLastForId(const list<Course>& courseList, const
 
 list<Course>::const_iterator findCourseLastForId(const list<Course>& courseList, const string& idToFind, const list<Course>::const_iterator& startPos);
 
+list<Course>::const_iterator findCourseLastForIdAndYear(const list<Course>& courseList, const string& idToFind, const int& academicYear, const list<Course>::const_iterator& startPos);
+
 list<string> findCourseOfStudy(string& errorHandling, const list<CourseOfStudy>& courseOfStudyList, const string& idToFind);
 
 list<string> findCourseIdGrouped(const list<Course>& courseList, const string& idToFind);
 
 Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
 
-bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<examScheduled>>>>& planningToSearchIn, const list<string>& courseOfStudyToFind, const int& dayRefPosition);
+bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<struct examScheduled>>>>& planningToSearchIn, const list<string>& courseOfStudyToFind, const int& dayRefPosition);
 
 bool comp(Professor professorToCompare, Professor minimum);
 
@@ -48,11 +50,11 @@ bool sortMethodForProf(Professor professorToCompare, Professor minimum);
 
 bool sortMethodForClassroom(Classroom classroomToCompare, Classroom minimum);
 
-bool sortMethodForCourse(courseOrgBySemester courseToCompare, courseOrgBySemester minimum);
+bool sortMethodForCourse(struct courseOrgBySemester courseToCompare, struct courseOrgBySemester minimum);
 
-bool sortMethodForPrintSchedule(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum);
+bool sortMethodForPrintSchedule(const struct expandedScheduleForPrint& structToCompare, const struct expandedScheduleForPrint& minimum);
 
-bool sortMethodForPrintWarnings(const expandedScheduleForPrint& structToCompare, const expandedScheduleForPrint& minimum);
+bool sortMethodForPrintWarnings(const struct expandedScheduleForPrint& structToCompare, const struct expandedScheduleForPrint& minimum);
 
 int approXimationFunct(const int& rightVal, const int& leftVal);
 
