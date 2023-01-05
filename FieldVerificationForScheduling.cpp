@@ -114,17 +114,21 @@ bool courseFieldVerification (string& errorHandling, const list<Course>& courseL
             regularProfessor++;
         }
         if ((!itCourseListToVerify->getListGroupedId().empty()) && (errorIdentifier == OK)) {
-            itGroupedCoursesToVerify = itCourseListToVerify->getListGroupedId().cbegin();
-            while (itGroupedCoursesToVerify != itCourseListToVerify->getListGroupedId().cend()) {
+            list<string> copyGroupedCourses = itCourseListToVerify->getListGroupedId();
+
+            itGroupedCoursesToVerify = copyGroupedCourses.cbegin();
+            while (itGroupedCoursesToVerify != copyGroupedCourses.cend()) {
                 list<Course>::const_iterator itGroupedCoursesFind;
                 itGroupedCoursesFind = findCourse(courseListToVerify, itCourseListToVerify->getId(), itCourseListToVerify->getStartYear());
                 if (itGroupedCoursesFind == courseListToVerify.cend()) {
                     errorIdentifier = ERR_course_format;
                     errorHandling = "can't find the grouped course with id: " + *itGroupedCoursesToVerify + " for course with id: " + itCourseListToVerify->getId();
                 }
+                itGroupedCoursesToVerify++;
             }
         }
         versionNumber++;
+        itCourseListToVerify++;
     }
 
     if (errorIdentifier == OK) {
@@ -194,7 +198,9 @@ list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedu
     toReturn.push_back(courseToFind.getId());
     itToReturn = toReturn.begin();
     while (itToReturn != toReturn.end()) {
-        toReturn.insert(toReturn.end(), courseToFind.getListGroupedId().begin(), courseToFind.getListGroupedId().end());
+        list<string> copyGroupedCourses = courseToFind.getListGroupedId();
+
+        toReturn.insert(toReturn.end(), copyGroupedCourses.begin(), copyGroupedCourses.end());
         toRegroup = findCourseIdGrouped(courseToSchedule, *itToReturn);
         toReturn.insert(toReturn.end(), toRegroup.begin(), toRegroup.end());
         myUnique(toReturn);

@@ -240,7 +240,8 @@ list<string> findCourseIdGrouped(const list<Course>& courseList, const string& i
 
     itCourseList = courseList.cbegin();
     while (itCourseList != courseList.cend()) {
-        if (std::find(itCourseList->getListGroupedId().begin(), itCourseList->getListGroupedId().end(), idToFind) != itCourseList->getListGroupedId().end()) {
+        list<string> copyGoupedCourses = itCourseList->getListGroupedId();
+        if (std::find(copyGoupedCourses.begin(), copyGoupedCourses.end(), idToFind) != copyGoupedCourses.end()) {
             toReturn.push_back(itCourseList->getId());
         }
         itCourseList++;

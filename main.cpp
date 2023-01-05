@@ -294,30 +294,24 @@ int main(int argc, char** argv) {
             }
             case 's': {
                 if (actionIdentifier == "current_a") {
-                    funcReturnDbFile = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName,
-                                                            databaseOfExamSession, true);
+                    funcReturnDbFile = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName, databaseOfExamSession, true);
                     if (((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file))
                         && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
                         funcReturnDbFile = OK;
-                        functionReturn = ExamSessionInputFile(errorLine, academicYearFromCommandLineAndExamPeriod,
-                                                              databaseOfExamSession, false);
+                        functionReturn = ExamSessionInputFile(errorLine, academicYearFromCommandLineAndExamPeriod, databaseOfExamSession, false);
                     } else {
                         errorIdentifier = ERR_file_name;
                         errorLine += "\nCan't update \"" + (string) examSessionPeriodsDatabaseName + "\"";
                     }
                     if (functionReturn == OK) {
-                        functionReturn = updateExamSessionDatabaseFile(errorLine, examSessionPeriodsDatabaseName,
-                                                                       databaseOfExamSession);
+                        functionReturn = updateExamSessionDatabaseFile(errorLine, examSessionPeriodsDatabaseName, databaseOfExamSession);
                     }
                 } else if (actionIdentifier == "set_availability") {
-                    funcReturnDbFile = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile,
-                                                                        databaseOfProfessors, "", true);
+                    funcReturnDbFile = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile, databaseOfProfessors, "", true);
                     if (((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file))
                         && (fileNameFromCommandLine != examSessionPeriodsDatabaseName)) {
                         funcReturnDbFile = OK;
-                        functionReturn = ProfessorUnavailabilityInputFile(errorLine, fileNameFromCommandLine,
-                                                                          databaseOfProfessors, academicYearFromCommandLine,
-                                                                          false);
+                        functionReturn = ProfessorUnavailabilityInputFile(errorLine, fileNameFromCommandLine, databaseOfProfessors, academicYearFromCommandLine, false);
                     } else {
                         errorIdentifier = ERR_file_name;
                         errorLine += "\nCan't update \"" + (string) unavailabilityDatabaseFile + "\"";
@@ -346,32 +340,27 @@ int main(int argc, char** argv) {
                     errorLine = "ERROR: can't convert academic year given for exam's scheduling to int";
                 }
                 if (errorIdentifier == OK) {
-                    funcReturnDbFile = ProfessorInputFile(errorLineDummy, professorDatabaseName, databaseOfProfessors,
-                                                          true);
+                    funcReturnDbFile = ProfessorInputFile(errorLineDummy, professorDatabaseName, databaseOfProfessors, true);
                     if (funcReturnDbFile != OK) {
                         okSchedule = false;
                         errorLine += errorLineDummy + "\n";
                     }
-                    funcReturnDbFile = ClassroomInputFile(errorLineDummy, classroomDatabaseName, databaseOfClassrooms,
-                                                          true);
+                    funcReturnDbFile = ClassroomInputFile(errorLineDummy, classroomDatabaseName, databaseOfClassrooms, true);
                     if (funcReturnDbFile != OK) {
                         okSchedule = false;
                         errorLine += errorLineDummy + "\n";
                     }
-                    funcReturnDbFile = CourseInputFile(errorLineDummy, courseDatabaseName, databaseOfCourses,
-                                                       databaseOfProfessors, true);
+                    funcReturnDbFile = CourseInputFile(errorLineDummy, courseDatabaseName, databaseOfCourses, databaseOfProfessors, true);
                     if (funcReturnDbFile != OK) {
                         okSchedule = false;
                         errorLine += errorLineDummy + "\n";
                     }
-                    funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy,
-                                                              true);
+                    funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy, true);
                     if (funcReturnDbFile != OK) {
                         okSchedule = false;
                         errorLine += errorLineDummy + "\n";
                     }
-                    funcReturnDbFile = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName, databaseOfExamSession,
-                                                            true);
+                    funcReturnDbFile = ExamSessionInputFile(errorLine, examSessionPeriodsDatabaseName, databaseOfExamSession, true);
                     if (funcReturnDbFile != OK) {
                         okSchedule = false;
                         errorLine += errorLineDummy + "\n";
@@ -383,8 +372,7 @@ int main(int argc, char** argv) {
                                         + (string)examSessionPeriodsDatabaseName + "\n";
                         }
                     }
-                    funcReturnDbFile = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile,
-                                                                        databaseOfProfessors, "", true);
+                    funcReturnDbFile = ProfessorUnavailabilityInputFile(errorLine, unavailabilityDatabaseFile, databaseOfProfessors, "", true);
                     if (funcReturnDbFile != OK) {
                         okSchedule = false;
                         errorLine += errorLineDummy + "\n";
@@ -400,39 +388,21 @@ int main(int argc, char** argv) {
                             if (errorLine.empty()) {
                                 switch (i) {
                                     case 0:{
-                                        examPlanning.groupedCoursesScheduling(i, 0,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
-                                        examPlanning.groupedCoursesScheduling(i, 1,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
-                                        examPlanning.groupedCoursesScheduling(i, -1,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 0, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 1, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, -1, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
                                         break;
                                     }
                                     case 1:{
-                                        examPlanning.groupedCoursesScheduling(i, 1,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
-                                        examPlanning.groupedCoursesScheduling(i, 0,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
-                                        examPlanning.groupedCoursesScheduling(i, -1,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 1, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 0, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, -1, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
                                         break;
                                     }
                                     case 2: {
-                                        examPlanning.groupedCoursesScheduling(i, 0,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
-                                        examPlanning.groupedCoursesScheduling(i, 1,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
-                                        examPlanning.groupedCoursesScheduling(i, -1,
-                                                                              itDatabaseOfExamSession->second[i * 2],
-                                                                              databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 0, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, 1, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
+                                        examPlanning.groupedCoursesScheduling(i, -1, itDatabaseOfExamSession->second[i * 2], databaseOfProfessors, academicYearInt);
                                         break;
                                     }
                                     default:{
@@ -442,8 +412,7 @@ int main(int argc, char** argv) {
                                     }
                                 }
                                 if (okSchedule) {
-                                    examPlanning.outputSessionFile(fileNameFromCommandLine, i,
-                                                                   itDatabaseOfExamSession->second[i * 2]);
+                                    examPlanning.outputSessionFile(fileNameFromCommandLine, i, itDatabaseOfExamSession->second[i * 2]);
                                     examPlanning.outputWarningFile(fileNameFromCommandLine, i);
                                 }
                                 i++;

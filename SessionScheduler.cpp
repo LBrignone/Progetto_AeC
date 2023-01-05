@@ -59,7 +59,7 @@ bool SessionScheduler::coursesForGivenAcademicYear(string& errorHandling, const 
             _coursesToSchedule.clear();
         }
     }
-    return !_coursesToSchedule.empty();
+    return _coursesToSchedule.empty();
 }
 
 // this method is used to create a map ordered by semester that contains the expanded list of grouped courses (all versions

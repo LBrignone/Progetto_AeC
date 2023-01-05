@@ -837,7 +837,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                             if (level == 0) {
                                 patternFieldForEachLevel[2] = 0;
                                 if (errorIdentifier == OK) {
-                                    if (dummyCourse.setListAssistant(tmpAssociateProfessorList, errorHandling) == numeric_limits<unsigned int>::max()){
+                                    if (dummyCourse.setListAssistant(tmpAssociateProfessorList, errorHandling) == OK){
                                         courseList.push_back(dummyCourse);
                                         tmpAssociateProfessorList.clear();
                                     } else {
