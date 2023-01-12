@@ -1492,11 +1492,11 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                         break;
                     }
                     case 3: {
-                        stringstream idEndedCourses;
                         string endedCourse, tmpError;
 
                         if ((readFromLine.front() == '[') && (readFromLine.back() == ']')) {
-                            idEndedCourses.str() = readFromLine.substr(1, readFromLine.size() - 2);
+                            stringstream idEndedCourses(readFromLine.substr(1, readFromLine.size() - 2));
+
                             while (getline(idEndedCourses, endedCourse, ',') && (errorIdentifier == OK)) {
                                 if (!dummyStudyCourse.setListOfCoursesBySemester(tmpError, -1, endedCourse)) {
                                     errorIdentifier = ERR_course_of_study_format;
@@ -1692,7 +1692,7 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                     tmpSessionVector.push_back(dummyExamDate);
                 }
             }
-            // here the start and stop number is controlled, if it is uneven there's an error
+            // here the start and stop number is controlled, if it is odd there's an error
             if (startStopDates != 2) {
                 errorIdentifier = ERR_exceeding_session_dates;
                 if (isFileInput) {
@@ -1785,7 +1785,7 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
 
     if ((!academicYear.empty()) && isDb) {
         errorIdentifier = ERR_file_format;
-        errorHandling = "Error: tha \"isDb\" is discordant with regard to populate (not empty) \"academicYear\" argument";
+        errorHandling = "Error: the \"isDb\" is discordant with regard to populate (not empty) \"academicYear\" argument";
     }
     // if the academic year passed value isn't an empty string is necessary to control the correctness of the fields
     if ((!academicYear.empty()) && !isDb && (errorIdentifier == OK)) {

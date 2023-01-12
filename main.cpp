@@ -420,11 +420,11 @@ int main(int argc, char** argv) {
                                 okSchedule = false;
                             }
                         }
-                        break;
                     } else {
                         errorLine = "ERROR: one or more database's file/s are missing\n" + errorLine;
                     }
                 }
+                break;
             }
             default: {
                 errorIdentifier = ERR_wrong_identifier;

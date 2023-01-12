@@ -128,7 +128,7 @@ string Date::getAcademicYear() const {
 }
 
 void Date::getTimeSlot(ostream& os) {
-    os << setfill ('0') << setw (4) << _hour << ":00-" << setfill ('0') << setw (4) << (_hour + 2) << ":00;";
+    os << setfill ('0') << setw (2) << _hour << ":00-" << setfill ('0') << setw (2) << (_hour + 2) << ":00;";
 }
 
 void Date::increaseAcademicYear() {

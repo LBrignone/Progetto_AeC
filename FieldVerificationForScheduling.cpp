@@ -198,12 +198,17 @@ list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedu
     toReturn.push_back(courseToFind.getId());
     itToReturn = toReturn.begin();
     while (itToReturn != toReturn.end()) {
-        list<string> copyGroupedCourses = courseToFind.getListGroupedId();
+        list<Course>::const_iterator itCourseToSchedule = findCourse(courseToSchedule, *itToReturn);
 
-        toReturn.insert(toReturn.end(), copyGroupedCourses.begin(), copyGroupedCourses.end());
-        toRegroup = findCourseIdGrouped(courseToSchedule, *itToReturn);
-        toReturn.insert(toReturn.end(), toRegroup.begin(), toRegroup.end());
-        myUnique(toReturn);
+        if (itCourseToSchedule != courseToSchedule.cend()) {
+            list<string> copyGroupedCourses;
+
+            copyGroupedCourses = itCourseToSchedule->getListGroupedId();
+            toReturn.insert(toReturn.end(), copyGroupedCourses.begin(), copyGroupedCourses.end());
+            toRegroup = findCourseIdGrouped(courseToSchedule, *itToReturn);
+            toReturn.insert(toReturn.end(), toRegroup.begin(), toRegroup.end());
+            myUnique(toReturn);
+        }
         itToReturn++;
     }
     return toReturn;
@@ -214,107 +219,92 @@ list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedu
 // than create the expanded list of courses related with the version and course of study
 int groupedCoursesVerification(string& errorHandling, const list<string>& groupedCourses, const list<Course>& coursesToSchedule, const list<CourseOfStudy>& databaseCourseOfStudy, list<struct courseOrgBySemester>& courseListToSchedule, int& semester) {
     t_errorCodes errorIdentifier = OK;
-    int numberOfVersions;
+    int numberOfVersions = 0;
     string errorLine;
     courseOrgBySemester elementListStructGroupedCourse;
-    list<string> courseOfStudyRelatedToCourse, cumulativeCourseOfStudyToCompare;
+    list<string> courseOfStudyRelatedToCourse;
+    list<pair<string, bool>> dummyAssignedCourseOfStudy;
     list<string>::const_iterator itGroupedCourses, itCourseOfStudyRelatedToCourse;
     list<Course>::const_iterator  itCoursesToSchedule;
 
+    semester = -2;
     itGroupedCourses = groupedCourses.cbegin();
     while ((itGroupedCourses != groupedCourses.cend()) && (errorIdentifier == OK)) {
         itCoursesToSchedule = findCourse(coursesToSchedule, *itGroupedCourses);
-        numberOfVersions = itCoursesToSchedule->getParallelCoursesNumber();
-        courseOfStudyRelatedToCourse = findCourseOfStudy(errorLine, databaseCourseOfStudy, *itGroupedCourses);
-        if (courseOfStudyRelatedToCourse.empty()) {
-            if (!errorLine.empty()) {
+        if (itCoursesToSchedule != coursesToSchedule.end()) {
+            numberOfVersions = itCoursesToSchedule->getParallelCoursesNumber();
+            courseOfStudyRelatedToCourse = findCourseOfStudy(errorLine, databaseCourseOfStudy, *itGroupedCourses);
+            if (courseOfStudyRelatedToCourse.empty()) {
                 errorIdentifier = ERR_grouped_id;
                 errorHandling = errorLine;
-            }
-        }
-        if (!itCoursesToSchedule->isActiveCourse()) {
-            // in case the course is inactive the correct semester is "-1"
-            // here the proper controls are performed regarding the coherency and proper memorization regarding the semester
-            if (semester == -2) {
-                if (courseOfStudyRelatedToCourse.back() == "-1") {
-                    semester = -1;
-                    courseOfStudyRelatedToCourse.pop_back();
-                    courseOfStudyRelatedToCourse.pop_back();
-                } else {
-                    errorIdentifier = ERR_semester;
-                    errorHandling = "ERROR: the course " + *itGroupedCourses + " is inactive and it has no valid semester";
-                }
-            } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) && (courseOfStudyRelatedToCourse.back() == "-1")) {
-                errorIdentifier = ERR_semester;
-                errorHandling = "ERROR: the course " + *itGroupedCourses + "'s semester (" + courseOfStudyRelatedToCourse.back() +
-                                ") is incoherent with previous course's semester (" + to_string(semester) + ")";
-            } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) && (courseOfStudyRelatedToCourse.back() == "-2")) {
-                errorIdentifier = ERR_semester;
-                errorHandling = "ERROR: the course " + *itGroupedCourses + " is inactive and it has no valid semester";
             } else {
-                courseOfStudyRelatedToCourse.pop_back();
-                courseOfStudyRelatedToCourse.pop_back();
-            }
-        } else if (itCoursesToSchedule->isActiveCourse()) {
-            // in case the course is active the first semester is "0" and the second is "1"
-            // here the course is active, but the last element proposes an inactive status hence a pop is done and the new last
-            // element is taken into account controlling if it's valid and the coherent with previous course's semester
-            courseOfStudyRelatedToCourse.pop_back();
-            if (semester == -2) {
-                if (courseOfStudyRelatedToCourse.back() != "-2") {
-                    semester = stoi(courseOfStudyRelatedToCourse.back());
+                if (!itCoursesToSchedule->isActiveCourse()) {
+                    // in case the course is inactive the correct semester is "-1"
+                    // here the proper controls are performed regarding the coherency and proper memorization regarding the semester
+                    if (semester == -2) {
+                        if (courseOfStudyRelatedToCourse.back() == "-1") {
+                            semester = -1;
+                            courseOfStudyRelatedToCourse.pop_back();
+                            courseOfStudyRelatedToCourse.pop_back();
+                        } else {
+                            errorIdentifier = ERR_semester;
+                            errorHandling =
+                                    "ERROR: the course " + *itGroupedCourses + " is inactive and it has no valid semester";
+                        }
+                    } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) &&
+                               (courseOfStudyRelatedToCourse.back() == "-1")) {
+                        errorIdentifier = ERR_semester;
+                        errorHandling = "ERROR: the course " + *itGroupedCourses + "'s semester (" +
+                                        courseOfStudyRelatedToCourse.back() +
+                                        ") is incoherent with previous course's semester (" + to_string(semester) + ")";
+                    } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) &&
+                               (courseOfStudyRelatedToCourse.back() == "-2")) {
+                        errorIdentifier = ERR_semester;
+                        errorHandling = "ERROR: the course " + *itGroupedCourses + " is inactive and it has no valid semester";
+                    } else {
+                        courseOfStudyRelatedToCourse.pop_back();
+                        courseOfStudyRelatedToCourse.pop_back();
+                    }
+                } else if (itCoursesToSchedule->isActiveCourse()) {
+                    // in case the course is active the first semester is "0" and the second is "1"
+                    // here the course is active, but the last element proposes an inactive status hence a pop is done and the new last
+                    // element is taken into account controlling if it's valid and the coherent with previous course's semester
                     courseOfStudyRelatedToCourse.pop_back();
-                } else {
-                    errorIdentifier = ERR_semester;
-                    errorHandling = "ERROR: the course " + *itGroupedCourses + " is active but it has no valid semester";
+                    if (semester == -2) {
+                        if (courseOfStudyRelatedToCourse.back() != "-2") {
+                            semester = stoi(courseOfStudyRelatedToCourse.back());
+                            courseOfStudyRelatedToCourse.pop_back();
+                        } else {
+                            errorIdentifier = ERR_semester;
+                            errorHandling =
+                                    "ERROR: the course " + *itGroupedCourses + " is active but it has no valid semester";
+                        }
+                    } else if (semester != stoi(courseOfStudyRelatedToCourse.back())) {
+                        errorIdentifier = ERR_semester;
+                        errorHandling = "ERROR: the course " + *itGroupedCourses + "'s semester (" +
+                                        courseOfStudyRelatedToCourse.back() +
+                                        ") is incoherent with previous course's semester (" + to_string(semester) + ")";
+                    } else if (courseOfStudyRelatedToCourse.back() == "-2") {
+                        errorIdentifier = ERR_semester;
+                        errorHandling = "ERROR: the course " + *itGroupedCourses + " is active but it has no valid semester";
+                    } else {
+                        courseOfStudyRelatedToCourse.pop_back();
+                    }
                 }
-            } else if (semester != stoi(courseOfStudyRelatedToCourse.back())) {
-                errorIdentifier = ERR_semester;
-                errorHandling = "ERROR: the course " + *itGroupedCourses + "'s semester (" + courseOfStudyRelatedToCourse.back() +
-                                ") is incoherent with previous course's semester (" + to_string(semester) + ")";
-            } else if (courseOfStudyRelatedToCourse.back() == "-2") {
-                errorIdentifier = ERR_semester;
-                errorHandling = "ERROR: the course " + *itGroupedCourses + " is active but it has no valid semester";
-            } else {
-                courseOfStudyRelatedToCourse.pop_back();
             }
-        }
-        if (errorIdentifier == OK) {
-            list<Course>::const_iterator itCoursesToScheduleForVersion;
-
-            //itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.cbegin();
-            //while (itCourseOfStudyRelatedToCourse != courseOfStudyRelatedToCourse.cend()) {
-            //    itCoursesToScheduleForVersion = itCoursesToSchedule;
-            //    if (std::find(cumulativeCourseOfStudyToCompare.begin(), cumulativeCourseOfStudyToCompare.end(), *itCourseOfStudyRelatedToCourse) != cumulativeCourseOfStudyToCompare.end()) {
-            //        errorIdentifier = ERR_same_course_of_study;
-            //        errorHandling = "ERROR: the course " + *itGroupedCourses + "has a course of study in common " +
-            //                        "with another course, this will lead to a non compliance with rule regarding " +
-            //                        "the 2 dd minimum distance between courses with same course of study";
-            //        itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.cend();
-            //    } else {
-            //        cumulativeCourseOfStudyToCompare.push_back(*itCourseOfStudyRelatedToCourse);
-            //        for (int i = 0; i < numberOfVersions; i++) {
-            //            elementListStructGroupedCourse._course = *itCoursesToScheduleForVersion;
-            //            elementListStructGroupedCourse._assignedCourseOfStudy = *itCourseOfStudyRelatedToCourse;
-            //            courseListToSchedule.push_back(elementListStructGroupedCourse);
-            //            itCoursesToScheduleForVersion++;
-            //        }
-            //    }
-            //    itCourseOfStudyRelatedToCourse++;
-            //}
-
-            for (int i = 0; i < numberOfVersions; i++) {
-                list<pair<string, bool>> dummyAssignedCourseOfStudy;
-
+            if (errorIdentifier == OK) {
                 for (itCourseOfStudyRelatedToCourse = courseOfStudyRelatedToCourse.begin(); itCourseOfStudyRelatedToCourse !=  courseOfStudyRelatedToCourse.end(); itCourseOfStudyRelatedToCourse++) {
                     dummyAssignedCourseOfStudy.emplace_back(*itCourseOfStudyRelatedToCourse, false);
                 }
-                elementListStructGroupedCourse._course = *itCoursesToScheduleForVersion;
-                elementListStructGroupedCourse._assignedCourseOfStudy = dummyAssignedCourseOfStudy;
-                courseListToSchedule.push_back(elementListStructGroupedCourse);
-                itCoursesToScheduleForVersion++;
+                for (int i = 0; i < numberOfVersions; i++) {
+                    elementListStructGroupedCourse._course = *itCoursesToSchedule;
+                    elementListStructGroupedCourse._assignedCourseOfStudy = dummyAssignedCourseOfStudy;
+                    courseListToSchedule.push_back(elementListStructGroupedCourse);
+                    itCoursesToSchedule++;
+                }
             }
         }
+
         itGroupedCourses++;
     }
     return errorIdentifier;
@@ -327,14 +317,13 @@ void myUnique(list<string>& courseList) {
     while (itCourseList != courseList.end()) {
         list<string>::iterator itCourseListInner;
 
-        itCourseListInner = itCourseList;
-        itCourseListInner++;
+        itCourseListInner = courseList.begin();
         while (itCourseListInner != courseList.end()) {
-            if (itCourseList == itCourseListInner) {
-                courseList.erase(itCourseListInner);
-                itCourseListInner--;
+            if ((itCourseList != itCourseListInner) && (*itCourseList == *itCourseListInner)) {
+                itCourseListInner = courseList.erase(itCourseListInner);
+            } else {
+                itCourseListInner++;
             }
-            itCourseListInner++;
         }
         itCourseList++;
     }

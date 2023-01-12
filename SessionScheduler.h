@@ -25,7 +25,7 @@
 #include "FieldVerificationForScheduling.h"
 
 #define CONSTRAIN_1_DISTANCE 2
-#define CONSTRAIN_2_DISTANCE 14
+#define CONSTRAIN_2_DISTANCE 11
 #define CONSTRAIN_2_DISTANCE_RELAXED 3
 #define MAX_SLOT_PER_DAY 5
 
@@ -37,12 +37,26 @@ struct examScheduled{
     string _version;
     string _classroom;
 
+    examScheduled() {}
+    examScheduled(const examScheduled& toCopy) {
+        _assignedCourseOfStudy = toCopy._assignedCourseOfStudy;
+        _relateCourse = toCopy._relateCourse;
+        _version = toCopy._version;
+        _classroom = toCopy._classroom;
+    }
     const bool isEmpty () const {
         if (_assignedCourseOfStudy.empty() && _relateCourse.empty() && _version.empty() && _classroom.empty()) {
             return true;
         } else {
             return false;
         }
+    }
+    examScheduled& operator =(const examScheduled& toCopy) {
+        _assignedCourseOfStudy = toCopy._assignedCourseOfStudy;
+        _relateCourse = toCopy._relateCourse;
+        _version = toCopy._version;
+        _classroom = toCopy._classroom;
+        return *this;
     }
 };
 
@@ -54,7 +68,9 @@ struct courseOrgBySemester{
     void setCourseOfStudyError(const string& courseOfStudyToSet) {
         list<pair<string, bool>>::iterator it_assignedCourseOfStudy;
         it_assignedCourseOfStudy = find(_assignedCourseOfStudy.begin(), _assignedCourseOfStudy.end(), make_pair(courseOfStudyToSet, false));
-        it_assignedCourseOfStudy->second = true;
+        if (it_assignedCourseOfStudy != _assignedCourseOfStudy.end()) {
+            it_assignedCourseOfStudy->second = true;
+        }
     }
     bool operator <(const courseOrgBySemester& toCompare) {return (this->_course.getPartecipants()) < toCompare._course.getPartecipants();}
 };
@@ -65,6 +81,10 @@ struct expandedScheduleForPrint{
     string _version;
     string _classroom;
     vector<bool> _constrainDeactivated = {false, false, false, false};
+
+    const bool isEmpty () const {
+        return _assignedCourseOfStudy.empty() && _relateCourse.empty() && _version.empty() && _classroom.empty();
+    }
     bool operator ==(const expandedScheduleForPrint& toCompare) {
         return ((this->_assignedCourseOfStudy == toCompare._assignedCourseOfStudy) && (this->_relateCourse == toCompare._relateCourse) && (this->_version == toCompare._version) && (this->_classroom == toCompare._classroom));
     }
@@ -107,7 +127,9 @@ private:
     bool constrain_4(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                      const Course& courseToInsert, const int& dayRef, const int& slotRef, int& classroomChosen);
     void coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
-                           const Course& courseToInsert, const int& classroomChosen, const int& dayRef, const int& slotRef);
+                           const Course& courseToInsert, const int& classroomChosen, const int& dayRef,
+                           const int& slotRef, const list<string>& courseOfStudyRelatedToCourse);
+    void resetDataFromDatabase(map<int, vector<vector<courseOrgBySemester>>>& groupedCourses, vector<pair<Classroom, vector<vector<examScheduled>>>>& datesPlanning);
 
     // the map has as key the classroom and keeps for each of them a "calendar" (second parameter of the map)
     vector<pair<Classroom, vector<vector<examScheduled>>>> _datesPlanning;

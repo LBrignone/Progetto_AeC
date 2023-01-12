@@ -177,59 +177,69 @@ list<Course>::const_iterator findCourseLastForIdAndYear(const list<Course>& cour
 // the function returns a list of courses of study as ids, and the semester in which they are scheduled as last element
 list<string> findCourseOfStudy(string& errorHandling, const list<CourseOfStudy>& courseOfStudyList, const string& idToFind) {
     bool errorInCheck = false;
-    int j = 0, semester = -2, endedCourse = -2;
+    int j = 0, semester = -2, validSemester = -2, endedCourse = -2;
     vector<int> vectorOfSemesterForCourse;
     list<string> listOfCoursesOfStudyForCourse;
     list<CourseOfStudy>::const_iterator itCourseOfStudyList;
 
     itCourseOfStudyList = courseOfStudyList.cbegin();
     while(itCourseOfStudyList != courseOfStudyList.cend()) {
-        if (itCourseOfStudyList->getGraduationType() == "BS") {
-            for (int i = -1; i < 6; i++) {
-                semester = itCourseOfStudyList->findCourse(i, idToFind);
-                if (semester == -2) {
-                    i = 6;
-                } else {
-                    vectorOfSemesterForCourse.push_back(semester % 2);
-                    listOfCoursesOfStudyForCourse.push_back(itCourseOfStudyList->getCourseOfStudyId());
+        int i = -1;
+
+        if (itCourseOfStudyList->findCourse(i, idToFind) != -2) {
+            listOfCoursesOfStudyForCourse.push_back(itCourseOfStudyList->getCourseOfStudyId());
+            if (itCourseOfStudyList->getGraduationType() == "BS") {
+                while((i > -2) && (i < 6)) {
+                    semester = itCourseOfStudyList->findCourse(i, idToFind);
+                    if (semester != -2) {
+                        if (semester == -1) {
+                            endedCourse = -1;
+                        } else {
+                            if (validSemester == -2) {
+                                validSemester = semester % 2;
+                            } else {
+                                if (validSemester != (semester % 2)) {
+                                    errorInCheck = true;
+                                }
+                            }
+                        }
+                        i = semester + 1;
+                    } else {
+                        i = semester;
+                    }
                 }
-            }
-        } else if (itCourseOfStudyList->getGraduationType() == "MS") {
-            for (int i = -1; i < 4; i++) {
-                semester = itCourseOfStudyList->findCourse(i, idToFind);
-                if (semester == -2) {
-                    i = 4;
-                } else {
-                    vectorOfSemesterForCourse.push_back(semester % 2);
-                    listOfCoursesOfStudyForCourse.push_back(itCourseOfStudyList->getCourseOfStudyId());
+            } else if (itCourseOfStudyList->getGraduationType() == "MS") {
+                while((i > -2) && (i < 4)) {
+                    semester = itCourseOfStudyList->findCourse(i, idToFind);
+                    if (semester != -2) {
+                        if (semester == -1) {
+                            endedCourse = -1;
+                        } else {
+                            if (validSemester == -2) {
+                                validSemester = semester % 2;
+                            } else {
+                                if (validSemester != (semester % 2)) {
+                                    errorInCheck = true;
+                                }
+                            }
+                        }
+                        i = semester + 1;
+                    } else {
+                        i = semester;
+                    }
                 }
             }
         }
         itCourseOfStudyList++;
     }
-    if (vectorOfSemesterForCourse[0] != -1) {
-        semester = vectorOfSemesterForCourse[0];
+    if (errorInCheck){
+        errorHandling = "ERROR: the course " + idToFind + " appears to be in more than one semester";
+        listOfCoursesOfStudyForCourse.clear();
     } else {
-        endedCourse = -1;
-    }
-    while ((j < ((vectorOfSemesterForCourse.size() - 1))) && !errorInCheck) {
-        j++;
-        if ((vectorOfSemesterForCourse[j - 1] != vectorOfSemesterForCourse[j]) &&
-            ((vectorOfSemesterForCourse[j - 1] != -1) || (vectorOfSemesterForCourse[j] != -1))) {
-            listOfCoursesOfStudyForCourse.clear();
-            errorHandling = "ERROR: the course " + idToFind + "appears to be in more than one semester";
-            errorInCheck = true;
-        } else {
-            if (vectorOfSemesterForCourse[j] != -1) {
-                semester = vectorOfSemesterForCourse[j];
-            } else {
-                endedCourse = -1;
-            }
+        if (!listOfCoursesOfStudyForCourse.empty()) {
+            listOfCoursesOfStudyForCourse.push_back(to_string(validSemester));
+            listOfCoursesOfStudyForCourse.push_back(to_string(endedCourse));
         }
-    }
-    if (!listOfCoursesOfStudyForCourse.empty()) {
-        listOfCoursesOfStudyForCourse.push_back(to_string(semester));
-        listOfCoursesOfStudyForCourse.push_back(to_string(endedCourse));
     }
     return listOfCoursesOfStudyForCourse;
 }

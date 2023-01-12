@@ -60,7 +60,7 @@ void Professor::resetChangeInUnavail() {
     _changeInUnavail = false;
 }
 
-bool Professor::isAvailExamProgramming(const Date& data, const Date& academicYear) {
+bool Professor::isAvailExamProgramming(const Date& startData, const Date& stopData, const Date& academicYear) {
     bool flag = true;
     map<Date, list<AvailForExam>>::iterator availMapIter;
     list<AvailForExam>::iterator availListIter;
@@ -69,16 +69,22 @@ bool Professor::isAvailExamProgramming(const Date& data, const Date& academicYea
     availListExamIter = _unavailabilityForExam.begin();
     availMapIter = _unavailability.find(academicYear);
     if (availMapIter != _unavailability.end()){
+        Date tmpStartDate, tmpStopDate;
+
         availListIter = availMapIter->second.begin();
-        while ((flag == true) && (availListIter != availMapIter->second.end())) {
-            if ((data <= availListIter->stop) && (data >= availListIter->start)) {
+        while ((flag) && (availListIter != availMapIter->second.end())) {
+            tmpStartDate = availListIter->start;
+            tmpStartDate.setHour(startData.getHour());
+            tmpStopDate = availListIter->stop;
+            tmpStopDate.setHour(startData.getHour());
+            if ((startData <= tmpStopDate) && (startData >= tmpStartDate)) {
                 flag = false;
             }
             availListIter++;
         }
     }
     while ((flag == true) && (availListExamIter != _unavailabilityForExam.end())) {
-        if ((data <= availListExamIter->stop) && (data >= availListExamIter->start)){
+        if ((startData <= availListExamIter->stop) && (startData >= availListExamIter->start) || (stopData <= availListExamIter->stop) && (stopData >= availListExamIter->start)){
             flag = false;
         }
         availListExamIter ++;
@@ -94,6 +100,16 @@ const list<AvailForExam>& Professor::getUnavailListByAcademicYear (string& error
         errorHandling = "can't find key map";
     }
     return itMapByAcademicYear->second;
+}
+
+list<string> Professor::getUnavailForExam() {
+    list<string> tmp;
+    list<AvailForExam>::const_iterator itUnavailabilityForExam = _unavailabilityForExam.begin();
+    for (; itUnavailabilityForExam != _unavailabilityForExam.end(); itUnavailabilityForExam++) {
+        tmp.push_back(itUnavailabilityForExam->start.getCompleteDate());
+        tmp.push_back(itUnavailabilityForExam->stop.getCompleteDate());
+    }
+    return tmp;
 }
 
 Date Professor::getMinDateForUnavail() const {
@@ -164,10 +180,7 @@ bool Professor::appendUnavailability(const AvailForExam& unavailDates, const Dat
 }
 
 void Professor::appendUnavailabilityForExam(const Date &startUnavail, const Date &stopUnavail) {
-    AvailForExam AvailForExamDummy;
-    AvailForExamDummy.start = startUnavail;
-    AvailForExamDummy.stop = stopUnavail;
-    _unavailabilityForExam.push_back(AvailForExamDummy);
+    _unavailabilityForExam.emplace_back(startUnavail, stopUnavail);
 }
 
 void Professor::clearMapAcademicYearUnavailability(const Date& academicYear) {

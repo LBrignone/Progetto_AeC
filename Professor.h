@@ -20,6 +20,8 @@ using namespace std;
 typedef struct AvailForExam {
     Date start;
     Date stop;
+    AvailForExam() {}
+    AvailForExam(Date date1, Date date2) {start = date1; stop = date2;}
 } AvailForExam;
 
 class Professor : public Person {
@@ -31,8 +33,9 @@ public:
     bool getChangeInUnavail();
     void setChangeInUnavail(const bool& newState);
     void resetChangeInUnavail();
-    bool isAvailExamProgramming (const Date& data, const Date& academicYear);
+    bool isAvailExamProgramming(const Date& startData, const Date& stopData, const Date& academicYear);
     const list<AvailForExam>& getUnavailListByAcademicYear(string& errorHandling, const Date& academicYear) const;
+    list<string> getUnavailForExam();
     Date getMinDateForUnavail() const;
     Date getMaxDateForUnavail() const;
     bool setUnavailability(const list<AvailForExam>& unavailDatesList, const Date& academicYear);

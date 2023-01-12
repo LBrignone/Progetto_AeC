@@ -125,14 +125,14 @@ bool sessionDurationConstrainVerification(string& errorHandling, const vector<Da
 
     while ((sessionIdentifier < 3) && (errorIdentifier == OK)) {
         if ((sessionIdentifier == 0) || (sessionIdentifier == 1)) {
-            examDurationInDays = sessionToVerify.at(sessionIdentifier * 2 + 1) - sessionToVerify.at(sessionIdentifier * 2);
+            examDurationInDays = sessionToVerify.at(sessionIdentifier * 2 + 1) - sessionToVerify.at(sessionIdentifier * 2) + 1;
             if (((examDurationInDays / 7) != 6) || ((examDurationInDays % 7) != 0)) {
                 errorIdentifier = ERR_exam_duration;
                 errorHandling = "the session number " + to_string(sessionIdentifier) + " has a duration which is different from the canonical 6 weeks";
             }
         }
         if (sessionIdentifier == 2) {
-            examDurationInDays = sessionToVerify.at(sessionIdentifier * 2 + 1) - sessionToVerify.at(sessionIdentifier * 2);
+            examDurationInDays = sessionToVerify.at(sessionIdentifier * 2 + 1) - sessionToVerify.at(sessionIdentifier * 2) + 1;
             if (((examDurationInDays / 7) != 4) || ((examDurationInDays % 7) != 0)) {
                 errorIdentifier = ERR_exam_duration;
                 errorHandling = "the session number " + to_string(sessionIdentifier) + " has a duration which is different from the canonical 4 weeks";

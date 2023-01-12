@@ -18,20 +18,19 @@ SessionScheduler::SessionScheduler(string& errorHandling, const int& refAcademic
     if (this->coursesForGivenAcademicYear(errorLine, databaseCourses, refAcademicYear, databaseProfessor)) {
         errorHandling = "ERROR: can't construct object \"SessionScheduler\"\n" + errorLine;
     } else {
+        for (int i = -1; i < 2; i++) {
+            _groupedCoursesToPlan[i] = placeHolderForCourses;
+        }
         if (this->groupingCoursesBySemester(errorLine, databaseCourseOfStudy) == OK) {
             if (!classroomFieldVerification(errorLine, databaseClassroom)) {
                 errorHandling = "ERROR: can't construct object \"SessionScheduler\"\n" + errorLine;
             } else {
                 copyOfClassroomList.sort(sortMethodForClassroom);
                 for (itClassroomList = copyOfClassroomList.cbegin();
-                     itClassroomList != copyOfClassroomList.cend(); itClassroomList++) {
+                itClassroomList != copyOfClassroomList.cend(); itClassroomList++) {
                     _datesPlanning.emplace_back(*itClassroomList, placeHolderForCalendar);
                 }
-                if (this->sessionScheduleFromDate(errorLine, startRef, stopRef, sessionNumber)) {
-                    for (int i = -1; i < 2; i++) {
-                        _groupedCoursesToPlan[i] = placeHolderForCourses;
-                    }
-                } else {
+                if (!this->sessionScheduleFromDate(errorLine, startRef, stopRef, sessionNumber)) {
                     errorHandling = "ERROR: can't construct object \"SessionScheduler\"\n" + errorLine;
                 }
             }
@@ -66,16 +65,17 @@ bool SessionScheduler::coursesForGivenAcademicYear(string& errorHandling, const 
 // for each course of study that makes use of it) and a flag (bool) used for schedule the exam
 int SessionScheduler::groupingCoursesBySemester(string& errorHandling, const list<CourseOfStudy>& databaseCourseOfStudy) {
     t_errorCodes errorIdentifier = OK;
-    int errorReturn, semesterRef;
+    int errorReturn, semesterRef = -2;
     list<string> coursesAlreadyUsed, coursesToExtend;
-    list<courseOrgBySemester> courseExtended;
-    vector<courseOrgBySemester> courseExtendedVector;
     list<string>::const_iterator itCoursesAlreadyUsed;
     list<courseOrgBySemester>::const_iterator itCourseExtended;
     list<Course>::const_iterator itInternalCourseList;
 
     itInternalCourseList = _coursesToSchedule.cbegin();
     while ((itInternalCourseList != _coursesToSchedule.cend()) && (errorIdentifier == OK)) {
+        list<courseOrgBySemester> courseExtended;
+        vector<courseOrgBySemester> courseExtendedVector;
+
         itCoursesAlreadyUsed = find(coursesAlreadyUsed.cbegin(), coursesAlreadyUsed.cend(), itInternalCourseList->getId());
         if (itCoursesAlreadyUsed == coursesAlreadyUsed.cend()) {
             coursesToExtend = regroupingCoursesForCommonCourse(_coursesToSchedule, *itInternalCourseList);
@@ -102,7 +102,7 @@ bool SessionScheduler::sessionScheduleFromDate(string& errorHandling, const Date
     vector<examScheduled> dummyElementForInit(5);
     vector<pair<Classroom, vector<vector<examScheduled>>>>::iterator itDatesPlanning;
 
-    sessionDuration = stopDate - startDate + 1 - ((stopDate - startDate + 1) / 7);
+    sessionDuration = stopDate - startDate - ((stopDate - startDate) / 7);
     if (sessionDuration < 13) {
         errorHandling = "ERROR: the session duration doesn't guarantee the possibility of placing the second appeal and other semester's courses";
         errorInScheduling = true;
@@ -134,34 +134,40 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
 
     while (firstAppeal || secondAppeal) {
         int groupNumber = 0, courseNumber = 0;
+        Course TOTEST;
 
-        if (secondAppeal) {
-            day = 13;
-        }
-        if (firstAppeal) {
-            day = 0;
-        }
         for (itGroupedCourseToPlanVector = copyOfGroupedCoursesToPlan[semesterToSchedule].begin(); itGroupedCourseToPlanVector != copyOfGroupedCoursesToPlan[semesterToSchedule].end(); itGroupedCourseToPlanVector++) {
             bool endSchedulingGroup = false, errorInScheduling = false, forcedExit = false;
             int relaxedConstrain = 0, coursesPositioned = 0, coursesPositionedMax = 0, dayMax = 0, slotMax = 0;
             int freeClassroomToUse = 0;
             vector<courseOrgBySemester>::iterator itGroupedCoursesToPlanList;
 
-            groupNumber++;
+            if (secondAppeal) {
+                if (sessionNumber != 2) {
+                    day = 12;
+                } else {
+                    day = 0;
+                }
+            }
+            if (firstAppeal) {
+                day = 0;
+            }
             itGroupedCoursesToPlanList = itGroupedCourseToPlanVector->begin();
             while (!endSchedulingGroup) {
-                courseNumber++;
                 itGroupedCoursesToPlanList->_constrainDeactivated[0] = false;
+                TOTEST = itGroupedCoursesToPlanList->_course;
                 errorInScheduling = false;
-                if (!constrain_1(copyOfDatesPlanning, day, copyOfGroupedCoursesToPlan, semesterToSchedule, groupNumber, courseNumber)) {
+                if (constrain_1(copyOfDatesPlanning, day, copyOfGroupedCoursesToPlan, semesterToSchedule, groupNumber, courseNumber)) {
                     if (relaxedConstrain < 1) {
                         errorInScheduling = true;
                     }
                 }
-                if (!constrain_2(copyOfDatesPlanning, day, slot, relaxedConstrain, copyOfGroupedCoursesToPlan,
+                TOTEST = itGroupedCoursesToPlanList->_course;
+                if (constrain_2(copyOfDatesPlanning, day, slot, relaxedConstrain, copyOfGroupedCoursesToPlan,
                                  semesterToSchedule, groupNumber, courseNumber)) {
                         errorInScheduling = true;
                 }
+                TOTEST = itGroupedCoursesToPlanList->_course;
                 if (!constrain_3(copyOfDatesPlanning, academicYearRef, startDate, day, slot,
                                  itGroupedCoursesToPlanList->_course, copyDatabaseProfessorList)) {
                     if (relaxedConstrain >= 3) {
@@ -170,6 +176,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                         errorInScheduling = true;
                     }
                 }
+                TOTEST = itGroupedCoursesToPlanList->_course;
                 if (!constrain_4(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, day,
                                  slot, freeClassroomToUse)) {
                     itGroupedCoursesToPlanList->_constrainDeactivated[0] = true;
@@ -179,23 +186,40 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                         errorInScheduling = true;
                     }
                 }
+                TOTEST = itGroupedCoursesToPlanList->_course;
                 if (relaxedConstrain != 4) {
                     if (errorInScheduling) {
-                        copyOfGroupedCoursesToPlan = _groupedCoursesToPlan;
-                        copyOfDatesPlanning = _datesPlanning;
+                        resetDataFromDatabase(copyOfGroupedCoursesToPlan, copyOfDatesPlanning);
                         copyDatabaseProfessorList = databaseProfessorList;
-                        slot++;
                         if (slot == (copyOfDatesPlanning.front().second[day].size() - 1)) {
                             slot = 0;
-                            day++;
                             if (day == (copyOfDatesPlanning.front().second.size() - 1)) {
-                                day = 0;
+                                if (secondAppeal) {
+                                    day = 12;
+                                }
+                                if (firstAppeal) {
+                                    day = 0;
+                                }
                                 relaxedConstrain++;
+                            } else {
+                                day++;
                             }
+                        } else {
+                            slot++;
                         }
+                        TOTEST = itGroupedCoursesToPlanList->_course;
+                        courseNumber = 0;
                         itGroupedCoursesToPlanList = itGroupedCourseToPlanVector->begin();
                     } else {
-                        coursePositioning(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, freeClassroomToUse, day, slot);
+                        list<string> courseOfStudyFromCoure;
+                        list<pair<string, bool>>::const_iterator itAssignedCourseOfStudy;
+
+                        for (itAssignedCourseOfStudy = itGroupedCoursesToPlanList->_assignedCourseOfStudy.begin(); itAssignedCourseOfStudy != itGroupedCoursesToPlanList->_assignedCourseOfStudy.end(); itAssignedCourseOfStudy++) {
+                            courseOfStudyFromCoure.push_back(itAssignedCourseOfStudy->first);
+                        }
+                        coursePositioning(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, freeClassroomToUse,
+                                          day, slot, courseOfStudyFromCoure);
+                        courseNumber++;
                         itGroupedCoursesToPlanList++;
                         if (itGroupedCoursesToPlanList == itGroupedCourseToPlanVector->end()) {
                             endSchedulingGroup = true;
@@ -203,8 +227,16 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                     }
                 } else {
                     if (!itGroupedCoursesToPlanList->_constrainDeactivated[0]) {
-                        coursePositioning(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, freeClassroomToUse, day, slot);
+                        list<string> courseOfStudyFromCoure;
+                        list<pair<string, bool>>::const_iterator itAssignedCourseOfStudy;
+
+                        for (itAssignedCourseOfStudy = itGroupedCoursesToPlanList->_assignedCourseOfStudy.begin(); itAssignedCourseOfStudy != itGroupedCoursesToPlanList->_assignedCourseOfStudy.end(); itAssignedCourseOfStudy++) {
+                            courseOfStudyFromCoure.push_back(itAssignedCourseOfStudy->first);
+                        }
+                        coursePositioning(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, freeClassroomToUse,
+                                          day, slot, courseOfStudyFromCoure);
                         coursesPositioned++;
+                        courseNumber++;
                     }
                     itGroupedCoursesToPlanList++;
                     if (itGroupedCoursesToPlanList == itGroupedCourseToPlanVector->end()) {
@@ -214,18 +246,19 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                                 dayMax = day;
                                 slotMax = slot;
                             }
-                            copyOfGroupedCoursesToPlan = _groupedCoursesToPlan;
-                            copyOfDatesPlanning = _datesPlanning;
+                            resetDataFromDatabase(copyOfGroupedCoursesToPlan, copyOfDatesPlanning);
                             copyDatabaseProfessorList = databaseProfessorList;
-                            slot++;
                             if (slot == (copyOfDatesPlanning.front().second[day].size() - 1)) {
                                 slot = 0;
-                                day++;
                                 if (day == (copyOfDatesPlanning.front().second.size() - 1)) {
                                     day = dayMax;
                                     slot = slotMax;
                                     forcedExit = true;
+                                } else {
+                                    day++;
                                 }
+                            } else {
+                                slot++;
                             }
                         } else {
                             endSchedulingGroup = true;
@@ -236,6 +269,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
             _groupedCoursesToPlan = copyOfGroupedCoursesToPlan;
             _datesPlanning = copyOfDatesPlanning;
             databaseProfessorList = copyDatabaseProfessorList;
+            groupNumber++;
         }
         if (firstAppeal) {
             firstAppeal = false;
@@ -255,19 +289,22 @@ bool SessionScheduler::constrain_1(const vector<pair<Classroom, vector<vector<ex
     list<string>::const_iterator itCourseOfStudyFromFind;
     list<pair<string, bool>>::iterator itIdCourseOfStudyToFind;
 
+    string TOTEST;
+
     position = dayRef - CONSTRAIN_1_DISTANCE;
     positionMax = dayRef + CONSTRAIN_1_DISTANCE + 1;
     if (position < 0) {
         position = 0;
     }
     if (positionMax > copyOfDatesPlanning[classroom].second.size() - 1) {
-        positionMax = (int) copyOfDatesPlanning[classroom].second.size() - 1;
+        positionMax = (int) copyOfDatesPlanning[classroom].second.size();
     }
     while (position < positionMax) {
         while (slot < MAX_SLOT_PER_DAY) {
             while (classroom < copyOfDatesPlanning.size()) {
                 itIdCourseOfStudyToFind = copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._assignedCourseOfStudy.begin();
                 while (itIdCourseOfStudyToFind != copyCoursesForConstrainViolation[semesterRef][groupRef][courseRef]._assignedCourseOfStudy.end()) {
+                    TOTEST = itIdCourseOfStudyToFind->first;
                     itCourseOfStudyFromFind = find(copyOfDatesPlanning[classroom].second[position][slot]._assignedCourseOfStudy.begin(), copyOfDatesPlanning[classroom].second[position][slot]._assignedCourseOfStudy.end(),
                                                    itIdCourseOfStudyToFind->first);
                     if (itCourseOfStudyFromFind != copyOfDatesPlanning[classroom].second[position][slot]._assignedCourseOfStudy.end()) {
@@ -294,9 +331,8 @@ bool SessionScheduler::constrain_1(const vector<pair<Classroom, vector<vector<ex
                                 semesterCourse++;
                             }
                         }
-                    } else {
-                        itIdCourseOfStudyToFind++;
                     }
+                    itIdCourseOfStudyToFind++;
                 }
                 classroom++;
             }
@@ -339,9 +375,8 @@ bool SessionScheduler::constrain_2(const vector<pair<Classroom, vector<vector<ex
                             classroom = (int) copyOfDatesPlanning.size() + 1;
                         }
                     }
-                } else {
-                    classroom++;
                 }
+                classroom++;
             }
             if (classroom != (int) copyOfDatesPlanning.size() + 1) {
                 classroom = 0;
@@ -372,30 +407,28 @@ bool SessionScheduler::constrain_3(const vector<pair<Classroom, vector<vector<ex
                                    const int& academicYearRef, const Date& startSessionDate, const int& dateIncrement,
                                    const int& slotRef, const Course& courseToInsert, list<Professor>& professorListToVerifyAndUpdate) {
     bool professorUnavailable = false;
-    int hourSlot = 8 + ((slotRef - 1) * 2), examDuration = 0;
-    Date unavailabilityToAssignStart, unavailabilityToAssignStop;
+    int hourSlot = 8 + ((slotRef) * 2), examDuration = 0;
+    Date unavailabilityToAssignStart, unavailabilityToAssignStop, academicYear(0, 0 , academicYearRef);
     list<AssociateProfessor>::const_iterator itCourseToInsert;
     list<Professor>::const_iterator itProfessorListToVerifyAndUpdateConst;
     list<Professor>::iterator itProfessorListToVerifyAndUpdate;
 
-    unavailabilityToAssignStart = startSessionDate + dateIncrement;
+    unavailabilityToAssignStart = startSessionDate + dateIncrement + (dateIncrement / 6);
     unavailabilityToAssignStart.setHour(hourSlot);
-    examDuration = courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime();
+    examDuration = approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 60);
     unavailabilityToAssignStop = unavailabilityToAssignStart;
     unavailabilityToAssignStop.setHour(hourSlot + examDuration);
     itCourseToInsert = courseToInsert.getListAssistant().cbegin();
     while (itCourseToInsert != courseToInsert.getListAssistant().cend()) {
         itProfessorListToVerifyAndUpdateConst = findProfessor(professorListToVerifyAndUpdate, itCourseToInsert->getProfessorPointer()->getId());
         itProfessorListToVerifyAndUpdate = constItToNonConstIt(professorListToVerifyAndUpdate, itProfessorListToVerifyAndUpdateConst);
-        if (!itProfessorListToVerifyAndUpdate->isAvailExamProgramming(unavailabilityToAssignStart, academicYearRef)) {
+        if (!itProfessorListToVerifyAndUpdate->isAvailExamProgramming(unavailabilityToAssignStart, unavailabilityToAssignStop, academicYear)) {
             itCourseToInsert = courseToInsert.getListAssistant().cend();
             professorUnavailable = true;
+        } else {
+            itProfessorListToVerifyAndUpdate->appendUnavailabilityForExam(unavailabilityToAssignStart, unavailabilityToAssignStop);
+            itCourseToInsert++;
         }
-    }
-    if (!professorUnavailable) {
-        itProfessorListToVerifyAndUpdateConst = findProfessor(professorListToVerifyAndUpdate, itCourseToInsert->getProfessorPointer()->getId());
-        itProfessorListToVerifyAndUpdate = constItToNonConstIt(professorListToVerifyAndUpdate, itProfessorListToVerifyAndUpdateConst);
-        itProfessorListToVerifyAndUpdate->appendUnavailabilityForExam(unavailabilityToAssignStart, unavailabilityToAssignStop);
     }
     return !professorUnavailable;
 }
@@ -403,67 +436,64 @@ bool SessionScheduler::constrain_3(const vector<pair<Classroom, vector<vector<ex
 bool SessionScheduler::constrain_4(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                                    const Course& courseToInsert, const int& dayRef, const int& slotRef, int& classroomChosen) {
     bool coursePositioned = false;
-    int classroom = 0, slot = slotRef, slotOccupancy = 0, slotOccupancyMax = approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 2);
+    int classroom = 0;
+    int slot = slotRef, slotOccupancy = 0, slotOccupancyMax = approXimationFunct(approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 60), 2);
+    int slotEnd = slotRef + slotOccupancyMax;
 
-    while (classroom < copyOfDatesPlanning.size()) {
-        if (courseToInsert.getPartecipants() <= copyOfDatesPlanning[classroom].first.getCapacity()){
-            while (slot < copyOfDatesPlanning[classroom].second[dayRef].size()) {
-                if (copyOfDatesPlanning[classroom].second[dayRef][slot].isEmpty()) {
-                    slotOccupancy++;
-                } else {
-                    slotOccupancy = 0;
-                }
-                if (slotOccupancy == slotOccupancyMax) {
-                    slot = (int) copyOfDatesPlanning[classroom].second[dayRef].size();
-                    coursePositioned = true;
-                } else {
-                    if (slot == 4) {
-                        slot = 0;
-                        slotOccupancy = 0;
+    if (slotEnd <= copyOfDatesPlanning[classroom].second[dayRef].size()) {
+        while ((classroom < copyOfDatesPlanning.size()) && !coursePositioned) {
+            if (courseToInsert.getPartecipants() <= copyOfDatesPlanning[classroom].first.getExamCapacity()) {
+                slot = slotRef;
+                while ((slot < slotEnd) && !coursePositioned) {
+                    if (copyOfDatesPlanning[classroom].second[dayRef][slot].isEmpty()) {
+                        slotOccupancy++;
                     } else {
-                        slot++;
+                        slotOccupancy = 0;
                     }
+                    if (slotOccupancy == slotOccupancyMax) {
+                        classroomChosen = classroom;
+                        coursePositioned = true;
+                    }
+                    slot++;
                 }
             }
+            classroom++;
         }
-        classroom++;
     }
-    classroomChosen = classroom;
     return coursePositioned;
 }
 
 void SessionScheduler::coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
-                                         const Course& courseToInsert, const int& classroomChosen, const int& dayRef, const int& slotRef) {
-    for (int i = 0; i < approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 2); i++) {
+                                         const Course& courseToInsert, const int& classroomChosen, const int& dayRef,
+                                         const int& slotRef, const list<string>& courseOfStudyRelatedToCourse) {
+    for (int i = 0; i < approXimationFunct(approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 60), 2); i++) {
         copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._relateCourse = courseToInsert.getId();
         copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._version = courseToInsert.getParallelCoursesId();
-        copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._assignedCourseOfStudy = courseToInsert.getListGroupedId();
+        copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._assignedCourseOfStudy = courseOfStudyRelatedToCourse;
         copyOfDatesPlanning[classroomChosen].second[dayRef][slotRef + i]._classroom = copyOfDatesPlanning[classroomChosen].first.getId();
     }
 }
 
 void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& sessionNumber, const Date& sessionDateStartRef) {
     int classroom = 0, day = 0, slot = 0;
-    string fileCompleteName = fileBaseName + "_s" + to_string(sessionNumber) + ".txt";
+    string fileCompleteName = fileBaseName + "_s" + to_string(sessionNumber + 1) + ".txt";
     ofstream fileSessionName;
     Date dateToPrint(sessionDateStartRef);
-    struct expandedScheduleForPrint dummyElementToInsert;
-    list<struct expandedScheduleForPrint> dailyScheduleToSortAndPrint, previousSchedule;
     list<string>::const_iterator itExamScheduled;
 
     fileSessionName.open(fileCompleteName, ofstream::out);
     while (day < _datesPlanning[classroom].second.size()) {
+        list<struct expandedScheduleForPrint> previousSchedule;
+
         dateToPrint.operator<<(fileSessionName);
         fileSessionName << endl;
         while (slot < _datesPlanning[classroom].second[day].size()) {
+            struct expandedScheduleForPrint dummyElementToInsert;
+            list<struct expandedScheduleForPrint> dailyScheduleToSortAndPrint;
             list<struct expandedScheduleForPrint>::iterator itDailyScheduleToSortAndPrint, itReturnFromFindDuplicates;
 
-            if (slot == 0) {
-                dateToPrint.setHour(8);
-                previousSchedule.clear();
-            }
-            dateToPrint.getTimeSlot(fileSessionName);
-            fileSessionName << ";";
+
+            dateToPrint.setHour(8 + (2 * slot));
             while (classroom < _datesPlanning.size()) {
                 itExamScheduled = _datesPlanning[classroom].second[day][slot]._assignedCourseOfStudy.cbegin();
                 while (itExamScheduled != _datesPlanning[classroom].second[day][slot]._assignedCourseOfStudy.cend()) {
@@ -476,11 +506,17 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
                 }
                 classroom++;
             }
+            if (dailyScheduleToSortAndPrint.empty()) {
+                previousSchedule.clear();
+            }
             dailyScheduleToSortAndPrint.sort(sortMethodForPrintSchedule);
+            dateToPrint.getTimeSlot(fileSessionName);
             if (previousSchedule.empty()) {
-                previousSchedule = dailyScheduleToSortAndPrint;
-                for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
-                    itDailyScheduleToSortAndPrint->operator<<(fileSessionName);
+                if (!dailyScheduleToSortAndPrint.empty()){
+                    previousSchedule = dailyScheduleToSortAndPrint;
+                    for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
+                        itDailyScheduleToSortAndPrint->operator<<(fileSessionName);
+                    }
                 }
             } else {
                 for (itDailyScheduleToSortAndPrint = dailyScheduleToSortAndPrint.begin(); itDailyScheduleToSortAndPrint != dailyScheduleToSortAndPrint.end(); itDailyScheduleToSortAndPrint++) {
@@ -491,11 +527,11 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
                         itDailyScheduleToSortAndPrint->operator<<(fileSessionName);
                     }
                 }
+                previousSchedule = dailyScheduleToSortAndPrint;
             }
             fileSessionName << endl;
             classroom = 0;
             slot++;
-            dateToPrint.setHour(8 + (2 * slot));
         }
         slot = 0;
         day++;
@@ -508,7 +544,7 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
 }
 
 void SessionScheduler::outputWarningFile(const string& fileBaseName, const int& sessionNumber) {
-    string fileCompleteName = fileBaseName + "_" + to_string(sessionNumber) + "_warnings.txt";
+    string fileCompleteName = fileBaseName + "_s" + to_string(sessionNumber + 1) + "_warnings.txt";
     vector<expandedScheduleForPrint> copyAndExtensionOfGroupedCoursesToPlan;
     ofstream fileSessionName;
 
@@ -544,6 +580,27 @@ void SessionScheduler::outputWarningFile(const string& fileBaseName, const int& 
             if (itCopyAndExtensionOfGroupedCoursesToPlan->_constrainDeactivated[i]) {
                 fileSessionName << itCopyAndExtensionOfGroupedCoursesToPlan->_assignedCourseOfStudy << ";" <<
                                 itCopyAndExtensionOfGroupedCoursesToPlan->_relateCourse << ";" << to_string(i + 1) << endl;
+            }
+        }
+    }
+}
+
+void SessionScheduler::resetDataFromDatabase(map<int, vector<vector<courseOrgBySemester>>>& groupedCourses, vector<pair<Classroom, vector<vector<examScheduled>>>>& datesPlanning) {
+    for (int i = -1; i < groupedCourses.size(); i++) {
+        for (int j = 0; j < groupedCourses[i].size(); j++) {
+            for (int k = 0; k < groupedCourses[i][j].size(); k++) {
+                groupedCourses[i][j][k]._constrainDeactivated = _groupedCoursesToPlan[i][j][k]._constrainDeactivated;
+                groupedCourses[i][j][k]._assignedCourseOfStudy = _groupedCoursesToPlan[i][j][k]._assignedCourseOfStudy;
+            }
+        }
+    }
+    for (int i = 0; i < datesPlanning.size(); i++) {
+        for (int j = 0; j < datesPlanning[i].second.size(); j++) {
+            for (int k = 0; k < datesPlanning[i].second[j].size(); k++) {
+                datesPlanning[i].second[j][k]._assignedCourseOfStudy = _datesPlanning[i].second[j][k]._assignedCourseOfStudy;
+                datesPlanning[i].second[j][k]._version = _datesPlanning[i].second[j][k]._version;
+                datesPlanning[i].second[j][k]._relateCourse = _datesPlanning[i].second[j][k]._relateCourse;
+                datesPlanning[i].second[j][k]._classroom = _datesPlanning[i].second[j][k]._classroom;
             }
         }
     }
