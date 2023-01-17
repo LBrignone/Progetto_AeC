@@ -230,24 +230,27 @@ int Course::setListAssistant(const list<AssociateProfessor>& assistant, string& 
         }
         if (tmpLessonH != _courseLessonH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "the sum of lesson hour for professors in list is greater than the course's lesson hour " + to_string(_courseLessonH);
+            errorInAssistant = "the sum of lesson hour (" + to_string(tmpLessonH) + ") for professors in list is different "
+                               "from course's lesson hour (" + to_string(_courseLessonH) + ")";
         } else if (tmpExerciseH != _courseExerciseH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "the sum of exercise hour for professors in list is greater than the course's exercise hour " + to_string(_courseExerciseH);
+            errorInAssistant = "the sum of exercise hour (" + to_string(tmpExerciseH) + ") for professors in list is different "
+                               "from course's exercise hour (" + to_string(_courseExerciseH) + ")";
         } else if (tmpLabH != _courseLabH) {
             errorIdentifier = ERR_hour_incompatibility;
-            errorInAssistant = "the sum of laboratory hour for professors in list is greater than the course's laboratory hour " + to_string(_courseLabH);
+            errorInAssistant = "the sum of laboratory hour (" + to_string(tmpLabH) + ") for professors in list is different "
+                               "from course's laboratory hour (" + to_string(_courseLabH) + ")";
         }
     } else {
         if (_courseLessonH != -1) {
             errorIdentifier = ERR_hours_not_set;
-            errorInAssistant = "course has no lesson hour setted";
+            errorInAssistant = "course has no lesson hour set";
         } else if (_courseExerciseH != -1) {
             errorIdentifier = ERR_hours_not_set;
-            errorInAssistant = "course has no exercise hour setted";
+            errorInAssistant = "course has no exercise hour set";
         } else if (_courseLabH != -1) {
             errorIdentifier = ERR_hours_not_set;
-            errorInAssistant = "course has no laboratory hour setted";
+            errorInAssistant = "course has no laboratory hour set";
         }
     }
     if (errorIdentifier == OK) {

@@ -185,14 +185,12 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
                 if (itDbCourseId != itLastDbCourseId) {
                     if (!itDummyCourseList->getListAssistant().empty()) {
                         associateProfessorFromDummyNewOrg = itDummyCourseList->getListAssistant();
-                        if (!insertAssociateProfessor(errorLine, itDbCourseId->getListAssistant(),
-                                                      associateProfessorFromDummyNewOrg, profesorList)) {
+                        if (!insertAssociateProfessor(errorLine, itDbCourseId->getListAssistant(), associateProfessorFromDummyNewOrg, profesorList)) {
                             errorIdentifier = ERR_professor_list;
                             errorHandling = errorLine;
                         } else {
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
-                            if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) !=
-                                OK) {
+                            if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) != OK) {
                                 errorIdentifier = ERR_professor_hour;
                                 errorHandling = errorLine;
                             }

@@ -173,6 +173,24 @@ list<Course>::const_iterator findCourseLastForIdAndYear(const list<Course>& cour
     return itCourseList;
 }
 
+// COURSE 7
+// given a course's title a duplicate is searched in the list of courses, if another course has the same title as the one
+// we are looking for the return will be TRUE, otherwise it will be FALSE
+bool findCourseTitle(const list<Course>& courseList, const string& titleToFind) {
+    list<Course>::const_iterator itCourseList;
+    bool found = false;
+
+    itCourseList = courseList.cbegin();
+    while ((itCourseList != courseList.cend()) && !found) {
+        if (itCourseList->getTitle() == titleToFind) {
+            found = true;
+        } else {
+            itCourseList++;
+        }
+    }
+    return found;
+}
+
 // this function is going to work only on database so all the data should be correct at the time of using it
 // the function returns a list of courses of study as ids, and the semester in which they are scheduled as last element
 list<string> findCourseOfStudy(string& errorHandling, const list<CourseOfStudy>& courseOfStudyList, const string& idToFind) {

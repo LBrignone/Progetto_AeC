@@ -353,7 +353,13 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                     break;
                                 }
                                 case 1: {
-                                    dummyCourse.setTitle(readFromLine);
+                                    if (!findCourseTitle(courseList, readFromLine)) {
+                                        dummyCourse.setTitle(readFromLine);
+                                    } else {
+                                        errorIdentifier = ERR_course_title;
+                                        errorHandling = "ERROR: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                        " the course " + readFromLine + " is already in database";
+                                    }
                                     break;
                                 }
                                 case 2: {
@@ -923,7 +929,13 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                             break;
                         }
                         case 1:{
-                            dummyCourse.setTitle(readFromLine);
+                            if (!findCourseTitle(courseList, readFromLine)) {
+                                dummyCourse.setTitle(readFromLine);
+                            } else {
+                                errorIdentifier = ERR_course_title;
+                                errorHandling = "ERROR: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                " the course \"" + readFromLine + "\" is already in database";
+                            }
                             break;
                         }
                         case 2:{
@@ -1143,93 +1155,130 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                       " has one or more missing fields";
                 }
 //------------> here the associate professor string is processed and properly divided into section
-                int  level = 0, levelIncrement = 0, levelDecrement = 0, versionCounter = 0;
-                bool isLevelCorrect = false;
-                string mainProfessorCourse;
-                stringstream ss_associateProfessorListFromFile(associateProfessorListFormFile.substr(1, associateProfessorListFormFile.size() - 2));
-                AssociateProfessor dummyAssociateProfessor;
-                Professor dummyProfessorFromNotFound;
-                list<AssociateProfessor> tmpAssociateProfessorList;
-                list<Professor>::const_iterator itReturnToFindConst;   //------------> ITERATORE
-                list<Professor>::iterator itReturnToFind;
-                vector<int> patternFieldForEachLevel {0, 0, 0};
-                // first element of the vector: keeps memory of the pattern at LEVEL 1 (zero), so professor id, and version id
-                // second element of the vector: is not used but in order to have a direct dependency with the switch is needed
-                // third element of the vector: keeps memory of the pattern at LEVEL 3, so professor id, lesson hour, exercise hour and lab hour
-                // LEVEL 2 is discarded because doesn't have any meaningful information, due to it representing the inner "[...]"
+                int level = 0, levelIncrement = 0, levelDecrement = 0, versionCounter = 0;
+                if (errorIdentifier == OK) {
+                    bool isLevelCorrect = false;
+                    string mainProfessorCourse;
+                    stringstream ss_associateProfessorListFromFile(associateProfessorListFormFile.substr(1, associateProfessorListFormFile.size() - 2));
+                    AssociateProfessor dummyAssociateProfessor;
+                    Professor dummyProfessorFromNotFound;
+                    list<AssociateProfessor> tmpAssociateProfessorList;
+                    list<Professor>::const_iterator itReturnToFindConst;   //------------> ITERATORE
+                    list<Professor>::iterator itReturnToFind;
+                    // first element of the vector: keeps memory of the pattern at LEVEL 1 (zero), so professor id, and version id
+                    // second element of the vector: is not used but in order to have a direct dependency with the switch is needed
+                    // third element of the vector: keeps memory of the pattern at LEVEL 3, so professor id, lesson hour, exercise hour and lab hour
+                    // LEVEL 2 is discarded because doesn't have any meaningful information, due to it representing the inner "[...]"
+                    vector<int> patternFieldForEachLevel{0, 0, 0};
 
-                while (getline(ss_associateProfessorListFromFile, associateProfessorFromFile, ',') && (errorIdentifier == OK)) {
-                    levelIncrement=0;
-                    levelDecrement=0;
-                    isLevelCorrect = false;
-                    while (!isLevelCorrect){
-                        if (associateProfessorFromFile[0] == '[') {
-                            associateProfessorFromFile = associateProfessorFromFile.substr(1, associateProfessorFromFile.size() - 1);
-                            levelIncrement++;
-                        } else if (associateProfessorFromFile[0] == '{') {
-                            associateProfessorFromFile = associateProfessorFromFile.substr(1, associateProfessorFromFile.size() - 1);
-                            levelIncrement++;
-                        } else if (associateProfessorFromFile[associateProfessorFromFile.size() - 1] == '}') {
-                            associateProfessorFromFile = associateProfessorFromFile.substr(0, associateProfessorFromFile.size() - 1);
-                            levelDecrement ++;
-                        } else if (associateProfessorFromFile[associateProfessorFromFile.size() - 1] == ']') {
-                            associateProfessorFromFile = associateProfessorFromFile.substr(0, associateProfessorFromFile.size() - 1);
-                            levelDecrement ++;
-                        }else{
-                            isLevelCorrect = true;
-                        }
-                    }
-                    level+=levelIncrement;
-
-                    switch (level) {
-                        case 1:{
-                            switch (patternFieldForEachLevel[level - 1] % 2) {
-                                case 0:{
-                                    mainProfessorCourse = associateProfessorFromFile;
-                                    patternFieldForEachLevel[level - 1]++;
-                                    break;
-                                }
-                                case 1:{
-                                    if (parallelVersionProgression(errorHandling, versionCounter, associateProfessorFromFile)) {
-                                        if (!dummyCourse.setParallelCoursesId(associateProfessorFromFile)) {
-                                            errorIdentifier = ERR_parallel_course;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            " the given version id is not compatible with the pattern for that field (P000): " +
-                                                            associateProfessorFromFile;
-                                        }
-                                        versionCounter++;
-                                    } else {
-                                        // here isn't necessary to have an error message due to its presence as return of function
-                                        errorIdentifier = ERR_parallel_course_number;
-                                    }
-                                    patternFieldForEachLevel[level - 1]++;
-                                    break;
-                                }
-                                default:{
-                                    errorIdentifier = ERR_course_format;
-                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                    " unexpected element number there may be an incorrect number or type of brackets, plese controll the regular professor and version id of the element " +
-                                                    to_string(patternFieldForEachLevel[0]/2) + " of the course's professor organization";
-                                    break;
-                                }
+                    while (getline(ss_associateProfessorListFromFile, associateProfessorFromFile, ',') && (errorIdentifier == OK)) {
+                        levelIncrement = 0;
+                        levelDecrement = 0;
+                        isLevelCorrect = false;
+                        while (!isLevelCorrect) {
+                            if (associateProfessorFromFile[0] == '[') {
+                                associateProfessorFromFile = associateProfessorFromFile.substr(1, associateProfessorFromFile.size() - 1);
+                                levelIncrement++;
+                            } else if (associateProfessorFromFile[0] == '{') {
+                                associateProfessorFromFile = associateProfessorFromFile.substr(1, associateProfessorFromFile.size() - 1);
+                                levelIncrement++;
+                            } else if (associateProfessorFromFile[associateProfessorFromFile.size() - 1] == '}') {
+                                associateProfessorFromFile = associateProfessorFromFile.substr(0, associateProfessorFromFile.size() - 1);
+                                levelDecrement++;
+                            } else if (associateProfessorFromFile[associateProfessorFromFile.size() - 1] == ']') {
+                                associateProfessorFromFile = associateProfessorFromFile.substr(0, associateProfessorFromFile.size() - 1);
+                                levelDecrement++;
+                            } else {
+                                isLevelCorrect = true;
                             }
-                            break;
                         }
-                        case 2:{
-                            break;
-                        }
-                        case 3:{
-                            switch (patternFieldForEachLevel[level - 1] % 4) {
-                                case 0:{
-                                    itReturnToFindConst = findProfessor(tmpProfessorList, associateProfessorFromFile);
-                                    if (patternFieldForEachLevel[level - 1] == 0) {
-                                        if (mainProfessorCourse == associateProfessorFromFile) {
-                                            dummyAssociateProfessor.setIsMain(true);
-                                            if (itReturnToFindConst != tmpProfessorList.cend()) {
-                                                // verificare l'effattivo funzionamento della funzione per toglisere il const
-                                                // nel caso riportare il tutto come era prima (vedi parte di isDb) e fare una funzione
-                                                // find professor con iteratore normale (anche se credo richiederà la lista in originale,
-                                                // che non ho perchè a questa funzione è passate come const reference)
+                        level += levelIncrement;
+
+                        switch (level) {
+                            case 1: {
+                                switch (patternFieldForEachLevel[level - 1] % 2) {
+                                    case 0: {
+                                        mainProfessorCourse = associateProfessorFromFile;
+                                        patternFieldForEachLevel[level - 1]++;
+                                        break;
+                                    }
+                                    case 1: {
+                                        if (parallelVersionProgression(errorHandling, versionCounter, associateProfessorFromFile)) {
+                                            if (!dummyCourse.setParallelCoursesId(associateProfessorFromFile)) {
+                                                errorIdentifier = ERR_parallel_course;
+                                                errorHandling = "Error: file: " + courseFileName + " row: " +
+                                                                to_string(row + 1) +
+                                                                " the given version id is not compatible with the pattern for that field (P000): " +
+                                                                associateProfessorFromFile;
+                                            }
+                                            versionCounter++;
+                                        } else {
+                                            // here isn't necessary to have an error message due to its presence as return of function
+                                            errorIdentifier = ERR_parallel_course_number;
+                                        }
+                                        patternFieldForEachLevel[level - 1]++;
+                                        break;
+                                    }
+                                    default: {
+                                        errorIdentifier = ERR_course_format;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                        " unexpected element number there may be an incorrect number or type of brackets, please control the regular professor and version id of the element " +
+                                                        to_string(patternFieldForEachLevel[0] / 2) + " of the course's professor organization";
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                            case 2: {
+                                break;
+                            }
+                            case 3: {
+                                switch (patternFieldForEachLevel[level - 1] % 4) {
+                                    case 0: {
+                                        itReturnToFindConst = findProfessor(tmpProfessorList,
+                                                                            associateProfessorFromFile);
+                                        if (patternFieldForEachLevel[level - 1] == 0) {
+                                            if (mainProfessorCourse == associateProfessorFromFile) {
+                                                dummyAssociateProfessor.setIsMain(true);
+                                                if (itReturnToFindConst != tmpProfessorList.cend()) {
+                                                    // verificare l'effattivo funzionamento della funzione per toglisere il const
+                                                    // nel caso riportare il tutto come era prima (vedi parte di isDb) e fare una funzione
+                                                    // find professor con iteratore normale (anche se credo richiederà la lista in originale,
+                                                    // che non ho perchè a questa funzione è passate come const reference)
+                                                    itReturnToFind = constItToNonConstIt(tmpProfessorList, itReturnToFindConst);
+                                                    dummyAssociateProfessor.setProfessorPointer(itReturnToFind);
+                                                } else {
+                                                    // as previously here a dummy professor is created with proper id
+                                                    // the fill of its other field isn't a matter that affect the proper handling of the system as for now
+                                                    if (!dummyProfessorFromNotFound.setId(associateProfessorFromFile)) {
+                                                        errorIdentifier = ERR_id_field;
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " +
+                                                                        to_string(row + 1) +
+                                                                        " incorrect professor id: " +
+                                                                        associateProfessorFromFile;
+                                                    }
+                                                    tmpProfessorList.push_back(dummyProfessorFromNotFound);
+                                                    itReturnToFindConst = findProfessor(tmpProfessorList, associateProfessorFromFile);
+                                                    itReturnToFind = constItToNonConstIt(tmpProfessorList, itReturnToFindConst);
+                                                    if (itReturnToFindConst != tmpProfessorList.cend()) {
+                                                        dummyAssociateProfessor.setProfessorPointer(itReturnToFind);
+                                                    } else {
+                                                        errorIdentifier = ERR_professor_pointer;
+                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                                        " error ceeating the unexisting professor with id: " +
+                                                                        associateProfessorFromFile;
+                                                    }
+                                                }
+                                            } else {
+                                                errorIdentifier = ERR_regular_professor;
+                                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                                " the regular professor for the version " +
+                                                                dummyCourse.getParallelCoursesId() + " is " + mainProfessorCourse +
+                                                                " which is different from the one on first place of  the course organization: " +
+                                                                associateProfessorFromFile;
+                                            }
+                                        } else {
+                                            if (itReturnToFindConst != tmpProfessorList.end()) {
                                                 itReturnToFind = constItToNonConstIt(tmpProfessorList, itReturnToFindConst);
                                                 dummyAssociateProfessor.setProfessorPointer(itReturnToFind);
                                             } else {
@@ -1248,127 +1297,118 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                                 } else {
                                                     errorIdentifier = ERR_professor_pointer;
                                                     errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                                    " error ceeating the unexisting professor with id: " + associateProfessorFromFile;
+                                                                    " error ceeating the unexisting professor with id: " +
+                                                                    associateProfessorFromFile;
                                                 }
                                             }
-                                        } else {
-                                            errorIdentifier = ERR_regular_professor;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) + " the regular professor for the version " +
-                                                            dummyCourse.getParallelCoursesId() + " is " + mainProfessorCourse + " which is "
-                                                            "different from the one on first place of  the course organization: " + associateProfessorFromFile;
                                         }
-                                    } else {
-                                        if (itReturnToFindConst != tmpProfessorList.end()) {
-                                            itReturnToFind = constItToNonConstIt(tmpProfessorList, itReturnToFindConst);
-                                            dummyAssociateProfessor.setProfessorPointer(itReturnToFind);
-                                        } else {
-                                            // as previously here a dummy professor is created with proper id
-                                            // the fill of its other field isn't a matter that affect the proper handling of the system as for now
-                                            if (!dummyProfessorFromNotFound.setId(associateProfessorFromFile)) {
-                                                errorIdentifier = ERR_id_field;
-                                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                                " incorrect professor id: " + associateProfessorFromFile;
-                                            }
-                                            tmpProfessorList.push_back(dummyProfessorFromNotFound);
-                                            itReturnToFindConst = findProfessor(tmpProfessorList, associateProfessorFromFile);
-                                            itReturnToFind = constItToNonConstIt(tmpProfessorList, itReturnToFindConst);
-                                            if (itReturnToFindConst != tmpProfessorList.cend()) {
-                                                dummyAssociateProfessor.setProfessorPointer(itReturnToFind);
-                                            } else {
-                                                errorIdentifier = ERR_professor_pointer;
-                                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                                " error ceeating the unexisting professor with id: " + associateProfessorFromFile;
-                                            }
-                                        }                                    }
-                                    patternFieldForEachLevel[level - 1]++;
-                                    break;
-                                }
-                                case 1:{
-                                    try {
-                                        if (!dummyAssociateProfessor.setLessonH(stoi(associateProfessorFromFile))) {
-                                            errorIdentifier = ERR_hour_set;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            " the given lesson hour is below 0 (zero): " + associateProfessorFromFile;
-                                        }
-                                    }
-                                    catch (const invalid_argument& excepFromStoi) {
-                                        errorIdentifier = ERR_stoi_conversion;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                        " incorrect element impossible to convert the lesson hour field to int: " + associateProfessorFromFile + " (field number: "
-                                                        + to_string(patternFieldForEachLevel[level - 1]) + ", related to professor id: " + dummyAssociateProfessor.getProfessorPointer()->getId() + ")";
-                                    }
-                                    patternFieldForEachLevel[level - 1]++;
-                                    break;
-                                }
-                                case 2:{
-                                    try {
-                                        if (!dummyAssociateProfessor.setExerciseH(stoi(associateProfessorFromFile))) {
-                                            errorIdentifier = ERR_hour_set;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            "the given exercise hour is below 0 (zero): " + associateProfessorFromFile;
-                                        }
-                                    }
-                                    catch (const invalid_argument &excepFromStoi) {
-                                        errorIdentifier = ERR_stoi_conversion;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                        " incorrect element impossible to convert the exercise hour field to int: " + associateProfessorFromFile + " (field number: "
-                                                        + to_string(patternFieldForEachLevel[level - 1]) + ", related to professor id: " + dummyAssociateProfessor.getProfessorPointer()->getId() + ")";
-                                    }
-                                    patternFieldForEachLevel[level - 1]++;
-                                    break;
-                                }
-                                case 3:{
-                                    try {
-                                        if (!dummyAssociateProfessor.setLabH(stoi(associateProfessorFromFile))) {
-                                            errorIdentifier = ERR_hour_set;
-                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                            "the given laboratory hour is below 0 (zero): " + associateProfessorFromFile;
-                                        }
-                                    }
-                                    catch (const invalid_argument &excepFromStoi) {
-                                        errorIdentifier = ERR_stoi_conversion;
-                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                        " incorrect element impossible to convert the laboratory hour field to int: " + associateProfessorFromFile + " (field number: "
-                                                        + to_string(patternFieldForEachLevel[level - 1]) + ", related to professor id: " + dummyAssociateProfessor.getProfessorPointer()->getId() + ")";
-                                    }
-                                    // here the associate professor should be complete with all the data, so below if there is no errors
-                                    // a push to a temporary list is made
-                                    if (errorIdentifier == OK) {
-                                        tmpAssociateProfessorList.push_back(dummyAssociateProfessor);
                                         patternFieldForEachLevel[level - 1]++;
+                                        break;
                                     }
-                                    break;
+                                    case 1: {
+                                        try {
+                                            if (!dummyAssociateProfessor.setLessonH(stoi(associateProfessorFromFile))) {
+                                                errorIdentifier = ERR_hour_set;
+                                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                                " the given lesson hour is below 0 (zero): " + associateProfessorFromFile;
+                                            }
+                                        }
+                                        catch (const invalid_argument& excepFromStoi) {
+                                            errorIdentifier = ERR_stoi_conversion;
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                            " incorrect element impossible to convert the lesson hour field to int: " +
+                                                            associateProfessorFromFile + " (field number: "
+                                                            + to_string(patternFieldForEachLevel[level - 1]) +
+                                                            ", related to professor id: " +
+                                                            dummyAssociateProfessor.getProfessorPointer()->getId() + ")";
+                                        }
+                                        patternFieldForEachLevel[level - 1]++;
+                                        break;
+                                    }
+                                    case 2: {
+                                        try {
+                                            if (!dummyAssociateProfessor.setExerciseH(stoi(associateProfessorFromFile))) {
+                                                errorIdentifier = ERR_hour_set;
+                                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                                "the given exercise hour is below 0 (zero): " + associateProfessorFromFile;
+                                            }
+                                        }
+                                        catch (const invalid_argument& excepFromStoi) {
+                                            errorIdentifier = ERR_stoi_conversion;
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                            " incorrect element impossible to convert the exercise hour field to int: " +
+                                                            associateProfessorFromFile + " (field number: "
+                                                            + to_string(patternFieldForEachLevel[level - 1]) +
+                                                            ", related to professor id: " +
+                                                            dummyAssociateProfessor.getProfessorPointer()->getId() + ")";
+                                        }
+                                        patternFieldForEachLevel[level - 1]++;
+                                        break;
+                                    }
+                                    case 3: {
+                                        try {
+                                            if (!dummyAssociateProfessor.setLabH(stoi(associateProfessorFromFile))) {
+                                                errorIdentifier = ERR_hour_set;
+                                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                                "the given laboratory hour is below 0 (zero): " +
+                                                                associateProfessorFromFile;
+                                            }
+                                        }
+                                        catch (const invalid_argument& excepFromStoi) {
+                                            errorIdentifier = ERR_stoi_conversion;
+                                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                            " incorrect element impossible to convert the laboratory hour field to int: " +
+                                                            associateProfessorFromFile + " (field number: "
+                                                            + to_string(patternFieldForEachLevel[level - 1]) +
+                                                            ", related to professor id: " +
+                                                            dummyAssociateProfessor.getProfessorPointer()->getId() + ")";
+                                        }
+                                        // here the associate professor should be complete with all the data, so below if there is no errors
+                                        // a push to a temporary list is made
+                                        if (errorIdentifier == OK) {
+                                            tmpAssociateProfessorList.push_back(dummyAssociateProfessor);
+                                            patternFieldForEachLevel[level - 1]++;
+                                        }
+                                        break;
+                                    }
+                                    default: {
+                                        errorIdentifier = ERR_course_format;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                        " unexpected element number there may be an incorrect number or type of brackets, plese controll the professor (id: " +
+                                                        dummyAssociateProfessor.getProfessorPointer()->getId() +
+                                                        ") and version (id: " + dummyCourse.getParallelCoursesId() +
+                                                        "of the element " + to_string(patternFieldForEachLevel[0] / 2) +
+                                                        " of the course's professor organization";
+                                        break;
+                                    }
                                 }
-                                default:{
-                                    errorIdentifier = ERR_course_format;
-                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                    " unexpected element number there may be an incorrect number or type of brackets, plese controll the professor (id: " + dummyAssociateProfessor.getProfessorPointer()->getId() +
-                                                    ") and version (id: " + dummyCourse.getParallelCoursesId() + "of the element " + to_string(patternFieldForEachLevel[0]/2) + " of the course's professor organization";
-                                    break;
-                                }
+                                break;
                             }
-                            break;
-                        }
-                        default:{
-                            errorIdentifier = ERR_course_format;
-                            errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                            " unexpected element number there may be an incorrect number or type of brackets, plese controll the professor (id: " + dummyAssociateProfessor.getProfessorPointer()->getId() +
-                                            ") and version (id: " + dummyCourse.getParallelCoursesId() + "of the element " + to_string(patternFieldForEachLevel[0]/2) + " of the course's professor organization";
-                            break;
-                        }
-                    }
-                    level-=levelDecrement;
-                    if (level == 0) {
-                        if (errorIdentifier == OK) {
-                            patternFieldForEachLevel[2] = 0;
-                            courseList.push_back(dummyCourse);
-                            // the writing of associate professor in the if is performed correctly even if it doesn't appear in the debug (saw through cout)
-                            if (courseList.back().setListAssistant(tmpAssociateProfessorList, errorLine) == OK) {
-                                tmpAssociateProfessorList.clear();
-                            } else {
-                                errorIdentifier = ERR_list_association;
+                            default: {
+                                errorIdentifier = ERR_course_format;
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                " version: " + courseList.back().getParallelCoursesId() + " when pushing db temporary list " + errorLine;
+                                                " unexpected element number there may be an incorrect number or type of brackets, plese controll the professor (id: " +
+                                                dummyAssociateProfessor.getProfessorPointer()->getId() +
+                                                ") and version (id: " + dummyCourse.getParallelCoursesId() +
+                                                "of the element " + to_string(patternFieldForEachLevel[0] / 2) +
+                                                " of the course's professor organization";
+                                break;
+                            }
+                        }
+                        level -= levelDecrement;
+                        if (level == 0) {
+                            if (errorIdentifier == OK) {
+                                patternFieldForEachLevel[2] = 0;
+                                courseList.push_back(dummyCourse);
+                                // the writing of associate professor in the if is performed correctly even if it doesn't appear in the debug (saw through cout)
+                                if (courseList.back().setListAssistant(tmpAssociateProfessorList, errorLine) == OK) {
+                                    tmpAssociateProfessorList.clear();
+                                } else {
+                                    errorIdentifier = ERR_list_association;
+                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                    " version: " + courseList.back().getParallelCoursesId() +
+                                                    " when pushing db temporary list " + errorLine;
+                                }
                             }
                         }
                     }
@@ -2013,36 +2053,46 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
                                 }
                             }
                             // the unavailability periods are now pushed in the map related to professor identified previously by mean of iterator
-                            if ((unavailPeriod.start <= unavailPeriod.stop) && (((beginYear.getYear() == unavailPeriod.start.getYear()) ||
-                                (endYear.getYear() == unavailPeriod.start.getYear())) && ((beginYear.getYear() == unavailPeriod.stop.getYear()) ||
-                                (endYear.getYear() == unavailPeriod.stop.getYear())))) {
-                                // before inserting/appending the start and stop date a control is performed
-                                if (unavailabilityDatesVerification(unavailPeriod, unavailTmpList)) {
-                                    unavailTmpList.push_back(unavailPeriod);
+                            if (((beginYear.getYear() == unavailPeriod.start.getYear()) || (endYear.getYear() == unavailPeriod.start.getYear()))
+                                && ((beginYear.getYear() == unavailPeriod.stop.getYear()) || (endYear.getYear() == unavailPeriod.stop.getYear()))) {
+                                if ((unavailPeriod.start <= unavailPeriod.stop)) {
+                                    // before inserting/appending the start and stop date a control is performed
+                                    if (unavailabilityDatesVerification(unavailPeriod, unavailTmpList)) {
+                                        unavailTmpList.push_back(unavailPeriod);
+                                    } else {
+                                        errorIdentifier = ERR_date_overlap;
+                                        errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
+                                                        " professor id: " + itProfessorListConst->getId() + " the given pair of date (start: " +
+                                                        unavailPeriod.start.getCompleteDate() + ", stop: " + unavailPeriod.stop.getCompleteDate() +
+                                                        ") may have an overlap with other dates range";
+                                    }
                                 } else {
-                                    errorIdentifier = ERR_date_overlap;
-                                    errorHandling = "Error: file: " + professorUnavailabilityFile + " row: " + to_string(row + 1) +
-                                                    " professor id: " + itProfessorListConst->getId() + " the given pair of date (start: " +
-                                                    unavailPeriod.start.getCompleteDate() + ", stop: " + unavailPeriod.stop.getCompleteDate() +
-                                                    ") may have an overlap with other dates range";
+                                    errorIdentifier = ERR_inverted_dates;
+                                    errorHandling = "ERROR: file: " + professorUnavailabilityFile + " the dates pair number " +
+                                                    to_string(fieldNumber + 1) + " which identify unavailable dates for professor " +
+                                                    itProfessorListConst->getId() + " are inverted (start: " +
+                                                    unavailPeriod.start.getCompleteDate() + ", stop: " + unavailPeriod.stop.getCompleteDate() + ")";
                                 }
                             } else {
-                                errorIdentifier = ERR_inverted_dates;
-                                errorHandling = "Error: file: " + professorUnavailabilityFile + "the dates pair number " +
-                                                to_string(fieldNumber + 1) +    " which identify unavailable dates for professor " +
-                                                itProfessorListConst->getId() + " are inverted (start: " + unavailPeriod.start.getCompleteDate() +
-                                                ", stop: " + unavailPeriod.stop.getCompleteDate() + ")";
+                                errorIdentifier = ERR_date_format;
+                                errorHandling =
+                                        "ERROR: file: " + professorUnavailabilityFile + " the dates pair number " +
+                                        to_string(fieldNumber + 1) + " (start: " + unavailPeriod.start.getCompleteDate() +
+                                        ", stop: " + unavailPeriod.stop.getCompleteDate() + ") which identify unavailable dates for professor " +
+                                        itProfessorListConst->getId() + " are not coherent with academic year " + beginYear.getAcademicYear();
                             }
                             fieldNumber++;
                             // reading unavail dates (here the start and stop date, for a single field, is reconstructed, and already present)
                         }
                         // reading separator ;
                     }
-                    if (!itProfessorList->setUnavailability(unavailTmpList, beginYear)) {
-                        // (database update) if the return of append is FALSE the inserted element has a key that already
-                        // exist so a clear is necessary then a new append, with the same data, is performed
-                        itProfessorList->clearMapAcademicYearUnavailability(beginYear);
-                        itProfessorList->setUnavailability(unavailTmpList, beginYear);
+                    if (errorIdentifier == OK) {
+                        if (!itProfessorList->setUnavailability(unavailTmpList, beginYear)) {
+                            // (database update) if the return of append is FALSE the inserted element has a key that already
+                            // exist so a clear is necessary then a new append, with the same data, is performed
+                            itProfessorList->clearMapAcademicYearUnavailability(beginYear);
+                            itProfessorList->setUnavailability(unavailTmpList, beginYear);
+                        }
                     }
                     unavailTmpList.clear();
                     // if else: line is professor id + unavail periods

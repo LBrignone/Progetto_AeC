@@ -131,11 +131,7 @@ bool courseFieldVerification (string& errorHandling, const list<Course>& courseL
         itCourseListToVerify++;
     }
 
-    if (errorIdentifier == OK) {
-        return true;
-    } else {
-        return false;
-    }
+    return errorIdentifier == OK;
 }
 
 bool professorFieldVerification(string& errorHandling, const Professor& professorToVerify) {
@@ -153,11 +149,8 @@ bool professorFieldVerification(string& errorHandling, const Professor& professo
         errorIdentifier = ERR_professor_format;
         errorHandling = "the professor's mail not been set for" + professorToVerify.getId();
     }
-    if (errorIdentifier == OK) {
-        return true;
-    } else {
-        return false;
-    }
+
+    return errorIdentifier == OK;
 }
 
 bool classroomFieldVerification(string& errorHandling, const list<Classroom>& databaseClassroomToVerify) {
@@ -184,11 +177,8 @@ bool classroomFieldVerification(string& errorHandling, const list<Classroom>& da
         }
         itClassroomList++;
     }
-    if (errorIdentifier == OK) {
-        return true;
-    } else {
-        return false;
-    }
+
+    return errorIdentifier == OK;
 }
 
 list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedule, const Course& courseToFind) {
@@ -302,6 +292,7 @@ int groupedCoursesVerification(string& errorHandling, const list<string>& groupe
                     courseListToSchedule.push_back(elementListStructGroupedCourse);
                     itCoursesToSchedule++;
                 }
+                dummyAssignedCourseOfStudy.clear();
             }
         }
 

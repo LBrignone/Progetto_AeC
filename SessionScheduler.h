@@ -27,7 +27,7 @@
 #define CONSTRAIN_1_DISTANCE 2
 #define CONSTRAIN_2_DISTANCE 11
 #define CONSTRAIN_2_DISTANCE_RELAXED 3
-#define MAX_SLOT_PER_DAY 5
+#define MAX_SLOT_PER_DAY 6
 
 using namespace std;
 
@@ -71,6 +71,11 @@ struct courseOrgBySemester{
         if (it_assignedCourseOfStudy != _assignedCourseOfStudy.end()) {
             it_assignedCourseOfStudy->second = true;
         }
+    }
+    courseOrgBySemester& operator =(const courseOrgBySemester& toCopy) {
+        _course = toCopy._course;
+        _assignedCourseOfStudy = toCopy._assignedCourseOfStudy;
+        return *this;
     }
     bool operator <(const courseOrgBySemester& toCompare) {return (this->_course.getPartecipants()) < toCompare._course.getPartecipants();}
 };

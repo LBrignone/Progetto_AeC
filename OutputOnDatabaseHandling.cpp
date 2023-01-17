@@ -238,6 +238,7 @@ int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseE
 
 int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databaseUnavailabilityFileName, list<Professor>& updatedProfessorList) {
     t_errorCodes errorIdentifier = OK;
+    bool academicYearToPrint, professorToPrint, endlineToPrint;
     Date minDate, maxDate;
     ofstream fileName;
     Professor minInListProfessor;
@@ -254,8 +255,7 @@ int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databa
         maxDate = findMaxAcademicYearUnavail(updatedProfessorList);
         maxDate.increaseAcademicYear();
         while (minDate != maxDate) {
-            minDate.getAcademicYear(fileName);
-            fileName << endl;
+            academicYearToPrint = true;
             itListProfessor = updatedProfessorList.cbegin();
             while (itListProfessor != updatedProfessorList.cend()) {
                 string tmpError;
@@ -264,8 +264,19 @@ int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databa
 
                 itListUnavailDates = itListProfessor->getUnavailListByAcademicYear(tmpError, minDate).begin();
                 if (tmpError.empty()) {
-                    fileName << itListProfessor->getId() << ";";
+                    professorToPrint = true;
+                    endlineToPrint = false;
                     while ((itListUnavailDates != itListProfessor->getUnavailListByAcademicYear(tmpError, minDate).end()) && tmpError.empty()) {
+                        endlineToPrint = true;
+                        if (academicYearToPrint) {
+                            minDate.getAcademicYear(fileName);
+                            fileName << endl;
+                            academicYearToPrint = false;
+                        }
+                        if (professorToPrint) {
+                            fileName << itListProfessor->getId() << ";";
+                            professorToPrint = false;
+                        }
                         if (itListUnavailDates != itListProfessor->getUnavailListByAcademicYear(tmpError, minDate).begin()) {
                             fileName << ";";
                         }
@@ -276,7 +287,7 @@ int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databa
                         tmpDate.operator<<(fileName);
                         itListUnavailDates++;
                     }
-                    fileName << endl;
+                    if (endlineToPrint){ fileName << endl; }
                 }
                 itListProfessor++;
             }
