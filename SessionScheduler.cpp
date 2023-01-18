@@ -276,7 +276,9 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
             }
             _groupedCoursesToPlan = copyOfGroupedCoursesToPlan;
             _datesPlanning = copyOfDatesPlanning;
-            databaseProfessorList = copyDatabaseProfessorList;
+            if (!forcedExit) {
+                databaseProfessorList = copyDatabaseProfessorList;
+            }
             groupNumber++;
         }
         if (firstAppeal) {
@@ -421,7 +423,7 @@ bool SessionScheduler::constrain_3(const vector<pair<Classroom, vector<vector<ex
 
     unavailabilityToAssignStart = startSessionDate + dateIncrement + (dateIncrement / 6);
     unavailabilityToAssignStart.setHour(hourSlot);
-    examDuration = approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 60);
+    examDuration = 2 * approXimationFunct(approXimationFunct((courseToInsert.getEntranceTime() + courseToInsert.getExamDuration() + courseToInsert.getExitTime()), 60), 2);
     unavailabilityToAssignStop = unavailabilityToAssignStart;
     unavailabilityToAssignStop.setHour(hourSlot + examDuration);
     itCourseToInsert = courseToInsert.getListAssistant().cbegin();
@@ -608,7 +610,8 @@ void SessionScheduler::outputWarningFile(const string& fileBaseName, const int& 
     }
 }
 
-void SessionScheduler::resetDataFromDatabase(map<int, vector<vector<courseOrgBySemester>>>& groupedCourses, vector<pair<Classroom, vector<vector<examScheduled>>>>& datesPlanning) {
+void SessionScheduler::resetDataFromDatabase(map<int, vector<vector<courseOrgBySemester>>>& groupedCourses,
+                                             vector<pair<Classroom, vector<vector<examScheduled>>>>& datesPlanning) {
     for (map<int, vector<vector<courseOrgBySemester>>>::iterator itGroupedCourses = groupedCourses.begin(); itGroupedCourses != groupedCourses.end(); itGroupedCourses++) {
         for (int j = 0; j < itGroupedCourses->second.size(); j++) {
             for (int k = 0; k < itGroupedCourses->second[j].size(); k++) {

@@ -1509,12 +1509,14 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                                 } else {
                                     if ((level == 0) && semesterCourse.empty()) {
                                         errorIdentifier = ERR_course_of_study_format;
-                                        errorHandling = "Error: file: " + courseOfStudyFileName + "semester: " +
-                                                        to_string(semester) + "with no courses";
+                                        errorHandling = "Error: file: " + courseOfStudyFileName + " corso di studi: " +
+                                                        dummyStudyCourse.getCourseOfStudyId() + " semester: " +
+                                                        to_string(semester) + " with no courses";
                                     } else if ((level < 0) || (level > 1)) {
                                         errorIdentifier = ERR_course_of_study_format;
-                                        errorHandling = "Error: file: " + courseOfStudyFileName + "semester: " +
-                                                        to_string(semester) + "with wrong number of brackets";
+                                        errorHandling = "Error: file: " + courseOfStudyFileName + " course of study: " +
+                                                        dummyStudyCourse.getCourseOfStudyId() + " semester: " +
+                                                        to_string(semester) + " with wrong number of brackets";
                                     } else {
                                         semesterRecon = true;
                                     }

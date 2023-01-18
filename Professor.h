@@ -27,6 +27,7 @@ typedef struct AvailForExam {
 class Professor : public Person {
 public:
     Professor() {};
+    Professor(const Professor& toCopy);
     ~Professor() {};
     bool setId(const string& id);
     bool generateNewId(const string& id);
@@ -42,7 +43,10 @@ public:
     void appendUnavailability(const Date &startUnavail, const Date &stopUnavail, const Date& academicYear);
     bool appendUnavailability(const AvailForExam& unavailDates, const Date& academicYear);     // all the controls on date's coherency MUST be performed before colling this function (NO control is performed inside)
     void appendUnavailabilityForExam(const Date &startUnavail, const Date &stopUnavail);
+    list<AvailForExam> getUnavailabilityForExam() const;
+    void setUnavailabilityForExam(const list<AvailForExam>& unavailForExam);
     void clearMapAcademicYearUnavailability(const Date& academicYear);
+    void clearUnavailabilityForExam();
     const Professor operator ++(int);
     bool operator <(const Professor& toCompare);
     Professor& operator =(const Professor& toCopy);

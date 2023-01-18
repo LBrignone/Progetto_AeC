@@ -134,7 +134,8 @@ private:
     void coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                            const Course& courseToInsert, const int& classroomChosen, const int& dayRef,
                            const int& slotRef, const list<string>& courseOfStudyRelatedToCourse);
-    void resetDataFromDatabase(map<int, vector<vector<courseOrgBySemester>>>& groupedCourses, vector<pair<Classroom, vector<vector<examScheduled>>>>& datesPlanning);
+    void resetDataFromDatabase(map<int, vector<vector<courseOrgBySemester>>>& groupedCourses,
+                               vector<pair<Classroom, vector<vector<examScheduled>>>>& datesPlanning);
 
     // the map has as key the classroom and keeps for each of them a "calendar" (second parameter of the map)
     vector<pair<Classroom, vector<vector<examScheduled>>>> _datesPlanning;

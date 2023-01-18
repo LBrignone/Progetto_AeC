@@ -4,6 +4,15 @@
 
 #include "Professor.h"
 
+Professor::Professor(const Professor& toCopy) {
+    _unavailability = toCopy._unavailability;
+    _unavailabilityForExam = toCopy._unavailabilityForExam;
+    _id = toCopy._id;
+    this->setName(toCopy.getName());
+    this->setSurname(toCopy.getSurname());
+    this->setMail(toCopy.getMail());
+}
+
 bool Professor::setId(const string& id){
     stringstream tmp;
     if ((id != "") && (id.size()==7)) {
@@ -84,7 +93,7 @@ bool Professor::isAvailExamProgramming(const Date& startData, const Date& stopDa
         }
     }
     while ((flag == true) && (availListExamIter != _unavailabilityForExam.end())) {
-        if ((startData <= availListExamIter->stop) && (startData >= availListExamIter->start) || (stopData <= availListExamIter->stop) && (stopData >= availListExamIter->start)){
+        if ((startData < availListExamIter->stop) && (startData >= availListExamIter->start) || (stopData <= availListExamIter->stop) && (stopData > availListExamIter->start)){
             flag = false;
         }
         availListExamIter ++;
@@ -183,8 +192,22 @@ void Professor::appendUnavailabilityForExam(const Date &startUnavail, const Date
     _unavailabilityForExam.emplace_back(startUnavail, stopUnavail);
 }
 
+list<AvailForExam> Professor::getUnavailabilityForExam() const {
+    return _unavailabilityForExam;
+}
+
+void Professor::setUnavailabilityForExam(const list<AvailForExam>& unavailForExam) {
+    for (list<AvailForExam>::const_iterator itUnavailForExam = unavailForExam.cbegin(); itUnavailForExam != unavailForExam.cend(); itUnavailForExam++) {
+        this->appendUnavailabilityForExam(itUnavailForExam->start, itUnavailForExam->stop);
+    }
+}
+
 void Professor::clearMapAcademicYearUnavailability(const Date& academicYear) {
     _unavailability.erase(academicYear);
+}
+
+void Professor::clearUnavailabilityForExam() {
+    _unavailabilityForExam.clear();
 }
 
 const Professor Professor::operator ++(int) {
