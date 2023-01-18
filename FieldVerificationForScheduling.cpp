@@ -201,6 +201,7 @@ list<string> regroupingCoursesForCommonCourse(const list<Course>& courseToSchedu
         }
         itToReturn++;
     }
+
     return toReturn;
 }
 

@@ -257,12 +257,10 @@ int main(int argc, char** argv) {
                                 funcReturnDbFile = OK;
                                 funcReturnDbFile = CourseInputFile(errorLine, courseDatabaseName, databaseOfCourses, databaseOfProfessors, true);
                                 if (funcReturnDbFile == OK) {
-                                    functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine,
-                                                                        databaseOfCourses, databaseOfProfessors, databaseOfCoursesOfStudy);
+                                    functionReturn = CourseToInsertFile(errorLine, fileNameFromCommandLine, databaseOfCourses, databaseOfProfessors, databaseOfCoursesOfStudy);
                                 } else {
-                                    errorLine +=
-                                            "\nCan't perform an insertion or modification without the course's database file \"" +
-                                            (string) courseDatabaseName + "\"";
+                                    errorLine += "\nCan't perform an insertion or modification without the course's database file \"" +
+                                                 (string) courseDatabaseName + "\"";
                                 }
                             } else {
                                 errorLine += "\nCan't perform the insertion command, because the file \"" +
@@ -275,8 +273,7 @@ int main(int argc, char** argv) {
                         if (functionReturn == OK) {
                             functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, databaseOfCourses);
                             if (functionReturn == OK) {
-                                functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName,
-                                                                                 databaseOfCoursesOfStudy);
+                                functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy);
                             } else {
                                 errorLine += "\nCan't update the " + (string) courseOfStudyDatabaseName +
                                              " due to an error updating " + (string) courseDatabaseName;

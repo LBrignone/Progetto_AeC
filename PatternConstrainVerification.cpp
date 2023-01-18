@@ -185,16 +185,20 @@ bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompar
     list<Course>::iterator itFirstForId;
     list<CourseOfStudy>::iterator itListCourseOfStudy;
 
+    Course TOTEST;
+
     itFirstForIdConst = findCourse(courseList, courseToCompare.getId());
     itFirstForId = constItToNonConstIt(courseList, itFirstForIdConst);
     if (itFirstForIdConst != courseList.cend()) {
         itLastForIdConst = findCourseLastForId(courseList, courseToCompare.getId(), itFirstForId);
         if (itLastForIdConst != courseList.cend()) {
-            while (itFirstForId != itLastForIdConst) {
+            while (itFirstForIdConst != itLastForIdConst) {
+                TOTEST = *itFirstForIdConst;
+                TOTEST = *itLastForIdConst;
                 if (courseToCompare.getStartYear() != itFirstForIdConst->getStartYear()) {
-                    courseStatus.push_back(itFirstForId->isActiveCourse());
+                    courseStatus.push_back(itFirstForIdConst->isActiveCourse());
                 }
-                itFirstForId++;
+                itFirstForIdConst++;
             }
             if (!courseStatus.empty()) {
                 int i = 0;
