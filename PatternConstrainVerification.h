@@ -26,7 +26,7 @@ string generateVersion (int versionToGenerate);
 
 bool versionCoherencyTest (string& errorHandling, int versionProgression, const string& versionToVerify);
 
-bool examSessionAcademicYearCoherencyTest (string& errorHandling, int academicYearStd, const vector<Date>& sessionToVerify);
+bool examSessionAcademicYearCoherencyTest (string& errorHandling, int academicYearRef, const vector<Date>& sessionToVerify);
 
 bool examSessionBeginEndVerification (string& errorHandling, const vector<Date>& sessionToVerify);
 

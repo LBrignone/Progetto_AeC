@@ -15,6 +15,7 @@ class AssociateProfessor {
 public:
     AssociateProfessor() {};
     AssociateProfessor(const AssociateProfessor& toCopy);
+    ~AssociateProfessor() {};
     list<Professor>::iterator getProfessorPointer() const;
     void setProfessorPointer(list<Professor>::iterator addressOfProfessor);
     int getLessonH() const;

@@ -4,7 +4,7 @@
 
 #include "SchedulingChecks.h"
 
-int courseIdISInSemester(const string& idToFind, const int& semesterSession, const list<CourseOfStudy>& courseOfStudyList) {
+int courseIdIsInSemester(const string& idToFind, const int& semesterSession, const list<CourseOfStudy>& courseOfStudyList) {
     t_errorCodes coherencyTest = OK;
     bool found = false;
     list<CourseOfStudy>::const_iterator itListCourseOfStudy;

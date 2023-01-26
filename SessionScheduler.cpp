@@ -138,15 +138,17 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
 
         for (itGroupedCourseToPlanVector = copyOfGroupedCoursesToPlan[semesterToSchedule].begin(); itGroupedCourseToPlanVector != copyOfGroupedCoursesToPlan[semesterToSchedule].end(); itGroupedCourseToPlanVector++) {
             bool endSchedulingGroup = false, errorInScheduling = false, forcedExit = false;
-            int relaxedConstrain = 0, coursesPositioned = 0, coursesPositionedMax = 0, dayMax = 0, slotMax = 0;
+            int relaxedConstrain = 0, coursesPositioned = 0, coursesPositionedMax = 0, dayMax, slotMax = 0;
             int freeClassroomToUse = 0;
             vector<courseOrgBySemester>::iterator itGroupedCoursesToPlanList;
 
             if (secondAppeal) {
                 if (sessionNumber != 2) {
                     day = 12;
+                    dayMax = 12;
                 } else {
                     day = 0;
+                    dayMax = 0;
                 }
             }
             if (firstAppeal) {
@@ -167,26 +169,27 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                         errorInScheduling = true;
                 }
                 TOTEST = itGroupedCoursesToPlanList->_course;
-                if (!constrain_3(copyOfDatesPlanning, academicYearRef, startDate, day, slot, itGroupedCoursesToPlanList->_course, copyDatabaseProfessorList)) {
+                if (!constrain_4(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, day, slot, freeClassroomToUse)) {
+                    itGroupedCoursesToPlanList->_constrainDeactivated[0] = true;
+                    if (relaxedConstrain >= 4) {
+                        itGroupedCoursesToPlanList->_constrainDeactivated[4] = true;
+                    } else {
+                        errorInScheduling = true;
+                    }
+                }
+                TOTEST = itGroupedCoursesToPlanList->_course;
+                if (!constrain_3(copyOfDatesPlanning, academicYearRef, startDate, day, slot, itGroupedCoursesToPlanList->_course,
+                                 copyDatabaseProfessorList, itGroupedCoursesToPlanList->_constrainDeactivated[0])) {
                     if (relaxedConstrain >= 3) {
                         itGroupedCoursesToPlanList->_constrainDeactivated[3] = true;
                     } else {
                         errorInScheduling = true;
                     }
                 }
-                TOTEST = itGroupedCoursesToPlanList->_course;
-                if (!constrain_4(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, day, slot, freeClassroomToUse)) {
-                    itGroupedCoursesToPlanList->_constrainDeactivated[0] = true;
-                    if (relaxedConstrain >= 4) {
-                        itGroupedCoursesToPlanList->_constrainDeactivated[4] = true;
-                        if (forcedExit) {
-                            itGroupedCoursesToPlanList->_constrainDeactivated[1] = false;
-                            itGroupedCoursesToPlanList->_constrainDeactivated[2] = false;
-                            itGroupedCoursesToPlanList->_constrainDeactivated[3] = false;
-                        }
-                    } else {
-                        errorInScheduling = true;
-                    }
+                if (forcedExit && itGroupedCoursesToPlanList->_constrainDeactivated[4]) {
+                    itGroupedCoursesToPlanList->_constrainDeactivated[1] = false;
+                    itGroupedCoursesToPlanList->_constrainDeactivated[2] = false;
+                    itGroupedCoursesToPlanList->_constrainDeactivated[3] = false;
                 }
                 TOTEST = itGroupedCoursesToPlanList->_course;
                 if (relaxedConstrain != 4) {
@@ -276,9 +279,7 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
             }
             _groupedCoursesToPlan = copyOfGroupedCoursesToPlan;
             _datesPlanning = copyOfDatesPlanning;
-            if (!forcedExit) {
-                databaseProfessorList = copyDatabaseProfessorList;
-            }
+            databaseProfessorList = copyDatabaseProfessorList;
             groupNumber++;
         }
         if (firstAppeal) {
@@ -413,7 +414,8 @@ bool SessionScheduler::constrain_2(const vector<pair<Classroom, vector<vector<ex
 // opposite circumstances
 bool SessionScheduler::constrain_3(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                                    const int& academicYearRef, const Date& startSessionDate, const int& dateIncrement,
-                                   const int& slotRef, const Course& courseToInsert, list<Professor>& professorListToVerifyAndUpdate) {
+                                   const int& slotRef, const Course& courseToInsert,
+                                   list<Professor>& professorListToVerifyAndUpdate, const bool& constrain4Violated) {
     bool professorUnavailable = false;
     int hourSlot = 8 + ((slotRef) * 2), examDuration = 0;
     Date unavailabilityToAssignStart, unavailabilityToAssignStop, academicYear(0, 0 , academicYearRef);
@@ -434,7 +436,9 @@ bool SessionScheduler::constrain_3(const vector<pair<Classroom, vector<vector<ex
             itCourseToInsert = courseToInsert.getListAssistant().cend();
             professorUnavailable = true;
         } else {
-            itProfessorListToVerifyAndUpdate->appendUnavailabilityForExam(unavailabilityToAssignStart, unavailabilityToAssignStop);
+            if (!constrain4Violated) {
+                itProfessorListToVerifyAndUpdate->appendUnavailabilityForExam(unavailabilityToAssignStart, unavailabilityToAssignStop);
+            }
             itCourseToInsert++;
         }
     }
@@ -450,19 +454,21 @@ bool SessionScheduler::constrain_4(const vector<pair<Classroom, vector<vector<ex
 
     if (slotEnd <= copyOfDatesPlanning[classroom].second[dayRef].size()) {
         while ((classroom < copyOfDatesPlanning.size()) && !coursePositioned) {
-            if (courseToInsert.getPartecipants() <= copyOfDatesPlanning[classroom].first.getExamCapacity()) {
-                slot = slotRef;
-                while ((slot < slotEnd) && !coursePositioned) {
-                    if (copyOfDatesPlanning[classroom].second[dayRef][slot].isEmpty()) {
-                        slotOccupancy++;
-                    } else {
-                        slotOccupancy = 0;
+            if (courseToInsert.getExamClassroomType() == copyOfDatesPlanning[classroom].first.getType()){
+                if (courseToInsert.getPartecipants() <= copyOfDatesPlanning[classroom].first.getExamCapacity()) {
+                    slot = slotRef;
+                    while ((slot < slotEnd) && !coursePositioned) {
+                        if (copyOfDatesPlanning[classroom].second[dayRef][slot].isEmpty()) {
+                            slotOccupancy++;
+                        } else {
+                            slotOccupancy = 0;
+                        }
+                        if (slotOccupancy == slotOccupancyMax) {
+                            classroomChosen = classroom;
+                            coursePositioned = true;
+                        }
+                        slot++;
                     }
-                    if (slotOccupancy == slotOccupancyMax) {
-                        classroomChosen = classroom;
-                        coursePositioned = true;
-                    }
-                    slot++;
                 }
             }
             classroom++;

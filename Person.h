@@ -17,6 +17,7 @@ using namespace std;
 class Person {
 public:
     Person() {};
+    ~Person() {};
     Person(const string& name, const string& surname, const string& mail);
     string& getName() const;
     void setName(const string& name);

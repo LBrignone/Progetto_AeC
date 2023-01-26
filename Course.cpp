@@ -23,8 +23,6 @@ Course::Course(const Course& toCopy) {
     this->_examDuration = toCopy._examDuration;
     this->_partecipants = toCopy._partecipants;
     this->_coursesGroupedId = toCopy._coursesGroupedId;
-    this->_isScheduled = toCopy._isScheduled;
-    this->_constrain = toCopy._constrain;
 }
 
 string Course::getId() const {
@@ -471,30 +469,6 @@ void Course::deleteGroupedId() {
     _coursesGroupedId.erase(_coursesGroupedId.begin(), _coursesGroupedId.end());
 }
 
-bool Course::getExamIsScheduled(int i) const {
-    return _isScheduled[i];
-}
-
-void Course::setExamIsScheduled(int i) {
-    _isScheduled[i] = true;
-}
-
-void Course::resetExamIsScheduled(int i) {
-    _isScheduled[i] = false;
-}
-
-void Course::increaseConstrain() {
-    _constrain++;
-}
-
-void Course::decreaseConstrain() {
-    _constrain--;
-}
-
-void Course::resetConstrain() {
-    _constrain = 0;
-}
-
 void Course::inheritCourse(const list<Course>::const_iterator& toInherit) {
     this->_id = toInherit->_id;
     this->_title = toInherit->_title;
@@ -624,8 +598,6 @@ Course& Course::operator=(const Course &toCopy) {
     _examDuration = toCopy._examDuration;
     _partecipants = toCopy._partecipants;
     _coursesGroupedId = toCopy._coursesGroupedId;
-    _isScheduled = toCopy._isScheduled;
-    _constrain = toCopy._constrain;
     return *this;
 }
 
@@ -648,8 +620,6 @@ Course& Course::operator = (const list<Course>::iterator& toCopy) {
     _examDuration = toCopy->_examDuration;
     _partecipants = toCopy->_partecipants;
     _coursesGroupedId = toCopy->_coursesGroupedId;
-    _isScheduled = toCopy->_isScheduled;
-    _constrain = toCopy->_constrain;
     return *this;
 }
 

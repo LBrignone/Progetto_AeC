@@ -69,12 +69,6 @@ public:
     bool setListGroupedId(const list<string> &groupingId);
     bool appendGroupedId(const string& toAppend);
     void deleteGroupedId();
-    bool getExamIsScheduled(int i) const;
-    void setExamIsScheduled(int i);
-    void resetExamIsScheduled(int i);
-    void increaseConstrain();
-    void decreaseConstrain();
-    void resetConstrain();
     void inheritCourse(const list<Course>::const_iterator& toInherit);
     void clearCFields();
     void clearAFields();
@@ -109,10 +103,7 @@ private:
     int _examDuration = -1;
     int _partecipants = -1;
     list<string> _coursesGroupedId;
-    vector<bool> _isScheduled = {false, false, false, false};
-    int _constrain = 0;
 
-    vector<string> error {"ERR_hour_incompatibility", "ERR_negative_hour", "ERR_hours_not_set", "OK"};
     vector<string> examTypeVect {"S", "O", "SO", "P", "NO_TYPE"};
 };
 

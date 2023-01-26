@@ -10,7 +10,6 @@
 bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>& databaseList, list<Course>& dummyCoursesList, list<Professor>& professorList) {
     t_errorCodes errorIdentifier = OK;
     int i = 0;
-    bool fromInsert;
     string errorString;
     list<Course>::const_iterator itCourseMainConst, itCourseMainLastConst;
     list<Course>::iterator itCourseMain, itCourseDummy;
@@ -20,7 +19,6 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
     itCourseDummy = dummyCoursesList.begin();
     if (dummyCoursesList.size() == versionCounter) {
         while ((itCourseDummy != dummyCoursesList.end()) && (errorIdentifier == OK)) {
-            fromInsert = false;
 
             itCourseMainConst = findCourse(databaseList, itCourseDummy->getId(), itCourseDummy->getStartYear(), generateVersion(i));
             itCourseMain = constItToNonConstIt(databaseList, itCourseMainConst);
@@ -211,8 +209,7 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
                             errorHandling = errorLine;
                         } else {
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
-                            if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) !=
-                                OK) {
+                            if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) != OK) {
                                 errorIdentifier = ERR_professor_hour;
                                 errorHandling = errorLine;
                             }

@@ -49,29 +49,27 @@ bool versionCoherencyTest (string& errorHandling,int versionProgression, const s
     return lValue == versionProgression;
 }
 
-// here the vector of dates created in "ExamSessionInputFile" is verified wrt coherency between the academic year and the year of exam sessions
-bool examSessionAcademicYearCoherencyTest (string& errorHandling, int academicYearStd, const vector<Date>& sessionToVerify) {
+// here the vector of dates created in "ExamSessionInputFile" is verified wrt coherency between the academic year and the
+// exam session's year
+bool examSessionAcademicYearCoherencyTest (string& errorHandling, int academicYearRef, const vector<Date>& sessionToVerify) {
     t_errorCodes errorIdentifier = OK;
     int dateFieldSession = 0;
 
     while ((dateFieldSession < 6) && (errorIdentifier == OK)) {
-        if ((sessionToVerify.at(dateFieldSession).getYear() != academicYearStd) && (sessionToVerify.at(dateFieldSession).getYear() != (academicYearStd + 1))) {
+        if ((sessionToVerify.at(dateFieldSession).getYear() != academicYearRef) && (sessionToVerify.at(dateFieldSession).getYear() != (academicYearRef + 1))) {
             errorIdentifier = ERR_academic_year;
             if ((dateFieldSession % 2) == 0) {
                 errorHandling = "the year set as ending session number " + to_string((dateFieldSession / 2) + (dateFieldSession % 2)) +
-                                " is not compatible with academic year " + to_string(academicYearStd);
+                                " is not compatible with academic year " + to_string(academicYearRef);
             } else {
                 errorHandling = "the year set as starting session number " + to_string((dateFieldSession / 2) + (dateFieldSession % 2)) +
-                                " is not compatible with academic year " + to_string(academicYearStd);
+                                " is not compatible with academic year " + to_string(academicYearRef);
             }
         }
         dateFieldSession++;
     }
-    if (errorIdentifier == OK) {
-        return true;
-    } else {
-        return false;
-    }
+
+    return errorIdentifier == OK;
 }
 
 // here the beginning of each session is verified to be before the ending of same session
@@ -112,11 +110,8 @@ bool examSessionOrderVerification(string& errorHandling, const vector<Date>& ses
         }
         sessionIdentifier++;
     }
-    if (errorIdentifier == OK) {
-        return true;
-    } else {
-        return false;
-    }
+
+    return errorIdentifier == OK;
 }
 
 bool sessionDurationConstrainVerification(string& errorHandling, const vector<Date>& sessionToVerify) {

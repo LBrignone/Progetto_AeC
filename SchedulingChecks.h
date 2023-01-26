@@ -11,6 +11,6 @@
 #include "Course.h"
 #include "CourseOfStudy.h"
 
-int courseIdISInSemester(const string& idToFind, const int& semesterSession, const list<CourseOfStudy>& courseOfStudyList);
+int courseIdIsInSemester(const string& idToFind, const int& semesterSession, const list<CourseOfStudy>& courseOfStudyList);
 
 #endif //PROGETTO_SCHEDULINGCHECKS_H

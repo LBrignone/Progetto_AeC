@@ -75,6 +75,7 @@ struct courseOrgBySemester{
     courseOrgBySemester& operator =(const courseOrgBySemester& toCopy) {
         _course = toCopy._course;
         _assignedCourseOfStudy = toCopy._assignedCourseOfStudy;
+        _constrainDeactivated = toCopy._constrainDeactivated;
         return *this;
     }
     bool operator <(const courseOrgBySemester& toCompare) {return (this->_course.getPartecipants()) < toCompare._course.getPartecipants();}
@@ -119,16 +120,16 @@ private:
     int groupingCoursesBySemester(string& errorHandling, const list<CourseOfStudy>& databaseCourseOfStudy);
     bool sessionScheduleFromDate(string& errorHandling, const Date& startDate, const Date& stopDate, const int& sessionNumber);
     bool constrain_1(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
-                     const int& dayRef,
-                     map<int, vector<vector<courseOrgBySemester>>>& copyCoursesForConstrainViolation,
+                     const int& dayRef, map<int, vector<vector<courseOrgBySemester>>>& copyCoursesForConstrainViolation,
                      const int& semesterRef, const int& groupRef, const int& courseRef);
     bool constrain_2(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                      const int& dayRef, const int& slotRef, const int& constrainRelaxed,
                      map<int, vector<vector<courseOrgBySemester>>>& copyCoursesForConstrainViolation,
                      const int& semesterRef, const int& groupRef, const int& courseRef);
     bool constrain_3(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
-                     const int& academicYearRef, const Date& startSessionDate, const int& dateIncrement, const int& slotRef,
-                     const Course& courseToInsert, list<Professor>& professorListToVerifyAndUpdate);
+                     const int& academicYearRef, const Date& startSessionDate, const int& dateIncrement,
+                     const int& slotRef, const Course& courseToInsert,
+                     list<Professor>& professorListToVerifyAndUpdate, const bool& constrain4Violated);
     bool constrain_4(const vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
                      const Course& courseToInsert, const int& dayRef, const int& slotRef, int& classroomChosen);
     void coursePositioning(vector<pair<Classroom, vector<vector<examScheduled>>>>& copyOfDatesPlanning,
@@ -144,6 +145,5 @@ private:
     map<int, vector<vector<courseOrgBySemester>>> _groupedCoursesToPlan;
     list<Course> _coursesToSchedule;
 };
-
 
 #endif //PROGETTO_SESSIONSCHEDULER_H

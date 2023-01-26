@@ -44,8 +44,6 @@ list<string> findCourseIdGrouped(const list<Course>& courseList, const string& i
 
 Date findMaxAcademicYearUnavail(const list<Professor>& professorList);
 
-bool findDistanceSameCourseOfStudy(const vector<pair<Classroom, vector<vector<struct examScheduled>>>>& planningToSearchIn, const list<string>& courseOfStudyToFind, const int& dayRefPosition);
-
 bool comp(Professor professorToCompare, Professor minimum);
 
 bool sortMethodForProf(Professor professorToCompare, Professor minimum);
