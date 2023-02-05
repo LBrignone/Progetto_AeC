@@ -38,6 +38,8 @@ list<Course>::const_iterator findCourseLastForIdAndYear(const list<Course>& cour
 
 bool findCourseTitle(const list<Course>& courseList, const string& titleToFind);
 
+list<CourseOfStudy>::const_iterator findCourseOfStudy(const list<CourseOfStudy>& courseOfStudyList, const string& idToFind);
+
 list<string> findCourseOfStudy(string& errorHandling, const list<CourseOfStudy>& courseOfStudyList, const string& idToFind);
 
 list<string> findCourseIdGrouped(const list<Course>& courseList, const string& idToFind);

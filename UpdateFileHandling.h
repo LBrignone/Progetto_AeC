@@ -23,4 +23,6 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
 
 int ClassroomToUpdateFile (string& errorHandling, const string& classroomFileName, list<Classroom>& classroomList);
 
+int CourseOfStudyToUpdateFile (string& errorHandling, const string& courseOfStudyFileName, list<CourseOfStudy>& courseOfStudyList);
+
 #endif //PROGETTO_UPDATEFILEHANDLING_H

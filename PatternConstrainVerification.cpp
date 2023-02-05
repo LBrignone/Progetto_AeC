@@ -86,11 +86,8 @@ bool examSessionBeginEndVerification(string& errorHandling, const vector<Date>& 
         }
         sessionIdentifier++;
     }
-    if (errorIdentifier == OK) {
-        return true;
-    } else {
-        return false;
-    }
+
+    return errorIdentifier == OK;
 }
 
 // here is verified the correctness of exam session's ordering (session 1 before 2 and 3, session 2 before 3)
@@ -135,11 +132,7 @@ bool sessionDurationConstrainVerification(string& errorHandling, const vector<Da
         }
         sessionIdentifier++;
     }
-    if (errorIdentifier == OK) {
-        return true;
-    } else {
-        return false;
-    }
+    return errorIdentifier == OK;
 }
 
 // the start and stop date's control is performed through the list of already inserted/appended unavailable date, in particular it is controlled:
@@ -163,14 +156,10 @@ bool unavailabilityDatesVerification (const AvailForExam& dateToVerify, const li
             itListUnavailDates++;
         }
     }
-    if (errorIdentifier == OK) {
-        // if there's no incoherent date value the return is TRUE
-        return true;
-    } else {
-        // if the given unavailability date to insert has overlapping or equal value(s) to one alredy in database
-        //the return is FALSE
-        return false;
-    }
+    // if there's no incoherent date value the return is TRUE
+    // if the given unavailability date to insert has overlapping or equal value(s) to one alredy in database
+    //the return is FALSE
+    return errorIdentifier == OK;
 }
 
 bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompare, list<Course>& courseList, list<CourseOfStudy>& courseToHandle) {
@@ -206,7 +195,7 @@ bool putCourseInEndedCourses(string& errorHandling, const Course& courseToCompar
             // allEnded = false -> all the courses are "non_attivo"
             // allEnded = true  -> at least one course is "attivo", so is not necessary to perform the remove/copy in ended courses
             while ((itListCourseOfStudy != courseToHandle.end()) && errorHandling.empty()) {
-                itListCourseOfStudy->deleteEndedCourseFormActiveCourse(errorHandling, courseToCompare.getId(), allEnded);
+                itListCourseOfStudy->deleteEndedCourseFromActiveCourse(errorHandling, courseToCompare.getId(), allEnded);
                 itListCourseOfStudy++;
             }
         } else {
@@ -250,7 +239,7 @@ bool removeCourseFromEndedCourses(string& errorHandling, const Course& courseToC
             // course's list while the proper semester will be assigned through the update of course of study
             if (allActive) {
                 while ((itListCourseOfStudy != courseToHandle.end()) && errorHandling.empty()) {
-                    itListCourseOfStudy->activateCourseFormEndedCourse(errorHandling, courseToCompare.getId(), allActive);
+                    itListCourseOfStudy->activateCourseFromEndedCourse(errorHandling, courseToCompare.getId(), allActive);
                     itListCourseOfStudy++;
                 }
             }
@@ -262,4 +251,3 @@ bool removeCourseFromEndedCourses(string& errorHandling, const Course& courseToC
     }
     return errorHandling.empty();
 }
-

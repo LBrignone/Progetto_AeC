@@ -220,13 +220,13 @@ void SessionScheduler::groupedCoursesScheduling(const int& sessionNumber, const 
                         courseNumber = 0;
                         itGroupedCoursesToPlanList = itGroupedCourseToPlanVector->begin();
                     } else {
-                        list<string> courseOfStudyFromCoure;
+                        list<string> courseOfStudyFromCourse;
                         list<pair<string, bool>>::const_iterator itAssignedCourseOfStudy;
 
                         for (itAssignedCourseOfStudy = itGroupedCoursesToPlanList->_assignedCourseOfStudy.begin(); itAssignedCourseOfStudy != itGroupedCoursesToPlanList->_assignedCourseOfStudy.end(); itAssignedCourseOfStudy++) {
-                            courseOfStudyFromCoure.push_back(itAssignedCourseOfStudy->first);
+                            courseOfStudyFromCourse.push_back(itAssignedCourseOfStudy->first);
                         }
-                        coursePositioning(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, freeClassroomToUse, day, slot, courseOfStudyFromCoure);
+                        coursePositioning(copyOfDatesPlanning, itGroupedCoursesToPlanList->_course, freeClassroomToUse, day, slot, courseOfStudyFromCourse);
                         courseNumber++;
                         itGroupedCoursesToPlanList++;
                         if (itGroupedCoursesToPlanList == itGroupedCourseToPlanVector->end()) {
@@ -506,7 +506,6 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
             list<struct expandedScheduleForPrint> dailyScheduleToSortAndPrint;
             list<struct expandedScheduleForPrint>::iterator itDailyScheduleToSortAndPrint, itReturnFromFindDuplicates;
 
-
             dateToPrint.setHour(8 + (2 * slot));
             while (classroom < _datesPlanning.size()) {
                 itExamScheduled = _datesPlanning[classroom].second[day][slot]._assignedCourseOfStudy.cbegin();
@@ -554,6 +553,9 @@ void SessionScheduler::outputSessionFile(const string& fileBaseName, const int& 
         } else {
             dateToPrint++;
         }
+    }
+    if (fileSessionName.is_open()) {
+        fileSessionName.close();
     }
 }
 
@@ -609,10 +611,15 @@ void SessionScheduler::outputWarningFile(const string& fileBaseName, const int& 
             dummyConstrain[3] = dummyConstrain[3] || itCopyAndExtensionOfGroupedCoursesToPlan->_constrainDeactivated[3];
         }
     }
+
     for (int i = 0; i < 4; i++) {
         if (dummyConstrain[i]) {
             fileSessionName << oldCourseOfStudy << ";" << oldCourse << ";" << to_string(i + 1) << endl;
         }
+    }
+
+    if (fileSessionName.is_open()) {
+        fileSessionName.close();
     }
 }
 

@@ -1235,8 +1235,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                             case 3: {
                                 switch (patternFieldForEachLevel[level - 1] % 4) {
                                     case 0: {
-                                        itReturnToFindConst = findProfessor(tmpProfessorList,
-                                                                            associateProfessorFromFile);
+                                        itReturnToFindConst = findProfessor(tmpProfessorList, associateProfessorFromFile);
                                         if (patternFieldForEachLevel[level - 1] == 0) {
                                             if (mainProfessorCourse == associateProfessorFromFile) {
                                                 dummyAssociateProfessor.setIsMain(true);
@@ -1374,7 +1373,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                                     default: {
                                         errorIdentifier = ERR_course_format;
                                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                        " unexpected element number there may be an incorrect number or type of brackets, plese controll the professor (id: " +
+                                                        " unexpected element number there may be an incorrect number or type of brackets, please control the professor (id: " +
                                                         dummyAssociateProfessor.getProfessorPointer()->getId() +
                                                         ") and version (id: " + dummyCourse.getParallelCoursesId() +
                                                         "of the element " + to_string(patternFieldForEachLevel[0] / 2) +
@@ -1387,7 +1386,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                             default: {
                                 errorIdentifier = ERR_course_format;
                                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
-                                                " unexpected element number there may be an incorrect number or type of brackets, plese controll the professor (id: " +
+                                                " unexpected element number there may be an incorrect number or type of brackets, please control the professor (id: " +
                                                 dummyAssociateProfessor.getProfessorPointer()->getId() +
                                                 ") and version (id: " + dummyCourse.getParallelCoursesId() +
                                                 "of the element " + to_string(patternFieldForEachLevel[0] / 2) +
@@ -1415,7 +1414,7 @@ int CourseInputFile(string& errorHandling, const string& courseFileName, list<Co
                 }
                 row++;
                 // this part is not strictly necessary and performs the clear of newly inserted elements in course's list
-                // as said this perform a non necessary operation because if an error is risen in previous rows the database
+                // as said this performs a non-necessary operation because if an error is risen in previous rows the database
                 // won't be corrupted by simply not writing on it
                 if (versionCounter != courseList.back().getParallelCoursesNumber()) {
                     for (int i = 0; i < (versionCounter - 1); i++) {
@@ -1491,65 +1490,91 @@ int CourseOfStudyInputFile(string& errorHandling, const string& courseOfStudyFil
                         break;
                     }
                     case 2: {
-                        stringstream coursesBySemester(readFromLine.substr(1, readFromLine.size() - 2));
-                        string semesterCourse, tmpError;
-                        int level = 0, semester = 0;
-                        bool semesterRecon = false;
+                        if ((readFromLine.front() == '[') && (readFromLine.back() == ']')) {
+                            stringstream coursesBySemester(readFromLine.substr(1, readFromLine.size() - 2));
+                            string semesterCourse, tmpError;
+                            int level = 0, semester = 0;
+                            bool semesterRecon = false;
 
-                        while (getline(coursesBySemester, semesterCourse, ',') && (errorIdentifier == OK)) {
-                            semesterRecon = false;
-                            while (!semesterRecon && (errorIdentifier == OK)) {
-                                if (semesterCourse.front() == '{') {
-                                    semesterCourse = semesterCourse.substr(1, semesterCourse.size() - 1);
-                                    level++;
-                                    semester++;
-                                } else if (semesterCourse.back() == '}') {
-                                    semesterCourse = semesterCourse.substr(0, semesterCourse.size() - 1);
-                                    level--;
-                                } else {
-                                    if ((level == 0) && semesterCourse.empty()) {
-                                        errorIdentifier = ERR_course_of_study_format;
-                                        errorHandling = "Error: file: " + courseOfStudyFileName + " corso di studi: " +
-                                                        dummyStudyCourse.getCourseOfStudyId() + " semester: " +
-                                                        to_string(semester) + " with no courses";
-                                    } else if ((level < 0) || (level > 1)) {
-                                        errorIdentifier = ERR_course_of_study_format;
-                                        errorHandling = "Error: file: " + courseOfStudyFileName + " course of study: " +
-                                                        dummyStudyCourse.getCourseOfStudyId() + " semester: " +
-                                                        to_string(semester) + " with wrong number of brackets";
+                            while (getline(coursesBySemester, semesterCourse, ',') && (errorIdentifier == OK)) {
+                                semesterRecon = false;
+                                while (!semesterRecon && (errorIdentifier == OK)) {
+                                    if (semesterCourse.front() == '{') {
+                                        semesterCourse = semesterCourse.substr(1, semesterCourse.size() - 1);
+                                        level++;
+                                        semester++;
+                                    } else if (semesterCourse.back() == '}') {
+                                        semesterCourse = semesterCourse.substr(0, semesterCourse.size() - 1);
+                                        level--;
                                     } else {
-                                        semesterRecon = true;
+                                        if ((level == 0) && semesterCourse.empty()) {
+                                            errorIdentifier = ERR_course_of_study_format;
+                                            errorHandling = "Error: file: " + courseOfStudyFileName + " course of study: " +
+                                                            dummyStudyCourse.getCourseOfStudyId() + " semester: " +
+                                                            to_string(semester) + " with no courses";
+                                        } else if ((level < 0) || (level > 1)) {
+                                            errorIdentifier = ERR_course_of_study_format;
+                                            errorHandling = "Error: file: " + courseOfStudyFileName + " course of study: " +
+                                                            dummyStudyCourse.getCourseOfStudyId() + " semester: " +
+                                                            to_string(semester) + " with wrong number of brackets";
+                                        } else {
+                                            semesterRecon = true;
+                                        }
+                                    }
+                                }
+                                if (errorIdentifier == OK) {
+                                    if (!dummyStudyCourse.setListOfCoursesBySemester(tmpError, semester - 1, semesterCourse)) {
+                                        errorIdentifier = ERR_course_list;
+                                        errorHandling = "Error: file: " + courseOfStudyFileName + " course: " + semesterCourse  +
+                                                        " semester: " + to_string(semester)+ " " + tmpError;
+                                    }
+                                    if ((!isDb) && (errorIdentifier == OK)) {
+                                        bool found = false;
+                                        list<CourseOfStudy>::const_iterator it_databaseCourseOfStudy;
+
+                                        it_databaseCourseOfStudy = studyCoursesList.cbegin();
+                                        while ((it_databaseCourseOfStudy != studyCoursesList.cend()) && !found) {
+                                            if (it_databaseCourseOfStudy->findCourse(-1, semesterCourse) == -1) {
+                                                dummyStudyCourse.setListOfCoursesBySemester(tmpError, -1, semesterCourse);
+                                                found = true;
+                                            }
+                                            it_databaseCourseOfStudy++;
+                                        }
                                     }
                                 }
                             }
-                            if (errorIdentifier == OK) {
-                                if (!dummyStudyCourse.setListOfCoursesBySemester(tmpError, semester - 1, semesterCourse)) {
-                                    errorIdentifier = ERR_course_list;
-                                    errorHandling = "Error: file: " + courseOfStudyFileName + "semester: " + to_string(semester) +
-                                                    tmpError + semesterCourse;
-                                }
-                            }
+                            patternField++;
+                        } else {
+                            errorIdentifier = ERR_course_of_study_format;
+                            errorHandling = "Error: file: " + courseOfStudyFileName + " course of study: " +
+                                            dummyStudyCourse.getCourseOfStudyId() + " with no \"[]\" for semester organization";
                         }
-                        patternField++;
                         break;
                     }
                     case 3: {
                         string endedCourse, tmpError;
 
-                        if ((readFromLine.front() == '[') && (readFromLine.back() == ']')) {
-                            stringstream idEndedCourses(readFromLine.substr(1, readFromLine.size() - 2));
+                        if (isDb) {
+                            if ((readFromLine.front() == '[') && (readFromLine.back() == ']')) {
+                                stringstream idEndedCourses(readFromLine.substr(1, readFromLine.size() - 2));
 
-                            while (getline(idEndedCourses, endedCourse, ',') && (errorIdentifier == OK)) {
-                                if (!dummyStudyCourse.setListOfCoursesBySemester(tmpError, -1, endedCourse)) {
-                                    errorIdentifier = ERR_course_of_study_format;
-                                    errorHandling = "Error: file: " + courseOfStudyFileName + tmpError + " ended course id: " +
-                                                    endedCourse;
+                                while (getline(idEndedCourses, endedCourse, ',') && (errorIdentifier == OK)) {
+                                    if (!dummyStudyCourse.setListOfCoursesBySemester(tmpError, -1, endedCourse)) {
+                                        errorIdentifier = ERR_course_of_study_format;
+                                        errorHandling = "Error: file: " + courseOfStudyFileName + " " + tmpError +
+                                                        " ended courses id: " +
+                                                        endedCourse;
+                                    }
                                 }
+                            } else {
+                                errorIdentifier = ERR_missing_field;
+                                errorHandling = "Error: file: " + courseOfStudyFileName + " row: " + to_string(lineOfFile + 1) +
+                                                " expecting \"[]\" as field identifiers";
                             }
                         } else {
-                            errorIdentifier = ERR_missing_field;
+                            errorIdentifier = ERR_course_of_study_format;
                             errorHandling = "Error: file: " + courseOfStudyFileName + " row: " + to_string(lineOfFile + 1) +
-                                            " expecting \"[]\" as field identifiers";
+                                            " has a non valid format for ended course";
                         }
                         patternField++;
                         break;
@@ -2077,11 +2102,11 @@ int ProfessorUnavailabilityInputFile(string& errorHandling, const string& profes
                                 }
                             } else {
                                 errorIdentifier = ERR_date_format;
-                                errorHandling =
-                                        "ERROR: file: " + professorUnavailabilityFile + " the dates pair number " +
-                                        to_string(fieldNumber + 1) + " (start: " + unavailPeriod.start.getCompleteDate() +
-                                        ", stop: " + unavailPeriod.stop.getCompleteDate() + ") which identify unavailable dates for professor " +
-                                        itProfessorListConst->getId() + " are not coherent with academic year " + beginYear.getAcademicYear();
+                                errorHandling = "ERROR: file: " + professorUnavailabilityFile + " the dates pair number " +
+                                                to_string(fieldNumber + 1) + " (start: " + unavailPeriod.start.getCompleteDate() +
+                                                ", stop: " + unavailPeriod.stop.getCompleteDate() + ") which identify unavailable dates for professor " +
+                                                itProfessorListConst->getId() + " are not coherent with academic year " +
+                                                beginYear.getAcademicYear();
                             }
                             fieldNumber++;
                             // reading unavail dates (here the start and stop date, for a single field, is reconstructed, and already present)

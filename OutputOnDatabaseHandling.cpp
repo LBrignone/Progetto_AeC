@@ -233,6 +233,10 @@ int updateExamSessionDatabaseFile(string& errorHandling, const string& databaseE
             itMapExamSession++;
         }
     }
+    if (fileName.is_open()) {
+        fileName.close();
+    }
+
     return (int) errorIdentifier;
 }
 
@@ -287,7 +291,9 @@ int updateUnavailabilityDatabaseFile(string& errorHandling, const string& databa
                         tmpDate.operator<<(fileName);
                         itListUnavailDates++;
                     }
-                    if (endlineToPrint){ fileName << endl; }
+                    if (endlineToPrint){
+                        fileName << endl;
+                    }
                 }
                 itListProfessor++;
             }

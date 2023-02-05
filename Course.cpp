@@ -30,8 +30,9 @@ string Course::getId() const {
 }
 
 bool Course::setId(const string &id) {
-    int positionIdString = 2;
     bool errorInId = false;
+    int positionIdString = 2;
+
     if ((id[0] == '0') && (id[1] == '1')) {
         while ((positionIdString < 6) && !errorInId) {
             if ((id[positionIdString] > 64) && (id[positionIdString] < 91)) { // A == 65 - Z == 90
@@ -422,7 +423,7 @@ bool Course::setListGroupedId(const list<string>& groupingId) {
     while ((groupingListIt != _coursesGroupedId.end()) && !errorInId) {
         positionIdString = 2;
         if ((groupingListIt->at(0) == '0') && (groupingListIt->at(1) == '1')) {
-            while ((positionIdString < 6) && !errorInId) {
+            while ((positionIdString < 7) && !errorInId) {
                 if ((groupingListIt->at(positionIdString) > 64) && (groupingListIt->at(positionIdString) < 91)) { // A == 65 - Z == 90
                     positionIdString++;
                 } else {

@@ -92,10 +92,10 @@ int main(int argc, char** argv) {
                                 (funcReturnDbFile == ERR_empty_file)) {
                                 funcReturnDbFile = OK;
                                 functionReturn = StudentInputFile(errorLine, fileNameFromCommandLine, databaseOfStudents, false);
+                                if (functionReturn == OK) {
+                                    functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, databaseOfStudents);
+                                }
                             }
-                        }
-                        if (functionReturn == OK || functionReturn == ERR_not_found) {
-                            functionReturn = updateStudentDatabaseFile(errorLine, studentDatabaseName, databaseOfStudents);
                         }
                         break;
                     }
@@ -108,10 +108,10 @@ int main(int argc, char** argv) {
                                 (funcReturnDbFile == ERR_empty_file)) {
                                 funcReturnDbFile = OK;
                                 functionReturn = ProfessorInputFile(errorLine, fileNameFromCommandLine, databaseOfProfessors, false);
+                                if (functionReturn == OK) {
+                                    functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, databaseOfProfessors);
+                                }
                             }
-                        }
-                        if (functionReturn == OK) {
-                            functionReturn = updateProfessorDatabaseFile(errorLine, professorDatabaseName, databaseOfProfessors);
                         }
                         break;
                     }
@@ -124,10 +124,10 @@ int main(int argc, char** argv) {
                                 (funcReturnDbFile == ERR_empty_file)) {
                                 funcReturnDbFile = OK;
                                 functionReturn = ClassroomInputFile(errorLine, fileNameFromCommandLine, databaseOfClassrooms, false);
+                                if (functionReturn == OK) {
+                                    functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, databaseOfClassrooms);
+                                }
                             }
-                        }
-                        if (functionReturn == OK) {
-                            functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, databaseOfClassrooms);
                         }
                         break;
                     }
@@ -143,10 +143,10 @@ int main(int argc, char** argv) {
                                 (funcReturnDbFile == ERR_empty_file)) {
                                 funcReturnDbFile = OK;
                                 functionReturn = CourseInputFile(errorLine, fileNameFromCommandLine, databaseOfCourses, databaseOfProfessors, false);
+                                if (functionReturn == OK) {
+                                    functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, databaseOfCourses);
+                                }
                             }
-                        }
-                        if (functionReturn == OK) {
-                            functionReturn = updateCourseDatabaseFile(errorLine, courseDatabaseName, databaseOfCourses);
                         }
                         break;
                     }
@@ -155,14 +155,13 @@ int main(int argc, char** argv) {
                             funcReturnDbFile = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, databaseOfCoursesOfStudy, true);
                         } else {
                             funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy, true);
-                            if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) ||
-                                (funcReturnDbFile == ERR_empty_file)) {
+                            if ((funcReturnDbFile == OK) || (funcReturnDbFile == ERR_open_file) || (funcReturnDbFile == ERR_empty_file)) {
                                 funcReturnDbFile = OK;
                                 functionReturn = CourseOfStudyInputFile(errorLine, fileNameFromCommandLine, databaseOfCoursesOfStudy, false);
+                                if (functionReturn == OK) {
+                                    functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy);
+                                }
                             }
-                        }
-                        if (functionReturn == OK) {
-                            functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy);
                         }
                         break;
                     }
@@ -224,6 +223,23 @@ int main(int argc, char** argv) {
                         }
                         if (functionReturn == OK) {
                             functionReturn = updateClassroomDatabaseFile(errorLine, classroomDatabaseName, databaseOfClassrooms);
+                        }
+                        break;
+                    }
+                    case 'f': {
+                        if (fileNameFromCommandLine != courseOfStudyDatabaseName) {
+                            funcReturnDbFile = CourseOfStudyInputFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy, true);
+                            if (funcReturnDbFile == OK) {
+                                functionReturn = CourseOfStudyToUpdateFile(errorLine, fileNameFromCommandLine, databaseOfCoursesOfStudy);
+                            } else {
+                                errorLine += "\nImpossible to update \"" + (string) classroomDatabaseName + "\" without database to start from";
+                            }
+                        } else {
+                            errorIdentifier = ERR_update_database;
+                            errorLine = "Error: can't update \"" + (string) courseDatabaseName + "\" with same database file";
+                        }
+                        if (functionReturn == OK) {
+                            functionReturn = updateCourseOfStudyDatabaseFile(errorLine, courseOfStudyDatabaseName, databaseOfCoursesOfStudy);
                         }
                         break;
                     }

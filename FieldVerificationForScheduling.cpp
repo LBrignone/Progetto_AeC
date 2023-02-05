@@ -242,14 +242,11 @@ int groupedCoursesVerification(string& errorHandling, const list<string>& groupe
                             errorHandling =
                                     "ERROR: the course " + *itGroupedCourses + " is inactive and it has no valid semester";
                         }
-                    } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) &&
-                               (courseOfStudyRelatedToCourse.back() == "-1")) {
+                    } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) && (courseOfStudyRelatedToCourse.back() == "-1")) {
                         errorIdentifier = ERR_semester;
-                        errorHandling = "ERROR: the course " + *itGroupedCourses + "'s semester (" +
-                                        courseOfStudyRelatedToCourse.back() +
+                        errorHandling = "ERROR: the course " + *itGroupedCourses + "'s semester (" + courseOfStudyRelatedToCourse.back() +
                                         ") is incoherent with previous course's semester (" + to_string(semester) + ")";
-                    } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) &&
-                               (courseOfStudyRelatedToCourse.back() == "-2")) {
+                    } else if ((semester != stoi(courseOfStudyRelatedToCourse.back())) && (courseOfStudyRelatedToCourse.back() == "-2")) {
                         errorIdentifier = ERR_semester;
                         errorHandling = "ERROR: the course " + *itGroupedCourses + " is inactive and it has no valid semester";
                     } else {

@@ -41,7 +41,7 @@ public:
     Date getMaxDateForUnavail() const;
     bool setUnavailability(const list<AvailForExam>& unavailDatesList, const Date& academicYear);
     void appendUnavailability(const Date &startUnavail, const Date &stopUnavail, const Date& academicYear);
-    bool appendUnavailability(const AvailForExam& unavailDates, const Date& academicYear);     // all the controls on date's coherency MUST be performed before colling this function (NO control is performed inside)
+    bool appendUnavailability(const AvailForExam& unavailDates, const Date& academicYear);     // all the controls on date's coherency MUST be performed before calling this function (NO control is performed inside)
     void appendUnavailabilityForExam(const Date &startUnavail, const Date &stopUnavail);
     list<AvailForExam> getUnavailabilityForExam() const;
     void setUnavailabilityForExam(const list<AvailForExam>& unavailForExam);

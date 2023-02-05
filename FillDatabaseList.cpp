@@ -62,7 +62,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
                             if (itCourseMain->setListAssistant(associateProfessorFromDatabase, errorString) != OK) {
                                 errorIdentifier = ERR_professor_hour;
-                                errorHandling = errorString;
+                                errorHandling = "version: " + itCourseDummy->getParallelCoursesId() + " " + errorString;
                             }
                         }
                     }
@@ -108,7 +108,7 @@ bool fillCourseDatabase (string& errorHandling, int versionCounter, list<Course>
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
                             if (itCourseDummy->setListAssistant(itCourseDummy->getListAssistant(), errorString) != OK) {
                                 errorIdentifier = ERR_professor_hour;
-                                errorHandling = errorString;
+                                errorHandling = "version: " + itCourseDummy->getParallelCoursesId() + " " + errorString;
                             }
                         }
                     } else {
@@ -154,7 +154,6 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
     string errorLine;
     list<Course>::const_iterator itLastDbCourseIdConst, itDbCourseIdConst;
     list<Course>::iterator itDummyCourseList, itLastDbCourseId, itDbCourseId;
-    list<AssociateProfessor> associateProfessorFromDummyNewOrg;
 
     // first the course id that we are looking for is searched in database
     itLastDbCourseIdConst = findCourse(databaseList, dummyCourseList.begin()->getId());
@@ -174,6 +173,8 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
     itDummyCourseList = dummyCourseList.begin();
     if (dummyCourseList.begin()->getParallelCoursesNumber() == versionCounter) {
         while ((versionNum < (versionCounter + 1)) && (errorIdentifier == OK)) {
+            list<AssociateProfessor> associateProfessorFromDummyNewOrg;
+
             if (itDummyCourseList->getParallelCoursesId().empty()) {
                 itDummyCourseList->setParallelCoursesId(generateVersion(versionNum - 1));
             }
@@ -190,13 +191,13 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
                             if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) != OK) {
                                 errorIdentifier = ERR_professor_hour;
-                                errorHandling = errorLine;
+                                errorHandling = "version: " + itDummyCourseList->getParallelCoursesId() + " " + errorLine;
                             }
                         }
                     } else {
                         if (itDummyCourseList->setListAssistant(itDbCourseId->getListAssistant(), errorLine) != OK) {
                             errorIdentifier = ERR_professor_hour;
-                            errorHandling = errorLine;
+                            errorHandling = "version: " + itDummyCourseList->getParallelCoursesId() + " " + errorLine;
                         }
                     }
                 } else {
@@ -211,7 +212,7 @@ bool insertCourseDatabase (string& errorHandling, int versionCounter, list<Cours
                             // here the updated database is controlled with regard to hour coherency between the total amount and the sum for each professor
                             if (itDummyCourseList->setListAssistant(associateProfessorFromDummyNewOrg, errorLine) != OK) {
                                 errorIdentifier = ERR_professor_hour;
-                                errorHandling = errorLine;
+                                errorHandling = "version: " + itDummyCourseList->getParallelCoursesId() + " " + errorLine;
                             }
                         }
                     } else {

@@ -191,6 +191,22 @@ bool findCourseTitle(const list<Course>& courseList, const string& titleToFind) 
     return found;
 }
 
+list<CourseOfStudy>::const_iterator findCourseOfStudy(const list<CourseOfStudy>& courseOfStudyList, const string& idToFind){
+    bool found = false;
+    list<CourseOfStudy>::const_iterator it_courseOfStudyList;
+
+    it_courseOfStudyList = courseOfStudyList.cbegin();
+    while ((it_courseOfStudyList != courseOfStudyList.cend()) && !found) {
+        if (it_courseOfStudyList->getCourseOfStudyId() == idToFind) {
+            found = true;
+        } else {
+            it_courseOfStudyList++;
+        }
+    }
+
+    return it_courseOfStudyList;
+}
+
 // this function is going to work only on database so all the data should be correct at the time of using it
 // the function returns a list of courses of study as ids, and the semester in which they are scheduled as last element
 list<string> findCourseOfStudy(string& errorHandling, const list<CourseOfStudy>& courseOfStudyList, const string& idToFind) {

@@ -107,14 +107,15 @@ bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandling, const int&
         if (((_graduationType == BS) && ((semesterKey > -2) && (semesterKey < 7))) ||
             ((_graduationType == MS) && ((semesterKey > -2) && (semesterKey < 5)))) {
             // here it is performed a control which aims at find possible duplication of the course in all semesters
-            // if the course id is present in the list of ended courses this duplication will be neglected
+            // if the course id is in the list of ended courses this duplication will be neglected
             itMapOfCoursesBySemester = _semesterOfCourse.cbegin();
             while ((itMapOfCoursesBySemester != _semesterOfCourse.cend()) && statusToReturn) {
                 itCoursesList = itMapOfCoursesBySemester->second.cbegin();
                 while ((itCoursesList != itMapOfCoursesBySemester->second.cend()) && statusToReturn) {
-                    if ((courseId == *itCoursesList) && (itMapOfCoursesBySemester->first == semesterKey)) {
+                    if ((courseId == *itCoursesList) && (((itMapOfCoursesBySemester->first != -1) && (semesterKey != -1))
+                        || ((itMapOfCoursesBySemester->first == -1) && (semesterKey == -1)))) {
                         statusToReturn = false;
-                        errorHandling = "the course is already present in the semester";
+                        errorHandling = "the course is already present in the course of study";
                     }
                     itCoursesList++;
                 }
@@ -133,7 +134,18 @@ bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandling, const int&
     return statusToReturn;
 }
 
-bool CourseOfStudy::deleteEndedCourseFormActiveCourse(string& errorHandling, const string& courseId, const bool& allInactive) {
+void CourseOfStudy::setCompleteListOfCoursesBySemester(const int& semesterKey, const list<string>& courseIdList) {
+    list<string>::const_iterator it_courseIdList;
+
+    it_courseIdList = courseIdList.cbegin();
+    this->_semesterOfCourse[semesterKey].clear();
+    while (it_courseIdList != courseIdList.cend()) {
+        this->_semesterOfCourse[semesterKey].push_back(*it_courseIdList);
+        it_courseIdList++;
+    }
+}
+
+bool CourseOfStudy::deleteEndedCourseFromActiveCourse(string& errorHandling, const string& courseId, const bool& allInactive) {
     string tmpError;
     int startSemesterSearch = 0, semesterMapIndex = 0;
 
@@ -157,7 +169,7 @@ bool CourseOfStudy::deleteEndedCourseFormActiveCourse(string& errorHandling, con
     return errorHandling.empty();
 }
 
-bool CourseOfStudy::activateCourseFormEndedCourse(string& errorHandling, const string& courseId, const bool& allActive) {
+bool CourseOfStudy::activateCourseFromEndedCourse(string& errorHandling, const string& courseId, const bool& allActive) {
     string tmpError;
     int semesterMapIndex;
 
@@ -234,8 +246,8 @@ ostream& CourseOfStudy::operator <<(ostream& os) const {
     }
     os << "]";
     // print of ended courses
+    os << ";[";
     if (!flag) {
-        os << ";[";
         itListOfCourses = _semesterOfCourse.at(-1).cbegin();
         while (itListOfCourses != _semesterOfCourse.at(-1).cend()) {
             if (itListOfCourses != _semesterOfCourse.at(-1).cbegin()) {
@@ -244,7 +256,7 @@ ostream& CourseOfStudy::operator <<(ostream& os) const {
             os << itListOfCourses->c_str();
             itListOfCourses++;
         }
-        os << "]";
     }
+    os << "]";
     return os;
 }

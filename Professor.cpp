@@ -36,6 +36,7 @@ bool Professor::setId(const string& id){
 bool Professor::generateNewId(const string &id) {
     int prevId;
     stringstream tmp;
+
     if (!id.empty()) {
         if (id[0] == 'd' && id.size() == 7) {
             try {
@@ -141,7 +142,6 @@ Date Professor::getMaxDateForUnavail() const {
 
 bool Professor::setUnavailability(const list<AvailForExam>& unavailDatesList, const Date& academicYear) {
     // all the controls on date's coherency MUST be performed before calling this function (NO control is performed inside)
-    bool alreadyExist = false;
     pair<Date, list<AvailForExam>> dummyUnavailDate;
     pair<map<Date, list<AvailForExam>>:: iterator, bool> itMapUnavailability;
 
