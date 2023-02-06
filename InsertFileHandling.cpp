@@ -57,7 +57,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
                                     errorIdentifier = ERR_academic_year;
-                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                    cerr << "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     "incorrect element impossible to convert the academic start year field to int: " + readFromLine.substr(0, 4);
                                 }
                                 try {
@@ -65,7 +65,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
                                     errorIdentifier = ERR_academic_year;
-                                    errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                    cerr << "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                     "incorrect element impossible to convert the academic ending year field to int: " + readFromLine.substr(6, 4);
                                 }
                                 if ((endYear < beginYear) || ((endYear - beginYear) != 0)) {
@@ -137,7 +137,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                             }
                             catch (const invalid_argument &excepFromStoi) {
                                 errorIdentifier = ERR_file_format;
-                                errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                cerr << "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                 " incorrect element impossible to convert the number of parallel courses field to int: " +
                                                 readFromLine;
                             }
@@ -176,7 +176,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             }
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorIdentifier = ERR_file_format;
-                                                errorHandling = "Error: file: " + courseFileName + " row: " +
+                                                cerr << "Error: file: " + courseFileName + " row: " +
                                                                 to_string(row + 1) +
                                                                 " incorrect element impossible to convert exam duration field to int: " +
                                                                 examField;
@@ -197,7 +197,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             }
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorIdentifier = ERR_file_format;
-                                                errorHandling = "Error: file: " + courseFileName + " row: " +
+                                                cerr << "Error: file: " + courseFileName + " row: " +
                                                                 to_string(row + 1) +
                                                                 " incorrect element impossible to convert entrance time field to int: " +
                                                                 examField;
@@ -218,7 +218,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             }
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorIdentifier = ERR_file_format;
-                                                errorHandling = "Error: file: " + courseFileName + " row: " +
+                                                cerr << "Error: file: " + courseFileName + " row: " +
                                                                 to_string(row + 1) +
                                                                 " incorrect element impossible to convert exit time field to int: " +
                                                                 examField;
@@ -263,7 +263,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                             }
                                             catch (const invalid_argument &excepFromStoi) {
                                                 errorIdentifier = ERR_file_format;
-                                                errorHandling = "Error: file: " + courseFileName + " row: " +
+                                                cerr << "Error: file: " + courseFileName + " row: " +
                                                                 to_string(row + 1) +
                                                                 " incorrect element impossible to convert number of students field to int: " +
                                                                 examField;
@@ -320,8 +320,8 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                 }
                 patternField++;
             }
-            if (((patternField < 7) || ((patternField == 7) && (readFromFile.back() != ';')) ||
-                 ((patternField == 8) && (readFromFile.back() == ';'))) && (errorIdentifier == OK)) {
+            if (((patternField < 6) || ((patternField == 6) && (readFromFile.back() != ';')) ||
+                 ((patternField == 7) && (readFromFile.back() == ';'))) && (errorIdentifier == OK)) {
                 errorIdentifier = ERR_file_format;
                 errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                 " the number of fields in pattern is different than expected";
@@ -422,6 +422,10 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                         break;
                                     }
                                     case 2: {
+                                        errorIdentifier = ERR_parallel_course;
+                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                        " version number: " + to_string(versionCounter + 1) +
+                                                        " has incorrect number of parenthesis";
                                         break;
                                     }
                                     case 3: {
@@ -497,7 +501,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                     }
                                                     catch (const invalid_argument& excepFromStoi) {
                                                         errorIdentifier = ERR_stoi_conversion;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                        cerr << "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         " incorrect element impossible to convert the lesson hour field to int: " +
                                                                         professorOrganizationForVersion + " (field number: " +
                                                                         to_string(patternFieldForEachLevel[level - 1]) + ")";
@@ -519,7 +523,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                     }
                                                     catch (const invalid_argument& excepFromStoi) {
                                                         errorIdentifier = ERR_stoi_conversion;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                        cerr << "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         " incorrect element impossible to convert the exercise hour field to int: " +
                                                                         professorOrganizationForVersion + " (field number: " +
                                                                         to_string(patternFieldForEachLevel[level - 1]) + ")";
@@ -541,7 +545,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                                                     }
                                                     catch (const invalid_argument& excepFromStoi) {
                                                         errorIdentifier = ERR_stoi_conversion;
-                                                        errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
+                                                        cerr << "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                                                         " incorrect element impossible to convert the laboratory hour field to int: " +
                                                                         professorOrganizationForVersion + " (field number: " +
                                                                         to_string(patternFieldForEachLevel[level - 1]) + ")";
@@ -625,8 +629,7 @@ int CourseToInsertFile(string& errorHandling, const string& courseFileName, list
                         errorIdentifier = ERR_file_format;
                         errorHandling = "Error: file: " + courseFileName + " row: " + to_string(row + 1) +
                                         " incorrect start and ending character of the pattern: " +
-                                        courseProfessorOrganization.front() +
-                                        " " + courseProfessorOrganization.back();
+                                        courseProfessorOrganization.front() + " " + courseProfessorOrganization.back();
                     }
                 } else {
                     int parallelCourseNumber = 0;

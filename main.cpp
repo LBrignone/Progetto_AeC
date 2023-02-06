@@ -350,7 +350,7 @@ int main(int argc, char** argv) {
                 }
                 catch (const invalid_argument& excepFromStoi) {
                     errorIdentifier = ERR_stoi_conversion;
-                    errorLine = "ERROR: can't convert academic year given for exam's scheduling to int";
+                    cerr << "ERROR: can't convert academic year given for exam's scheduling to int";
                 }
                 if (errorIdentifier == OK) {
                     funcReturnDbFile = ProfessorInputFile(errorLineDummy, professorDatabaseName, databaseOfProfessors, true);

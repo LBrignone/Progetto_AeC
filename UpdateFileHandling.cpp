@@ -44,7 +44,7 @@ int StudentToUpdateFile (string& errorHandling, const string& studentsFileName, 
                                     }
                                     catch (const invalid_argument& excepFromStoi) {
                                         errorIdentifier = ERR_stoi_conversion;
-                                        errorHandling = "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
+                                        cerr << "Error: file: " + studentsFileName + " row: " + to_string(lineOfFile + 1) +
                                                         " can't convert student id number to int";
                                     }
                                 } else {
@@ -142,7 +142,7 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                                         itReturnFromFind = constItToNonConstIt(professorList, itReturnFromFindConst);
                                         if (itReturnFromFindConst == professorList.cend()) {
                                             errorIdentifier = ERR_update_database;
-                                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
                                                             " can't find the given professor id in the list of professors: " +
                                                             readFromFile;
                                         }
@@ -150,12 +150,12 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
                                         errorIdentifier = ERR_stoi_conversion;
-                                        errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                        cerr << "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
                                                         " can't convert professor id number to int";
                                     }
                                 } else {
                                     errorIdentifier = ERR_id_field;
-                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
                                                     " the given professor id doesn't match the pattern (d000000): " + readFromFile;
                                 }
                                 break;
@@ -173,7 +173,7 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                             case 3: {
                                 if (!itReturnFromFind->setMail(readFromLine)) {
                                     errorIdentifier = ERR_mail_format;
-                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                                    errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
                                                     " the given mail doesn't match the pattern accepted as a mail (<string>@<string>.<string>): " +
                                                     readFromFile;
                                 }
@@ -183,15 +183,14 @@ int ProfessorToUpdateFile (string& errorHandling, const string& professorFileNam
                             default: {
                                 errorIdentifier = ERR_professor_format;
                                 errorHandling = "Error: file: " + professorFileName +
-                                                "number of element for the pattern of the line greater than " +
-                                                to_string(4);
+                                                "number of element for the pattern of the line greater than expected";
                                 break;
                             }
                         }
                     } else {
                         if (patternfield == 0) {
                             errorIdentifier = ERR_missing_field;
-                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile) +
+                            errorHandling = "Error: file: " + professorFileName + " row: " + to_string(lineOfFile + 1) +
                                             " the first field of the line MUST specify the professor id";
                         } else {
                             patternfield++;
@@ -257,7 +256,7 @@ int ClassroomToUpdateFile (string& errorHandling, const string& classroomFileNam
                                     }
                                     catch (const invalid_argument &excepFromStoi) {
                                         errorIdentifier = ERR_stoi_conversion;
-                                        errorHandling = "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
+                                        cerr << "Error: file: " + classroomFileName + " row: " + to_string(lineOfFile + 1) +
                                                         " can't convert classroom id number to int";
                                     }
                                 } else {
@@ -289,7 +288,7 @@ int ClassroomToUpdateFile (string& errorHandling, const string& classroomFileNam
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
                                     errorIdentifier = ERR_stoi_conversion;
-                                    errorHandling = "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) +
+                                    cerr << "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) +
                                                     " incorrect element impossible to convert classroom capacity field to int: " + readFromLine;
                                 }
                                 break;
@@ -310,7 +309,7 @@ int ClassroomToUpdateFile (string& errorHandling, const string& classroomFileNam
                                 }
                                 catch (const invalid_argument& excepFromStoi) {
                                     errorIdentifier = ERR_stoi_conversion;
-                                    errorHandling = "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) +
+                                    cerr << "Error: file: " + classroomFileName + " row " + to_string(lineOfFile + 1) +
                                                     " incorrect element impossible to convert classroom's exam capacity field to int: " + readFromLine;
                                 }
                                 break;

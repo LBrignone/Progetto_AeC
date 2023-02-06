@@ -11,7 +11,7 @@ bool parallelVersionProgression (string& errorHandling, int prevVersionid, const
         tmpVersionNumber = stoi(versionToVerify.substr(1, versionToVerify.size() - 1));
     }
     catch (const invalid_argument& cantConvert) {
-        errorHandling = "impossible to convert to int the numerical part of version id: " + versionToVerify;
+        cerr << "impossible to convert to int the numerical part of version id: " + versionToVerify;
         return false;
     }
     if (tmpVersionNumber == (prevVersionid + 1)) {
@@ -42,7 +42,7 @@ bool versionCoherencyTest (string& errorHandling,int versionProgression, const s
         return false;
     }
     catch (const out_of_range& excepFromStoi) {
-        errorHandling = "Error: incorrect element impossible to convert the given version id to int: \"" + versionToVerify + "\"";
+        cerr <<  "Error: incorrect element impossible to convert the given version id to int: \"" + versionToVerify + "\"";
         return false;
     }
 

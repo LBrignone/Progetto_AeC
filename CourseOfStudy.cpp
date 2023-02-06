@@ -104,8 +104,8 @@ bool CourseOfStudy::setListOfCoursesBySemester(string& errorHandling, const int&
         statusToReturn = false;
     }
     if (statusToReturn) {
-        if (((_graduationType == BS) && ((semesterKey > -2) && (semesterKey < 7))) ||
-            ((_graduationType == MS) && ((semesterKey > -2) && (semesterKey < 5)))) {
+        if (((_graduationType == BS) && ((semesterKey > -2) && (semesterKey < 6))) ||
+            ((_graduationType == MS) && ((semesterKey > -2) && (semesterKey < 4)))) {
             // here it is performed a control which aims at find possible duplication of the course in all semesters
             // if the course id is in the list of ended courses this duplication will be neglected
             itMapOfCoursesBySemester = _semesterOfCourse.cbegin();
