@@ -1,0 +1,14 @@
+d000016;Nicolo;Caruso;Nicolo.Caruso@comcast.net
+d000001;Federico;;Federico.Bruno@yahoo.co.uk
+d000008;Martina;Ferrari;Martina.Ferrari@rediffmail.com
+d000002;;Giordano;
+d000016;;Conte;Gioele.Conte@gmx.de
+d000015;;Greco;
+d000007;;Gentile;Rebecca.Gentile@yahoo.co.uk
+d000011;Camilla;;Camilla.Bianchi@bol.com.br
+d000011;;Caruso;
+d000016;;;
+s000008;Beatrice;
+d000010;;Conti
+d000006;;Mancini;;
+;Giorgia;;

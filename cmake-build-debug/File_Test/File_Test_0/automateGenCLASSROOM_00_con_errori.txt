@@ -1,0 +1,13 @@
+K;Laib 19I;107;79
+;Aula 5A;281;232
+A;;364;359
+L;Laib 14A;;72
+L;Laib 13C;112;
+L;Aula 11C;61
+A;Laib 12R;269;157;
+A;Aula 11D;396;209;;
+;;;
+L;Led 17I;90;68;ciao
+LLed 10P;346;337
+L;Laib 6I168;153
+A;Aula 14C;125106

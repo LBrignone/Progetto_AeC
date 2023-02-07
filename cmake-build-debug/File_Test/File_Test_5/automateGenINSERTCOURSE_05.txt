@@ -1,0 +1,4 @@
+01AAAAG;2007-2008;non_attivo;;;;
+01AAAAT;2020-2021;attivo;;;;
+01AAABE;2007-2008;non_attivo;;;;
+01AAABN;2007-2008;non_attivo;;;;

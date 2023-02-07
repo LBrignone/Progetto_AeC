@@ -1,0 +1,1 @@
+I file di questa cartella sono stati creati appositamente per verificare la correttezza di identificazione del vincolo 2 e vincolo 3, questi file devono essere inseriti mediante le operazioni do insert o add secondo i metodi messi a disposizione e rispettivamente al nome del file da inserire.

@@ -1,0 +1,9 @@
+s000010;;Conti;
+s000003;;;Gioele.Rizzo@uol.com.br
+s000005;Martina;Martinelli;
+s000010;Giorgia;;
+s000010;Camilla;Conti;Camilla.Conti@sfr.fr
+s000017;Matilde;Bianco;Matilde.Bianco@yahoo.co.uk
+s000006;;Mancini;
+s000005;Leonardo;Greco;Leonardo.Greco@yahoo.co.uk
+s000018;;;Alice.Mancini@yahoo.co.uk

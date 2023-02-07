@@ -1,0 +1,1 @@
+Questa cartella contiene il risultato dei file contenuti nella cartella "File_Test_0", e rappresenta la formazione di un primo database

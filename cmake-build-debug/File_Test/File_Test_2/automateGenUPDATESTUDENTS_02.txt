@@ -1,0 +1,10 @@
+s000003;Chiara;;
+s000010;Tommaso;;
+s000010;Giovanni;Pellegrini;
+s000013;Riccardo;Pellegrini;Riccardo.Pellegrini@mail.ru
+s000019;Enea;Martini;Enea.Martini@libero.it
+s000015;Leonardo;;
+s000004;;Leone;Gioele.Leone@web.de
+s000014;;;Federico.Bernardi@msn.com
+s000014;Luca;Costa;Luca.Costa@yahoo.fr
+s000013;Rebecca;Marchetti;Rebecca.Marchetti@yahoo.fr

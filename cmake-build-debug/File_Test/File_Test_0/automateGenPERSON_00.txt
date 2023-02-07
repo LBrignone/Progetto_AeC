@@ -1,0 +1,10 @@
+Alessia;Testa;Alessia.Testa@wanadoo.fr
+Alessia;Martini;Alessia.Martini@ymail.com
+Francesca;Bianco;Francesca.Bianco@sfr.fr
+Enea;Ferrara;Enea.Ferrara@orange.fr
+Federico;Moretti;Federico.Moretti@libero.it
+Davide;Ferrara;Davide.Ferrara@hotmail.com
+Aurora;Morelli;Aurora.Morelli@hotmail.it
+Enea;Russo;Enea.Russo@libero.it
+Lorenzo;Marini;Lorenzo.Marini@gmail.com
+Antonio;Giordano;Antonio.Giordano@hotmail.fr

@@ -1,0 +1,10 @@
+A012;;Led 9P;;
+A011;L;Aula 5S;238;
+A020;;Aula 7P;;225
+A019;A;Aula 4R;;51
+A010;L;Aula 13B;383;184
+A008;;Led 19A;;
+A003;;Led 4A;200;
+A018;L;Led 16D;;
+A020;;Laib 6A;36;34
+A015;;Led 3C;175;

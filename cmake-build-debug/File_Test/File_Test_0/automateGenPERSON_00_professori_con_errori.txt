@@ -1,0 +1,10 @@
+;Bianchi;Giorgia.Bianchi@hotmail.com
+Tommaso;;Tommaso.Gatti@free.fr
+Bianca;Rossi;
+;;
+Ginevra;Moretti;Ginevra.Moretti@yahoo.fr;
+Gabriel;Mazza;Gabriel.Mazza@uol.com.br;ciao
+Andrea;Ricci;Andrea.Ricci@hotmail.co.uk;;
+Vittoria;Marchetti
+RebeccaGentile;Rebecca.Gentile@outlook.com
+Federico;MarianiFederico.Mariani@hotmail.com

@@ -1,0 +1,10 @@
+d000047;Chiara;;
+d000020;Tommaso;;
+d000040;Giovanni;Pellegrini;
+d000017;Riccardo;Pellegrini;Riccardo.Pellegrini@mail.ru
+d000022;Enea;Martini;Enea.Martini@libero.it
+d000042;Leonardo;;
+d000001;;Leone;Gioele.Leone@web.de
+d000018;;;Federico.Bernardi@msn.com
+d000021;Luca;Costa;Luca.Costa@yahoo.fr
+d000033;Rebecca;Marchetti;Rebecca.Marchetti@yahoo.fr

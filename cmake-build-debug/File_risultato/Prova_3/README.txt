@@ -1,0 +1,5 @@
+PROVA ESEGUITA CON FILE DI DATABASE CONTENUTI NELLA CARTELLA "da_File_Test_2" CON INSERT DEI FILE IN CARTELLA "File_Test_4" GENERATI DAL PYTHON
+Questa prova è stata eseguita per l'AA 2024-2025, anno di programmazione delle sessioni esami.
+
+Questo test è volto a verificare il corretto funzionamento del rilassamento del secondo (2) vincolo, senza andare a intaccare il terzo (3) vincolo per il corso 01AAAAA e il corso 01AAAAB, i quali rispettivamente hanno l'unico professore assegnato con disponibilità per soli 2 giorni consecutivi il primo e per un solo giorno il secondo.
+Un'altra verifica è fatta per il rilassamento del terzo (3) vincolo con il corso 01AAAAC, dove l'unico professore ha disponibilità per un solo giorno e il corso ha un occupazione di slot tale da non permettere il posizionamento a distanza di 6 ore,

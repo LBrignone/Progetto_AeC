@@ -1,0 +1,3 @@
+PROVA ESEGUITA CON FILE DI DATABASE CONTENUTI NELLA CARTELLA "da_File_Test_2"
+Questa prova è stata eseguita senza avere le indisponibilità per i professori per l'AA 2003-2004, anno di programmazione delle sessioni esami.
+Lo scheduling sembra corretto in quanto segnala correttamente i warning per i professori i quali sono occupati per altri esami nella stessa fascia oraria, e segnala correttamente l'indisponibilità delle aule, essendo che un corso non può essere programmato perché sfora la capienza massima, mentre un'altro non può programmare le versioni parallele per mancanza di aule sufficientemente capienti.

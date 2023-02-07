@@ -1,0 +1,10 @@
+;Galli;Martina.Galli@gmail.com
+Ludovica;;Ludovica.Bianco@hotmail.fr
+Gioele;Pellegrini;
+;;
+Nicolo;Mariani;Nicolo.Mariani@web.de;
+Gabriele;Mancini;Gabriele.Mancini@sfr.fr;ciao
+Diego;Conti;Diego.Conti@yahoo.com.br;;
+Francesco;Martinelli
+MattiaRusso;Mattia.Russo@libero.it
+Giovanni;RussoGiovanni.Russo@libero.it

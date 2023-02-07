@@ -1,0 +1,3 @@
+I file di questa cartella sono mirati a creare una prima base dati testando il corretto riconoscimento di alcuni degli errori che il progetto è in grado di rilevare.
+I diversi file hanno sono presenti in duplice copia, la prima contiene una serie di linee corrette, da cui il sistema può ricavare direttamente i file di database. I secondi invece contengono degli errori, come specificato dal nome, per cui si renderà necessario per la corretta formazione dei file di database, la correzione degli errori indicati.
+Per il file di test dei corsi, con errori, il test è stato fatto "solo" su un tipo di corso, che non è presente nell'elenco dei corsi generati con il file "normale"
