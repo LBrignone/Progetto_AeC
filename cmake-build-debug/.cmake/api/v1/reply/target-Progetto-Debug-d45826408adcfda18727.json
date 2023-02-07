@@ -69,9 +69,8 @@
 				14,
 				15,
 				16,
-				17,
-				19,
-				20
+				18,
+				19
 			]
 		}
 	],
@@ -121,16 +120,15 @@
 				14,
 				15,
 				16,
-				17,
-				19,
-				20
+				18,
+				19
 			]
 		},
 		{
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				18
+				17
 			]
 		}
 	],
@@ -236,12 +234,6 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "ErrorHandling.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"compileGroupIndex" : 0,
-			"path" : "SchedulingChecks.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{

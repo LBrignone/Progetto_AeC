@@ -2050,45 +2050,24 @@ int ExamSessionInputFile(string& errorHandling, const string& examSessionStringF
                     }
                     catch (const invalid_argument& excepFromStoi) {
                         errorIdentifier = ERR_date_field_conversion;
+                        if (isFileInput) {
+                            cerr << "Error: file: " + examSessionStringFileName + " row: " + to_string(row + 1) +
+                                            " incorrect year impossible to convert year field to int: " + dateField;
+                        } else {
+                            cerr << "Error: incorrect year impossible to convert year field to int: " + dateField;
+                        }
                     }
                     switch (dateFieldCount) {
                         case 0: {
-                            if (errorIdentifier == OK) {
-                                dummyExamDate.setYear(pattern);
-                            } else {
-                                if (isFileInput) {
-                                    errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row + 1) +
-                                                    " incorrect year impossible to convert year field to int: " + dateField;
-                                } else {
-                                    errorHandling = "Error: incorrect year impossible to convert year field to int: " + dateField;
-                                }
-                            }
+                            dummyExamDate.setYear(pattern);
                             break;
                         }
                         case 1: {
-                            if (errorIdentifier == OK) {
-                                dummyExamDate.setMonth(pattern);
-                            } else {
-                                if (isFileInput) {
-                                    errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row + 1) +
-                                                    " incorrect months impossible to convert month field to int: " + dateField;
-                                } else {
-                                    errorHandling = "Error: incorrect months impossible to convert month field to int: " + dateField;
-                                }
-                            }
+                            dummyExamDate.setMonth(pattern);
                             break;
                         }
                         case 2: {
-                            if (errorIdentifier == OK) {
-                                dummyExamDate.setDay(pattern);
-                            } else {
-                                if (isFileInput) {
-                                    errorHandling = "Error: file: " + examSessionStringFileName + " row: " + to_string(row + 1) +
-                                                    " incorrect months impossible to convert day field to int: " + dateField;
-                                } else {
-                                    errorHandling = "Error: incorrect day impossible to convert day field to int: " + dateField;
-                                }
-                            }
+                            dummyExamDate.setDay(pattern);
                             break;
                         }
                         default: {
